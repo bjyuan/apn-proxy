@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>net.love5z</groupId>
+	<groupId>com.xx-dev</groupId>
 	<artifactId>apn-proxy</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -16,9 +16,9 @@
 
 	<repositories>
 		<repository>
-			<id>mvn.love5z.net</id>
-			<name>mvn.love5z.net repository</name>
-			<url>http://mvn.love5z.net/content/groups/public</url>
+			<id>mvn.xx-dev.com</id>
+			<name>mvn.xx-dev.com repository</name>
+			<url>http://mvn.xx-dev.com/content/groups/public</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -27,9 +27,9 @@
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>mvn.love5z.net</id>
-			<name>mvn.love5z.net repository</name>
-			<url>http://mvn.love5z.net/content/groups/public</url>
+			<id>mvn.xx-dev.com</id>
+			<name>mvn.xx-dev.com repository</name>
+			<url>http://mvn.xx-dev.com/content/groups/public</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -38,12 +38,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>mvn.love5z.net.release</id>
-			<url>http://mvn.love5z.net/content/repositories/releases/</url>
+			<id>mvn.xx-dev.com.release</id>
+			<url>http://mvn.xx-dev.com/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
-			<id>mvn.love5z.net.snapshots</id>
-			<url>http://mvn.love5z.net/content/repositories/snapshots/</url>
+			<id>mvn.xx-dev.com.snapshots</id>
+			<url>http://mvn.xx-dev.com/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -178,6 +178,19 @@
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-core</artifactId>
 			<version>2.6.0</version>
+		</dependency>
+		
+		<!-- sub projects -->
+		<dependency>
+			<groupId>com.xx-dev</groupId>
+			<artifactId>apn-proxy-inside-server</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.xx-dev</groupId>
+			<artifactId>apn-proxy-outside-server</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		
 	</dependencies>
