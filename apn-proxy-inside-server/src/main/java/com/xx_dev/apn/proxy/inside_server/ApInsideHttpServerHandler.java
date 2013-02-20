@@ -11,6 +11,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -55,6 +56,14 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
             // UA request connect method
         } else {
             // proxy the request to the original server
+
+            httpRequest.headers().remove("Proxy-Connection");
+            String uri = httpRequest.getUri();
+            if (StringUtils.startsWith(uri, "http")) {
+                int idx = StringUtils.indexOf(uri, "/", 7);
+                httpRequest.setUri(idx == -1 ? "/" : StringUtils.substring(uri, idx));
+            }
+
             Bootstrap proxyClientBootstrap = new Bootstrap();
 
             proxyClientBootstrap.group(inboundChannel.eventLoop()).channel(NioSocketChannel.class)
