@@ -57,8 +57,8 @@
 		
 		<dependency>
 			<groupId>io.netty</groupId>
-			<artifactId>netty</artifactId>
-			<version>3.6.1.Final</version>
+			<artifactId>netty-all</artifactId>
+			<version>4.0.0.Beta1</version>
 		</dependency>
 		
 		<!-- apache-commons -->
@@ -136,20 +136,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
-		<!-- http client -->
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.2.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
-			<version>4.2.1</version>
-		</dependency>
-		<!-- http client end -->
 
 		<!-- json -->
 		<dependency>
