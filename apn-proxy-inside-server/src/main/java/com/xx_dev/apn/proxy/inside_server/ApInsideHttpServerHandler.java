@@ -1,15 +1,15 @@
 package com.xx_dev.apn.proxy.inside_server;
 
-import io.netty.buffer.Unpooled;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.util.CharsetUtil;
 
 import org.apache.log4j.Logger;
 
@@ -22,21 +22,60 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
     private static Logger logger = Logger.getLogger(ApInsideHttpServerHandler.class);
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, HttpRequest msg) throws Exception {
+    protected void messageReceived(ChannelHandlerContext ctx, HttpRequest httpRequest)
+                                                                                      throws Exception {
+
         if (logger.isInfoEnabled()) {
-            logger.info(msg);
+            logger.info(httpRequest.getMethod() + " " + httpRequest.getUri());
         }
 
-        StringBuilder buf = new StringBuilder();
-        buf.append("test");
+        // send the request to remote server
 
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-            HttpResponseStatus.OK, Unpooled.copiedBuffer(buf.toString(), CharsetUtil.UTF_8));
-        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/plain; charset=UTF-8");
-        response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, response.data().readableBytes());
-        response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-
-        ctx.write(response);
+        // proxy request directlly
+        proxyRequestDirectlly(ctx, httpRequest);
 
     }
+
+    private void proxyRequestDirectlly(final ChannelHandlerContext ctx,
+                                       final HttpRequest httpRequest) {
+        final Channel inboundChannel = ctx.channel();
+
+        String addr = httpRequest.headers().get(HttpHeaders.Names.HOST);
+
+        String[] ss = addr.split(":");
+
+        String host = ss[0];
+        int port = 80;
+
+        if (ss.length == 2) {
+            port = Integer.parseInt(ss[1]);
+        }
+
+        if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
+            // UA request connect method
+        } else {
+            // proxy the request to the original server
+            Bootstrap proxyClientBootstrap = new Bootstrap();
+
+            proxyClientBootstrap.group(inboundChannel.eventLoop()).channel(NioSocketChannel.class)
+                .remoteAddress(host, port).handler(new ApProxyClientInitializer(inboundChannel));
+
+            final ChannelFuture f = proxyClientBootstrap.connect();
+
+            f.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (future.isSuccess()) {
+                        f.channel().write(httpRequest);
+                    } else {
+                        if (ctx.channel().isActive()) {
+                            ctx.channel().flush().addListener(ChannelFutureListener.CLOSE);
+                        }
+                    }
+                }
+            });
+
+        }
+    }
+
 }
