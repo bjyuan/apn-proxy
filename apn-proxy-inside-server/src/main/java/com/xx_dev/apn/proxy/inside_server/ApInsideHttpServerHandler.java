@@ -7,9 +7,14 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.example.socksproxy.RelayHandler;
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -46,7 +51,7 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
         String[] ss = addr.split(":");
 
         String host = ss[0];
-        int port = 80;
+        int port = -1;
 
         if (ss.length == 2) {
             port = Integer.parseInt(ss[1]);
@@ -54,8 +59,57 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
 
         if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
             // UA request connect method
+            if (port == -1) {
+                port = 443;
+            }
+
+            // connect to the original server
+            Bootstrap proxyClientBootstrap = new Bootstrap();
+
+            proxyClientBootstrap.group(inboundChannel.eventLoop()).channel(NioSocketChannel.class)
+                .remoteAddress(host, port).handler(new ApProxyClientInitializer(inboundChannel));
+
+            final ChannelFuture f = proxyClientBootstrap.connect();
+
+            f.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (future.isSuccess()) {
+                        // successfully connect to the original server 
+                        // send connect success msg to UA
+                        HttpResponse proxyConnectSuccessResponse = new DefaultHttpResponse(
+                            HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
+                                "Connection established"));
+                        ChannelFuture future2 = ctx.write(proxyConnectSuccessResponse);
+
+                        future2.addListener(new ChannelFutureListener() {
+
+                            @Override
+                            public void operationComplete(ChannelFuture future) throws Exception {
+                                // remove handlers
+                                ctx.pipeline().remove("decoder");
+                                ctx.pipeline().remove("encoder");
+                                ctx.pipeline().remove("handler");
+
+                                // add replay handler
+                                ctx.pipeline().addLast(new RelayHandler(f.channel()));
+                            }
+
+                        });
+
+                    } else {
+                        if (ctx.channel().isActive()) {
+                            ctx.channel().flush().addListener(ChannelFutureListener.CLOSE);
+                        }
+                    }
+                }
+            });
         } else {
             // proxy the request to the original server
+
+            if (port == -1) {
+                port = 80;
+            }
 
             httpRequest.headers().remove("Proxy-Connection");
             String uri = httpRequest.getUri();
