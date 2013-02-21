@@ -7,7 +7,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.example.socksproxy.RelayHandler;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
@@ -77,6 +76,8 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
                     if (future.isSuccess()) {
                         // successfully connect to the original server 
                         // send connect success msg to UA
+                        final Channel outboundChannel = future.channel();
+
                         HttpResponse proxyConnectSuccessResponse = new DefaultHttpResponse(
                             HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
                                 "Connection established"));
@@ -91,8 +92,12 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
                                 ctx.pipeline().remove("encoder");
                                 ctx.pipeline().remove("handler");
 
-                                // add replay handler
-                                ctx.pipeline().addLast(new RelayHandler(f.channel()));
+                                // add relay handler
+                                ctx.pipeline()
+                                    .addLast(
+                                        new ApRelayHandler(
+                                            "relay ua inbound channel to original server outbound channel",
+                                            outboundChannel));
                             }
 
                         });

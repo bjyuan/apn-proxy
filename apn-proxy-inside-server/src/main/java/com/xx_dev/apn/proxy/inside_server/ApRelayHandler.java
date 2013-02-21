@@ -2,9 +2,9 @@ package com.xx_dev.apn.proxy.inside_server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundByteHandlerAdapter;
+import io.netty.example.socksproxy.SocksServerUtils;
 
 import org.apache.log4j.Logger;
 
@@ -15,40 +15,38 @@ import org.apache.log4j.Logger;
  */
 public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
 
-    private static Logger logger = Logger.getLogger(ApRelayHandler.class);
+    private static Logger       logger = Logger.getLogger(ApRelayHandler.class);
 
-    private Channel       relayChannel;
+    private static final String name   = "RELAY_HANDLER";
 
-    public ApRelayHandler() {
+    public static String getName() {
+        return name;
     }
 
-    public ApRelayHandler(Channel relayChannel) {
+    private final Channel relayChannel;
+    private final String  tag;
+
+    public ApRelayHandler(String tag, Channel relayChannel) {
+        this.tag = tag;
         this.relayChannel = relayChannel;
-    }
-
-    public void setRelayChannel(Channel relayChannel) {
-        this.relayChannel = relayChannel;
-    }
-
-    public Channel getRelayChannel() {
-        return relayChannel;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        if (logger.isInfoEnabled()) {
+            logger.info(tag + " channel active");
+        }
         ctx.flush();
     }
 
     @Override
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        if (relayChannel == null) {
-            throw new IllegalStateException("The relay channel has not been initialized");
+        if (logger.isInfoEnabled()) {
+            logger.info(tag + ", size: " + in.readableBytes());
         }
 
         ByteBuf out = relayChannel.outboundByteBuffer();
-        out.discardReadBytes();
         out.writeBytes(in);
-        in.clear();
         if (relayChannel.isActive()) {
             relayChannel.flush();
         }
@@ -56,14 +54,18 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (relayChannel != null && relayChannel.isActive()) {
-            relayChannel.flush().addListener(ChannelFutureListener.CLOSE);
+        if (logger.isInfoEnabled()) {
+            logger.info(tag + " channel inactive");
+        }
+        if (relayChannel.isActive()) {
+            SocksServerUtils.closeOnFlush(relayChannel);
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error(cause.getMessage(), cause);
+        logger.error(tag, cause);
         ctx.close();
     }
+
 }

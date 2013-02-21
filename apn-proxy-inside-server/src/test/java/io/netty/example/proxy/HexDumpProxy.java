@@ -21,9 +21,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 public class HexDumpProxy {
 
-    private final int localPort;
+    private final int    localPort;
     private final String remoteHost;
-    private final int remotePort;
+    private final int    remotePort;
 
     public HexDumpProxy(int localPort, String remoteHost, int remotePort) {
         this.localPort = localPort;
@@ -32,16 +32,15 @@ public class HexDumpProxy {
     }
 
     public void run() throws Exception {
-        System.err.println(
-                "Proxying *:" + localPort + " to " +
-                remoteHost + ':' + remotePort + " ...");
+        System.err.println("Proxying *:" + localPort + " to " + remoteHost + ':' + remotePort
+                           + " ...");
 
         // Configure the bootstrap.
         ServerBootstrap b = new ServerBootstrap();
         try {
             b.group(new NioEventLoopGroup(), new NioEventLoopGroup())
-             .channel(NioServerSocketChannel.class)
-             .childHandler(new HexDumpProxyInitializer(remoteHost, remotePort));
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new HexDumpProxyInitializer(remoteHost, remotePort));
 
             b.bind(localPort).sync().channel().closeFuture().sync();
         } finally {
@@ -51,17 +50,17 @@ public class HexDumpProxy {
 
     public static void main(String[] args) throws Exception {
         // Validate command line options.
-        if (args.length != 3) {
-            System.err.println(
-                    "Usage: " + HexDumpProxy.class.getSimpleName() +
-                    " <local port> <remote host> <remote port>");
-            return;
-        }
+        //        if (args.length != 3) {
+        //            System.err.println(
+        //                    "Usage: " + HexDumpProxy.class.getSimpleName() +
+        //                    " <local port> <remote host> <remote port>");
+        //            return;
+        //        }
 
         // Parse command line options.
-        int localPort = Integer.parseInt(args[0]);
-        String remoteHost = args[1];
-        int remotePort = Integer.parseInt(args[2]);
+        int localPort = 8700;
+        String remoteHost = "www.baidu.com";
+        int remotePort = 80;
 
         new HexDumpProxy(localPort, remoteHost, remotePort).run();
     }

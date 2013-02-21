@@ -3,7 +3,6 @@ package com.xx_dev.apn.proxy.inside_server;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.example.socksproxy.RelayHandler;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 
 /**
@@ -22,7 +21,10 @@ public class ApProxyClientInitializer extends ChannelInitializer<SocketChannel> 
     @Override
     public void initChannel(SocketChannel channel) throws Exception {
 
-        channel.pipeline().addLast("encoder", new HttpRequestEncoder()); // out, message => byte
-        channel.pipeline().addLast("relay", new RelayHandler(localChannel)); // in, byte => byte
+        channel.pipeline().addLast("encoder", new HttpRequestEncoder());
+        channel.pipeline().addLast(
+            "relay",
+            new ApRelayHandler("relay orginal server outband channel to ua inband channel",
+                localChannel));
     }
 }
