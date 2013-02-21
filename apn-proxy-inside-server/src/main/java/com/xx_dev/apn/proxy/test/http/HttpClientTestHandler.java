@@ -12,9 +12,13 @@ public class HttpClientTestHandler extends ChannelInboundMessageHandlerAdapter<H
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, HttpResponse msg) throws Exception {
-
         logger.info(msg);
+    }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        logger.info("in active");
+        super.channelInactive(ctx);
     }
 
 }
