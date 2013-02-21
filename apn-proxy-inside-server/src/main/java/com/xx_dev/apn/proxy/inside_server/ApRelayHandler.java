@@ -2,9 +2,9 @@ package com.xx_dev.apn.proxy.inside_server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundByteHandlerAdapter;
-import io.netty.example.socksproxy.SocksServerUtils;
 
 import org.apache.log4j.Logger;
 
@@ -57,8 +57,8 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
         if (logger.isInfoEnabled()) {
             logger.info(tag + " channel inactive");
         }
-        if (relayChannel.isActive()) {
-            SocksServerUtils.closeOnFlush(relayChannel);
+        if (relayChannel != null && relayChannel.isActive()) {
+            relayChannel.flush().addListener(ChannelFutureListener.CLOSE);
         }
     }
 
