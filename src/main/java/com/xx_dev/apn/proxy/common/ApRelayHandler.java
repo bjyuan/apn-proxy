@@ -1,4 +1,4 @@
-package com.xx_dev.apn.proxy.inside_server;
+package com.xx_dev.apn.proxy.common;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;

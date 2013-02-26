@@ -1,4 +1,4 @@
-package com.xx_dev.apn.proxy.inside_server;
+package com.xx_dev.apn.proxy.inside;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -8,11 +8,11 @@ import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: Launcher.java,v 0.1 Feb 11, 2013 11:07:34 PM xmx Exp $
+ * @version $Id: ApInsideLauncher.java,v 0.1 Feb 11, 2013 11:07:34 PM xmx Exp $
  */
-public class Launcher {
+public class ApInsideLauncher {
 
-    private static Logger logger = Logger.getLogger(Launcher.class);
+    private static Logger logger = Logger.getLogger(ApInsideLauncher.class);
 
     public static void main(String[] args) {
 

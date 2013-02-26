@@ -1,4 +1,4 @@
-package com.xx_dev.apn.proxy.inside_server;
+package com.xx_dev.apn.proxy.inside;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -27,7 +27,7 @@ public class ApInsideChannelInitializer extends ChannelInitializer<SocketChannel
         pipeline.addLast("encoder", new HttpResponseEncoder());
         //pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
 
-        pipeline.addLast("handler", new ApInsideHttpServerHandler());
+        pipeline.addLast("handler", new ApInsideHandler());
 
     }
 
