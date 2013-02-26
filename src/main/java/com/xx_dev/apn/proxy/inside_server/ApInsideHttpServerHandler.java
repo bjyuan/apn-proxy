@@ -6,6 +6,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -31,7 +32,7 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
                                                                                       throws Exception {
 
         if (logger.isInfoEnabled()) {
-            logger.info(httpRequest.getMethod() + " " + httpRequest.getUri());
+            logger.info(httpRequest);
         }
 
         // send the request to remote server
@@ -65,7 +66,7 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
             // connect to the original server
             Bootstrap proxyClientBootstrap = new Bootstrap();
 
-            proxyClientBootstrap.group(inboundChannel.eventLoop()).channel(NioSocketChannel.class)
+            proxyClientBootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
                 .remoteAddress(host, port).handler(new ApProxyClientInitializer(inboundChannel));
 
             final ChannelFuture f = proxyClientBootstrap.connect();
@@ -90,6 +91,7 @@ public class ApInsideHttpServerHandler extends ChannelInboundMessageHandlerAdapt
                                 // remove handlers
                                 ctx.pipeline().remove("decoder");
                                 ctx.pipeline().remove("encoder");
+                                ctx.pipeline().remove("aggregator");
                                 ctx.pipeline().remove("handler");
 
                                 // add relay handler

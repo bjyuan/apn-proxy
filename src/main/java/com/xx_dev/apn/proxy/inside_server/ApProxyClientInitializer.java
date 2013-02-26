@@ -22,6 +22,7 @@ public class ApProxyClientInitializer extends ChannelInitializer<SocketChannel> 
     public void initChannel(SocketChannel channel) throws Exception {
 
         channel.pipeline().addLast("encoder", new HttpRequestEncoder());
+        //channel.pipeline().addLast("aggregator", new HttpObjectAggregator(65536));
         channel.pipeline().addLast(
             "relay",
             new ApRelayHandler("relay orginal server outband channel to ua inband channel",

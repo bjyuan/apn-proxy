@@ -23,7 +23,7 @@ public class ApInsideChannelInitializer extends ChannelInitializer<SocketChannel
         //pipeline.addLast("ssl", new SslHandler(engine));
 
         pipeline.addLast("decoder", new HttpRequestDecoder());
-        //pipeline.addLast("aggregator", new HttpChunkAggregator(65536));
+        //pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
         pipeline.addLast("encoder", new HttpResponseEncoder());
         //pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
 
