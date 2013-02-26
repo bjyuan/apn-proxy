@@ -2,10 +2,6 @@ package com.xx_dev.apn.proxy.common;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpResponse;
-
-import java.nio.charset.Charset;
 
 import org.apache.log4j.Logger;
 
@@ -27,17 +23,9 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof HttpResponse) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Received a http response: " + msg);
-            }
-        }
 
-        if (msg instanceof HttpContent) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Received a http response content: "
-                            + ((HttpContent) msg).data().toString(Charset.forName("UTF-8")));
-            }
+        if (logger.isInfoEnabled()) {
+            logger.info("Received a http response: " + msg);
         }
 
         cb.onReciveMessage(msg);
@@ -46,8 +34,11 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("proxy channel inactive");
+        if (logger.isInfoEnabled()) {
+            logger.info("proxy channel inactive");
+        }
         super.channelInactive(ctx);
+
     }
 
     @Override

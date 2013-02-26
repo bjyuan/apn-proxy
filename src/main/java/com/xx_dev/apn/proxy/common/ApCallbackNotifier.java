@@ -22,4 +22,5 @@ public interface ApCallbackNotifier {
 
     //void onFailure(ChannelHandlerContext outboundCtx, Throwable cause);
     void onReciveMessage(Object obj);
+
 }

@@ -1,14 +1,18 @@
 package com.xx_dev.apn.proxy.inside;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.AttributeKey;
+import io.netty.util.CharsetUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -86,6 +90,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             Bootstrap proxyClientBootstrap = new Bootstrap();
 
             ApCallbackNotifier cb = new ApCallbackNotifier() {
+
                 @Override
                 public void onConnectSuccess(final ChannelHandlerContext outboundCtx) {
                     outbandChannelMap.put(addr, outboundCtx.channel());
@@ -94,7 +99,43 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                 @Override
                 public void onReciveMessage(Object obj) {
-                    inboundChannel.write(obj);
+                    if (logger.isInfoEnabled()) {
+                        logger.info("callback recive msg: " + obj);
+                    }
+
+                    if (obj instanceof HttpResponse) {
+                        HttpResponse _httpResponse = (HttpResponse) obj;
+
+                        StringBuilder buf = new StringBuilder();
+
+                        String[] list = StringUtils.split(_httpResponse.toString(), "\r\n");
+                        for (int i = 1; i < list.length; i++) {
+                            if (StringUtils.startsWithIgnoreCase(list[i], "Connection")) {
+                                continue;
+                            }
+                            buf.append(list[i]).append("\r\n");
+                        }
+                        buf.append("Proxy-Connection: keep-alive").append("\r\n");
+
+                        buf.append("\r\n");
+
+                        inboundChannel.write(Unpooled.copiedBuffer(buf.toString(),
+                            CharsetUtil.UTF_8));
+
+                        //                        HttpResponse _proxyResponse = (HttpResponse) obj;
+                        //                        proxyResponse = new DefaultFullHttpResponse(
+                        //                            _proxyResponse.getProtocolVersion(), _proxyResponse.getStatus());
+                        //                        proxyResponse.headers().remove(HttpHeaders.Names.CONNECTION);
+                        //                        proxyResponse.headers().add("Proxy-Connection",
+                        //                            HttpHeaders.Values.KEEP_ALIVE);
+                        //                        proxyResponse.headers().add(HttpHeaders.Names.CONNECTION,
+                        //                            HttpHeaders.Values.KEEP_ALIVE);
+                    }
+
+                    if (obj instanceof HttpContent) {
+                        HttpContent _httpContent = (HttpContent) obj;
+                        inboundChannel.write(_httpContent.data());
+                    }
                 }
 
             };
@@ -109,6 +150,14 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             outbandChannel.write(msg);
         }
 
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (logger.isInfoEnabled()) {
+            logger.info("user agent channel inactive");
+        }
+        super.channelInactive(ctx);
     }
 
     @Override
