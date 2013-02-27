@@ -1,6 +1,7 @@
 package com.xx_dev.apn.proxy.inside;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -91,6 +92,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
             ApCallbackNotifier cb = new ApCallbackNotifier() {
 
+                private boolean isChunked = false;
+
                 @Override
                 public void onConnectSuccess(final ChannelHandlerContext outboundCtx) {
                     outbandChannelMap.put(addr, outboundCtx.channel());
@@ -105,6 +108,11 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                     if (obj instanceof HttpResponse) {
                         HttpResponse _httpResponse = (HttpResponse) obj;
+                        if (StringUtils.equalsIgnoreCase(
+                            _httpResponse.headers().get(HttpHeaders.Names.TRANSFER_ENCODING),
+                            HttpHeaders.Values.CHUNKED)) {
+                            isChunked = true;
+                        }
 
                         StringBuilder buf = new StringBuilder();
 
@@ -134,7 +142,22 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                     if (obj instanceof HttpContent) {
                         HttpContent _httpContent = (HttpContent) obj;
-                        inboundChannel.write(_httpContent.data());
+
+                        ByteBuf buf = Unpooled.buffer();
+                        if (isChunked) {
+                            int chunkSize = _httpContent.data().readableBytes();
+                            buf.writeBytes(Unpooled.copiedBuffer(Integer.toHexString(chunkSize),
+                                CharsetUtil.UTF_8));
+                            buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                        }
+
+                        buf.writeBytes(_httpContent.data());
+
+                        if (isChunked) {
+                            buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                        }
+
+                        inboundChannel.write(buf);
                     }
                 }
 
