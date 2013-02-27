@@ -7,11 +7,11 @@ import org.apache.log4j.Logger;
 
 public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger            logger = Logger.getLogger(ApHttpProxyHandler.class);
+    private static Logger         logger = Logger.getLogger(ApHttpProxyHandler.class);
 
-    private final ApCallbackNotifier cb;
+    private final ApProxyCallback cb;
 
-    public ApHttpProxyHandler(ApCallbackNotifier cb) {
+    public ApHttpProxyHandler(ApProxyCallback cb) {
         this.cb = cb;
     }
 
@@ -24,8 +24,8 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Received a http response: " + msg);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Received a http response: " + msg);
         }
 
         cb.onReciveMessage(msg);
@@ -34,8 +34,8 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info("proxy channel inactive");
+        if (logger.isDebugEnabled()) {
+            logger.debug("proxy channel inactive");
         }
         cb.onConnectClose();
         super.channelInactive(ctx);

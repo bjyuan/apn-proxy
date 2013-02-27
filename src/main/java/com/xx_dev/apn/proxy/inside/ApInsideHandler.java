@@ -23,8 +23,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.proxy.common.ApCallbackNotifier;
 import com.xx_dev.apn.proxy.common.ApHttpProxyChannelInitializer;
+import com.xx_dev.apn.proxy.common.ApProxyCallback;
 
 /**
  * @author xmx
@@ -43,10 +43,6 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        if (logger.isInfoEnabled()) {
-            logger.info(msg);
-        }
-
         // send the request to remote server
 
         // proxy request directlly
@@ -56,18 +52,26 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
     private void proxyRequestDirectlly(final ChannelHandlerContext ctx, final Object msg)
                                                                                          throws Exception {
-        final Channel inboundChannel = ctx.channel();
+        final Channel uaChannel = ctx.channel();
 
         if (msg instanceof HttpRequest) {
             final HttpRequest httpRequest = (HttpRequest) msg;
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(httpRequest);
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.info("Request: " + httpRequest.getUri());
+            }
 
             remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
             isRequestChunked = HttpHeaders.isTransferEncodingChunked(httpRequest);
 
             if (outbandChannelMap.get(remoteAddr) != null
                 && outbandChannelMap.get(remoteAddr).isActive()) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("use old channel for: " + httpRequest.getUri());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("use old channel for: " + httpRequest.getUri());
                 }
                 outbandChannelMap.get(remoteAddr)
                     .write(
@@ -76,12 +80,15 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             } else {
                 Bootstrap proxyClientBootstrap = new Bootstrap();
 
-                ApCallbackNotifier cb = new ApCallbackNotifier() {
+                ApProxyCallback cb = new ApProxyCallback() {
 
                     private boolean isResponseChunked = false;
 
                     @Override
                     public void onConnectSuccess(final ChannelHandlerContext outboundCtx) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("onConnectSuccess: " + remoteAddr);
+                        }
                         outbandChannelMap.put(remoteAddr, outboundCtx.channel());
 
                         outboundCtx.write(Unpooled.copiedBuffer(
@@ -90,8 +97,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                     @Override
                     public void onReciveMessage(Object obj) {
-                        if (logger.isInfoEnabled()) {
-                            logger.info("callback recive msg: " + obj);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("onReciveMessage: " + obj + ", for: " + remoteAddr);
                         }
 
                         if (obj instanceof HttpResponse) {
@@ -115,8 +122,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                             buf.append("\r\n");
 
-                            inboundChannel.write(Unpooled.copiedBuffer(buf.toString(),
-                                CharsetUtil.UTF_8));
+                            uaChannel
+                                .write(Unpooled.copiedBuffer(buf.toString(), CharsetUtil.UTF_8));
                         }
 
                         if (obj instanceof HttpContent) {
@@ -136,14 +143,14 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                                 buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
                             }
 
-                            inboundChannel.write(buf);
+                            uaChannel.write(buf);
                         }
                     }
 
                     @Override
                     public void onConnectClose() {
-                        if (logger.isInfoEnabled()) {
-                            logger.info("remote channel closed cause ua channel close");
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("onConnectClose: " + remoteAddr);
                         }
                         ctx.flush().addListener(new ChannelFutureListener() {
                             @Override
@@ -165,31 +172,34 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                 proxyClientBootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
                     .remoteAddress(host, port).handler(new ApHttpProxyChannelInitializer(cb));
-                proxyClientBootstrap.connect(host, port);
+                proxyClientBootstrap.connect(host, port).await();
             }
 
         } else {
             HttpContent _httpContent = (HttpContent) msg;
 
-            if (logger.isInfoEnabled()) {
-                logger.info(_httpContent + ", size=" + _httpContent.data().readableBytes());
+            if (logger.isDebugEnabled()) {
+                logger.debug(_httpContent + ", size=" + _httpContent.data().readableBytes());
             }
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 1000; i++) {
                 if (outbandChannelMap.get(remoteAddr) == null) {
-                    Thread.sleep(1000);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("cannot get outbandChannel for: " + remoteAddr);
+                    }
+                    Thread.sleep(10);
                 } else {
                     break;
                 }
             }
 
-            if (logger.isInfoEnabled()) {
-                logger.info("got outbandChannel!");
+            if (logger.isDebugEnabled()) {
+                logger.debug("got outbandChannel for: " + remoteAddr);
             }
 
-            Channel outbandChannel = outbandChannelMap.get(remoteAddr);
+            Channel remoteChannel = outbandChannelMap.get(remoteAddr);
 
-            if (outbandChannel != null && outbandChannel.isActive()) {
+            if (remoteChannel != null && remoteChannel.isActive()) {
                 ByteBuf buf = Unpooled.buffer();
                 if (isRequestChunked) {
                     int chunkSize = _httpContent.data().readableBytes();
@@ -204,10 +214,14 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                     buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
                 }
 
-                outbandChannel.write(buf);
+                remoteChannel.write(buf);
             } else {
-                logger.warn("outbandChannel is " + outbandChannel + ", active="
-                            + outbandChannel.isActive());
+                logger.warn("remoteChannel is " + remoteChannel + ", active="
+                            + remoteChannel.isActive());
+                if (remoteChannel != null) {
+                    logger.warn("remoteChannel active=" + remoteChannel.isActive());
+                }
+
             }
         }
 
@@ -215,8 +229,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info("user agent channel inactive");
+        if (logger.isDebugEnabled()) {
+            logger.debug("user agent channel inactive");
         }
 
         for (Map.Entry<String, Channel> entry : outbandChannelMap.entrySet()) {
@@ -260,8 +274,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
         sb.append("\r\n");
 
-        if (logger.isInfoEnabled()) {
-            logger.info(sb.toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug(sb.toString());
         }
 
         return sb.toString();

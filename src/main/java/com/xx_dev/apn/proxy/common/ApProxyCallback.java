@@ -17,7 +17,7 @@ package com.xx_dev.apn.proxy.common;
 
 import io.netty.channel.ChannelHandlerContext;
 
-public interface ApCallbackNotifier {
+public interface ApProxyCallback {
     void onConnectSuccess(ChannelHandlerContext outboundCtx);
 
     //void onFailure(ChannelHandlerContext outboundCtx, Throwable cause);
