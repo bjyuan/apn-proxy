@@ -37,8 +37,8 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
         if (logger.isInfoEnabled()) {
             logger.info("proxy channel inactive");
         }
+        cb.onConnectClose();
         super.channelInactive(ctx);
-
     }
 
     @Override

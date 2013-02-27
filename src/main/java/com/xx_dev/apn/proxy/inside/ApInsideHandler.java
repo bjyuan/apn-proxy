@@ -6,17 +6,17 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -30,13 +30,13 @@ import com.xx_dev.apn.proxy.common.ApHttpProxyChannelInitializer;
  */
 public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger                     logger                    = Logger
-                                                                            .getLogger(ApInsideHandler.class);
+    private static Logger              logger            = Logger.getLogger(ApInsideHandler.class);
 
-    private final Map<String, Channel>        outbandChannelMap         = new HashMap<String, Channel>();
+    private final Map<String, Channel> outbandChannelMap = new HashMap<String, Channel>();
 
-    private final static AttributeKey<String> REMOTE_ADDR_ATTRIBUTE_KEY = new AttributeKey<String>(
-                                                                            "remote_addr");
+    private String                     remoteAddr;
+
+    private boolean                    isRequestChunked  = false;
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -59,118 +59,141 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
         if (msg instanceof HttpRequest) {
             final HttpRequest httpRequest = (HttpRequest) msg;
 
-            final String addr = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            ctx.attr(REMOTE_ADDR_ATTRIBUTE_KEY).remove();
-            ctx.attr(REMOTE_ADDR_ATTRIBUTE_KEY).set(addr);
+            remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            isRequestChunked = HttpHeaders.isTransferEncodingChunked(httpRequest);
 
-            String[] ss = addr.split(":");
-
-            String host = ss[0];
-            int port = -1;
-
-            if (ss.length == 2) {
-                port = Integer.parseInt(ss[1]);
-            }
-
-            // proxy the request to the original server
-
-            if (port == -1) {
-                port = 80;
-            }
-
-            httpRequest.headers().remove("Proxy-Connection");
-            httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
-            httpRequest.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
-
-            String uri = httpRequest.getUri();
-            if (StringUtils.startsWith(uri, "http")) {
-                int idx = StringUtils.indexOf(uri, "/", 7);
-                httpRequest.setUri(idx == -1 ? "/" : StringUtils.substring(uri, idx));
-            }
-
-            Bootstrap proxyClientBootstrap = new Bootstrap();
-
-            ApCallbackNotifier cb = new ApCallbackNotifier() {
-
-                private boolean isChunked = false;
-
-                @Override
-                public void onConnectSuccess(final ChannelHandlerContext outboundCtx) {
-                    outbandChannelMap.put(addr, outboundCtx.channel());
-                    outboundCtx.write(httpRequest);
+            if (outbandChannelMap.get(remoteAddr) != null
+                && outbandChannelMap.get(remoteAddr).isActive()) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("use old channel for: " + httpRequest.getUri());
                 }
-
-                @Override
-                public void onReciveMessage(Object obj) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("callback recive msg: " + obj);
-                    }
-
-                    if (obj instanceof HttpResponse) {
-                        HttpResponse _httpResponse = (HttpResponse) obj;
-                        if (StringUtils.equalsIgnoreCase(
-                            _httpResponse.headers().get(HttpHeaders.Names.TRANSFER_ENCODING),
-                            HttpHeaders.Values.CHUNKED)) {
-                            isChunked = true;
-                        }
-
-                        StringBuilder buf = new StringBuilder();
-
-                        String[] list = StringUtils.split(_httpResponse.toString(), "\r\n");
-                        for (int i = 1; i < list.length; i++) {
-                            if (StringUtils.startsWithIgnoreCase(list[i], "Connection")) {
-                                continue;
-                            }
-                            buf.append(list[i]).append("\r\n");
-                        }
-                        buf.append("Proxy-Connection: keep-alive").append("\r\n");
-
-                        buf.append("\r\n");
-
-                        inboundChannel.write(Unpooled.copiedBuffer(buf.toString(),
+                outbandChannelMap.get(remoteAddr)
+                    .write(
+                        Unpooled.copiedBuffer(constructRequestForProxy(httpRequest),
                             CharsetUtil.UTF_8));
+            } else {
+                Bootstrap proxyClientBootstrap = new Bootstrap();
 
-                        //                        HttpResponse _proxyResponse = (HttpResponse) obj;
-                        //                        proxyResponse = new DefaultFullHttpResponse(
-                        //                            _proxyResponse.getProtocolVersion(), _proxyResponse.getStatus());
-                        //                        proxyResponse.headers().remove(HttpHeaders.Names.CONNECTION);
-                        //                        proxyResponse.headers().add("Proxy-Connection",
-                        //                            HttpHeaders.Values.KEEP_ALIVE);
-                        //                        proxyResponse.headers().add(HttpHeaders.Names.CONNECTION,
-                        //                            HttpHeaders.Values.KEEP_ALIVE);
+                ApCallbackNotifier cb = new ApCallbackNotifier() {
+
+                    private boolean isResponseChunked = false;
+
+                    @Override
+                    public void onConnectSuccess(final ChannelHandlerContext outboundCtx) {
+                        outbandChannelMap.put(remoteAddr, outboundCtx.channel());
+
+                        outboundCtx.write(Unpooled.copiedBuffer(
+                            constructRequestForProxy(httpRequest), CharsetUtil.UTF_8));
                     }
 
-                    if (obj instanceof HttpContent) {
-                        HttpContent _httpContent = (HttpContent) obj;
+                    @Override
+                    public void onReciveMessage(Object obj) {
+                        if (logger.isInfoEnabled()) {
+                            logger.info("callback recive msg: " + obj);
+                        }
 
-                        ByteBuf buf = Unpooled.buffer();
-                        if (isChunked) {
-                            int chunkSize = _httpContent.data().readableBytes();
-                            buf.writeBytes(Unpooled.copiedBuffer(Integer.toHexString(chunkSize),
+                        if (obj instanceof HttpResponse) {
+                            HttpResponse _httpResponse = (HttpResponse) obj;
+                            if (StringUtils.equalsIgnoreCase(
+                                _httpResponse.headers().get(HttpHeaders.Names.TRANSFER_ENCODING),
+                                HttpHeaders.Values.CHUNKED)) {
+                                isResponseChunked = true;
+                            }
+
+                            StringBuilder buf = new StringBuilder();
+
+                            String[] list = StringUtils.split(_httpResponse.toString(), "\r\n");
+                            for (int i = 1; i < list.length; i++) {
+                                if (StringUtils.startsWithIgnoreCase(list[i], "Connection")) {
+                                    continue;
+                                }
+                                buf.append(list[i]).append("\r\n");
+                            }
+                            buf.append("Proxy-Connection: keep-alive").append("\r\n");
+
+                            buf.append("\r\n");
+
+                            inboundChannel.write(Unpooled.copiedBuffer(buf.toString(),
                                 CharsetUtil.UTF_8));
-                            buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
                         }
 
-                        buf.writeBytes(_httpContent.data());
+                        if (obj instanceof HttpContent) {
+                            HttpContent _httpContent = (HttpContent) obj;
 
-                        if (isChunked) {
-                            buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                            ByteBuf buf = Unpooled.buffer();
+                            if (isResponseChunked) {
+                                int chunkSize = _httpContent.data().readableBytes();
+                                buf.writeBytes(Unpooled.copiedBuffer(
+                                    Integer.toHexString(chunkSize), CharsetUtil.UTF_8));
+                                buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                            }
+
+                            buf.writeBytes(_httpContent.data());
+
+                            if (isResponseChunked) {
+                                buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                            }
+
+                            inboundChannel.write(buf);
                         }
-
-                        inboundChannel.write(buf);
                     }
+
+                    @Override
+                    public void onConnectClose() {
+                        ctx.close();
+                    }
+
+                };
+
+                String host = this.getHostName(remoteAddr);
+                int port = this.getPort(remoteAddr);
+
+                if (port == -1) {
+                    port = 80;
                 }
 
-            };
+                proxyClientBootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
+                    .remoteAddress(host, port).handler(new ApHttpProxyChannelInitializer(cb));
+                proxyClientBootstrap.connect(host, port);
+            }
 
-            proxyClientBootstrap.group(inboundChannel.eventLoop()).channel(NioSocketChannel.class)
-                .remoteAddress(host, port).handler(new ApHttpProxyChannelInitializer(cb));
-            proxyClientBootstrap.connect(host, port);
+        } else {
+            HttpContent _httpContent = (HttpContent) msg;
 
-        } else if (!(msg instanceof LastHttpContent)) {
-            String addr = ctx.attr(REMOTE_ADDR_ATTRIBUTE_KEY).get();
-            Channel outbandChannel = outbandChannelMap.get(addr);
-            outbandChannel.write(msg);
+            if (logger.isInfoEnabled()) {
+                logger.info(_httpContent + ", size=" + _httpContent.data().readableBytes());
+            }
+
+            while (outbandChannelMap.get(remoteAddr) == null) {
+
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.info("got outbandChannel!");
+            }
+
+            Channel outbandChannel = outbandChannelMap.get(remoteAddr);
+
+            if (outbandChannel != null && outbandChannel.isActive()) {
+                ByteBuf buf = Unpooled.buffer();
+                if (isRequestChunked) {
+                    int chunkSize = _httpContent.data().readableBytes();
+                    buf.writeBytes(Unpooled.copiedBuffer(Integer.toHexString(chunkSize),
+                        CharsetUtil.UTF_8));
+                    buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                }
+
+                buf.writeBytes(_httpContent.data());
+
+                if (isRequestChunked) {
+                    buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                }
+
+                outbandChannel.write(buf);
+            } else {
+                logger.warn("outbandChannel is " + outbandChannel + ", active="
+                            + outbandChannel.isActive());
+            }
         }
 
     }
@@ -189,4 +212,53 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
         ctx.close();
     }
 
+    private String constructRequestForProxy(HttpRequest httpRequest) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(httpRequest.getMethod().name()).append(" ")
+            .append(getPartialUrl(httpRequest.getUri())).append(" ")
+            .append(httpRequest.getProtocolVersion().text()).append("\r\n");
+
+        Set<String> headerNames = httpRequest.headers().names();
+        for (String headerName : headerNames) {
+            if (StringUtils.equalsIgnoreCase(headerName, "Proxy-Connection")) {
+                continue;
+            }
+
+            if (StringUtils.equalsIgnoreCase(headerName, HttpHeaders.Names.CONNECTION)) {
+                continue;
+            }
+
+            for (String headerValue : httpRequest.headers().getAll(headerName)) {
+                sb.append(headerName).append(": ").append(headerValue).append("\r\n");
+            }
+        }
+        sb.append(HttpHeaders.Names.CONNECTION).append(": ").append(HttpHeaders.Values.KEEP_ALIVE)
+            .append("\r\n");
+
+        sb.append("\r\n");
+
+        return sb.toString();
+    }
+
+    private String getHostName(String addr) {
+        return StringUtils.split(addr, ": ")[0];
+    }
+
+    private int getPort(String addr) {
+        String[] ss = StringUtils.split(addr, ": ");
+        if (ss.length == 2) {
+            return Integer.parseInt(ss[1]);
+        }
+
+        return -1;
+    }
+
+    private String getPartialUrl(String fullUrl) {
+        if (StringUtils.startsWith(fullUrl, "http")) {
+            int idx = StringUtils.indexOf(fullUrl, "/", 7);
+            return idx == -1 ? "/" : StringUtils.substring(fullUrl, idx);
+        }
+
+        return fullUrl;
+    }
 }
