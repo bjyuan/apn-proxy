@@ -20,7 +20,7 @@ public class ApInsideLauncher {
 
         try {
             serverBootStrap.group(new NioEventLoopGroup(), new NioEventLoopGroup())
-                .channel(NioServerSocketChannel.class).localAddress(8701)
+                .channel(NioServerSocketChannel.class).localAddress(8700)
                 .childHandler(new ApInsideChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {
