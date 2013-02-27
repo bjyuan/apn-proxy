@@ -24,7 +24,7 @@ public class ApInsideLauncher {
                 .childHandler(new ApInsideChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         } finally {
             logger.error("showdown the server");
             serverBootStrap.shutdown();

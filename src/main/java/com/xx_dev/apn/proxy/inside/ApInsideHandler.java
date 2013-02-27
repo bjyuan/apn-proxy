@@ -4,6 +4,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -140,7 +142,16 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                     @Override
                     public void onConnectClose() {
-                        ctx.close();
+                        if (logger.isInfoEnabled()) {
+                            logger.info("remote channel closed cause ua channel close");
+                        }
+                        ctx.flush().addListener(new ChannelFutureListener() {
+                            @Override
+                            public void operationComplete(ChannelFuture future) throws Exception {
+                                ctx.close();
+                            }
+                        });
+
                     }
 
                 };
@@ -164,8 +175,12 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                 logger.info(_httpContent + ", size=" + _httpContent.data().readableBytes());
             }
 
-            while (outbandChannelMap.get(remoteAddr) == null) {
-
+            for (int i = 0; i < 10; i++) {
+                if (outbandChannelMap.get(remoteAddr) == null) {
+                    Thread.sleep(1000);
+                } else {
+                    break;
+                }
             }
 
             if (logger.isInfoEnabled()) {
@@ -203,6 +218,14 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
         if (logger.isInfoEnabled()) {
             logger.info("user agent channel inactive");
         }
+
+        for (Map.Entry<String, Channel> entry : outbandChannelMap.entrySet()) {
+            // close the outband channel
+            if (entry.getValue().isActive()) {
+                entry.getValue().close();
+            }
+        }
+
         super.channelInactive(ctx);
     }
 
@@ -236,6 +259,10 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             .append("\r\n");
 
         sb.append("\r\n");
+
+        if (logger.isInfoEnabled()) {
+            logger.info(sb.toString());
+        }
 
         return sb.toString();
     }
