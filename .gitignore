@@ -6,3 +6,4 @@ classes/
 *.properties
 .pmd
 *.iml
+.DS_Store
