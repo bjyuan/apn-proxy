@@ -1,12 +1,9 @@
 /*
  * Copyright 2012 The Netty Project
- *
  * The Netty Project licenses this file to you under the Apache License,
  * version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at:
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -38,8 +35,8 @@ public class HttpSnoopServer {
 
         try {
             b.group(new NioEventLoopGroup(), new NioEventLoopGroup())
-             .channel(NioServerSocketChannel.class)
-             .childHandler(new HttpSnoopServerInitializer());
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new HttpSnoopServerInitializer());
 
             Channel ch = b.bind(port).sync().channel();
             ch.closeFuture().sync();
@@ -53,7 +50,7 @@ public class HttpSnoopServer {
         if (args.length > 0) {
             port = Integer.parseInt(args[0]);
         } else {
-            port = 8080;
+            port = 8700;
         }
         new HttpSnoopServer(port).run();
     }
