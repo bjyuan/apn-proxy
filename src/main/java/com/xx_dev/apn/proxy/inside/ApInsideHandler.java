@@ -155,7 +155,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                         ctx.flush().addListener(new ChannelFutureListener() {
                             @Override
                             public void operationComplete(ChannelFuture future) throws Exception {
-                                ctx.close();
+                                uaChannel.close();
                             }
                         });
 
@@ -239,8 +239,6 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                 entry.getValue().close();
             }
         }
-
-        super.channelInactive(ctx);
     }
 
     @Override
