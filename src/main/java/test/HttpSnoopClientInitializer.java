@@ -1,12 +1,9 @@
 /*
  * Copyright 2012 The Netty Project
- *
  * The Netty Project licenses this file to you under the Apache License,
  * version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at:
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -20,7 +17,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.example.securechat.SecureChatSslContextFactory;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslHandler;
@@ -43,8 +39,7 @@ public class HttpSnoopClientInitializer extends ChannelInitializer<SocketChannel
         p.addLast("log", new LoggingHandler(LogLevel.INFO));
         // Enable HTTPS if necessary.
         if (ssl) {
-            SSLEngine engine =
-                SecureChatSslContextFactory.getClientContext().createSSLEngine();
+            SSLEngine engine = SecureChatSslContextFactory.getClientContext().createSSLEngine();
             engine.setUseClientMode(true);
 
             p.addLast("ssl", new SslHandler(engine));
@@ -53,10 +48,10 @@ public class HttpSnoopClientInitializer extends ChannelInitializer<SocketChannel
         p.addLast("codec", new HttpClientCodec());
 
         // Remove the following line if you don't want automatic content decompression.
-        p.addLast("inflater", new HttpContentDecompressor());
+        // p.addLast("inflater", new HttpContentDecompressor());
 
         // Uncomment the following line if you don't want to handle HttpChunks.
-        //p.addLast("aggregator", new HttpObjectAggregator(1048576));
+        // p.addLast("aggregator", new HttpObjectAggregator(1048576));
 
         p.addLast("handler", new HttpSnoopClientHandler());
     }

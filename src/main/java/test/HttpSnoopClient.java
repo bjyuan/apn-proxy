@@ -1,12 +1,9 @@
 /*
  * Copyright 2012 The Netty Project
- *
  * The Netty Project licenses this file to you under the Apache License,
  * version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at:
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -30,8 +27,8 @@ import io.netty.handler.codec.http.HttpVersion;
 import java.net.URI;
 
 /**
- * A simple HTTP client that prints out the content of the HTTP response to
- * {@link System#out} to test {@link HttpSnoopServer}.
+ * A simple HTTP client that prints out the content of the HTTP response to {@link System#out} to
+ * test {@link HttpSnoopServer}.
  */
 public class HttpSnoopClient {
 
@@ -74,7 +71,7 @@ public class HttpSnoopClient {
                 uri.getRawPath());
             request.headers().set(HttpHeaders.Names.HOST, host);
             request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
-            request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
+            // request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
 
             // Set some example cookies.
             request.headers().set(
