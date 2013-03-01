@@ -255,12 +255,18 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                 entry.getValue().close();
             }
         }
+        ctx.close();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error(cause.getMessage(), cause);
         ctx.close();
+    }
+
+    @Override
+    protected void endMessageReceived(ChannelHandlerContext ctx) throws Exception {
+        ctx.flush();
     }
 
     private String constructRequestForProxy(HttpRequest httpRequest) {
