@@ -32,13 +32,20 @@ import com.xx_dev.apn.proxy.common.ApProxyCallback;
  */
 public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger              logger            = Logger.getLogger(ApInsideHandler.class);
+    private static Logger              logger               = Logger
+                                                                .getLogger(ApInsideHandler.class);
 
-    private final Map<String, Channel> outbandChannelMap = new HashMap<String, Channel>();
+    Bootstrap                          proxyClientBootstrap = new Bootstrap();
+
+    private final Map<String, Channel> outbandChannelMap    = new HashMap<String, Channel>();
 
     private String                     remoteAddr;
 
-    private boolean                    isRequestChunked  = false;
+    private boolean                    isRequestChunked     = false;
+
+    public ApInsideHandler() {
+        proxyClientBootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class);
+    }
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -78,7 +85,6 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                         Unpooled.copiedBuffer(constructRequestForProxy(httpRequest),
                             CharsetUtil.UTF_8));
             } else {
-                Bootstrap proxyClientBootstrap = new Bootstrap();
 
                 ApProxyCallback cb = new ApProxyCallback() {
 
@@ -155,7 +161,17 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                         ctx.flush().addListener(new ChannelFutureListener() {
                             @Override
                             public void operationComplete(ChannelFuture future) throws Exception {
-                                uaChannel.close();
+                                StringBuilder buf = new StringBuilder();
+
+                                buf.append("HTTP/1.1 502 Remote Channel Reset").append("\r\n");
+                                buf.append("Connection:close").append("\r\n");
+                                buf.append("Content-Length:22").append("\r\n");
+                                buf.append("Content-Type:text/plain").append("\r\n");
+                                buf.append("\r\n");
+                                buf.append("Remote Channel Reset").append("\r\n");
+
+                                uaChannel.write(Unpooled.copiedBuffer(buf.toString(),
+                                    CharsetUtil.UTF_8));
                             }
                         });
 
@@ -170,8 +186,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                     port = 80;
                 }
 
-                proxyClientBootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
-                    .remoteAddress(host, port).handler(new ApHttpProxyChannelInitializer(cb));
+                proxyClientBootstrap.remoteAddress(host, port).handler(
+                    new ApHttpProxyChannelInitializer(cb));
                 proxyClientBootstrap.connect(host, port).await();
             }
 
