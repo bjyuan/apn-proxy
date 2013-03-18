@@ -187,7 +187,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                 proxyClientBootstrap.remoteAddress(host, port).handler(
                     new ApHttpProxyChannelInitializer(cb));
-                proxyClientBootstrap.connect(host, port).await();
+                proxyClientBootstrap.connect(host, port);
             }
 
         } else {
@@ -231,8 +231,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                 remoteChannel.write(buf);
             } else {
-                logger.warn("remoteChannel is " + remoteChannel + ", active="
-                            + remoteChannel.isActive());
+                logger.warn("remoteChannel is " + remoteChannel);
                 if (remoteChannel != null) {
                     logger.warn("remoteChannel active=" + remoteChannel.isActive());
                 }
