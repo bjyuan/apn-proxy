@@ -4,8 +4,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -158,22 +156,23 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                         if (logger.isDebugEnabled()) {
                             logger.debug("onConnectClose: " + remoteAddr);
                         }
-                        ctx.flush().addListener(new ChannelFutureListener() {
-                            @Override
-                            public void operationComplete(ChannelFuture future) throws Exception {
-                                StringBuilder buf = new StringBuilder();
-
-                                buf.append("HTTP/1.1 502 Remote Channel Reset").append("\r\n");
-                                buf.append("Connection:close").append("\r\n");
-                                buf.append("Content-Length:22").append("\r\n");
-                                buf.append("Content-Type:text/plain").append("\r\n");
-                                buf.append("\r\n");
-                                buf.append("Remote Channel Reset").append("\r\n");
-
-                                uaChannel.write(Unpooled.copiedBuffer(buf.toString(),
-                                    CharsetUtil.UTF_8));
-                            }
-                        });
+                        // ctx.flush().addListener(new ChannelFutureListener() {
+                        // @Override
+                        // public void operationComplete(ChannelFuture future) throws Exception {
+                        // StringBuilder buf = new StringBuilder();
+                        //
+                        // buf.append("HTTP/1.1 502 Remote Channel Reset").append("\r\n");
+                        // buf.append("Connection:close").append("\r\n");
+                        // buf.append("Content-Length:22").append("\r\n");
+                        // buf.append("Content-Type:text/plain").append("\r\n");
+                        // buf.append("\r\n");
+                        // buf.append("Remote Channel Reset").append("\r\n");
+                        //
+                        // uaChannel.write(Unpooled.copiedBuffer(buf.toString(),
+                        // CharsetUtil.UTF_8));
+                        // }
+                        // });
+                        ctx.close();
 
                     }
 
