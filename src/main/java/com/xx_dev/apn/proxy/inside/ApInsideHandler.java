@@ -48,7 +48,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         // send the request to remote server
 
@@ -265,7 +265,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     }
 
     @Override
-    protected void endMessageReceived(ChannelHandlerContext ctx) throws Exception {
+    public void endMessageReceived(ChannelHandlerContext ctx) throws Exception {
         ctx.flush();
     }
 

@@ -22,7 +22,7 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         if (logger.isDebugEnabled()) {
             logger.debug("Received a http response: " + msg);
