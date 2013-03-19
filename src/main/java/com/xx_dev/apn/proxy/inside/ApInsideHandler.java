@@ -4,6 +4,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -172,7 +174,17 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                         // CharsetUtil.UTF_8));
                         // }
                         // });
-                        ctx.close();
+                        try {
+                            ctx.flush().await().addListener(new ChannelFutureListener() {
+                                @Override
+                                public void operationComplete(ChannelFuture future)
+                                                                                   throws Exception {
+                                    ctx.close();
+                                }
+                            });
+                        } catch (InterruptedException e) {
+                            logger.error(e.getMessage(), e);
+                        }
 
                     }
 
