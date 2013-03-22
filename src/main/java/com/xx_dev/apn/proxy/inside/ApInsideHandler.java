@@ -35,7 +35,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     private static Logger              logger               = Logger
                                                                 .getLogger(ApInsideHandler.class);
 
-    Bootstrap                          proxyClientBootstrap = new Bootstrap();
+    private Bootstrap                  proxyClientBootstrap = new Bootstrap();
 
     private final Map<String, Channel> outbandChannelMap    = new HashMap<String, Channel>();
 
@@ -44,7 +44,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     private boolean                    isRequestChunked     = false;
 
     public ApInsideHandler() {
-        proxyClientBootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class);
+        proxyClientBootstrap.group(new NioEventLoopGroup(1)).channel(NioSocketChannel.class);
     }
 
     @Override
@@ -185,6 +185,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                                 public void operationComplete(ChannelFuture future)
                                                                                    throws Exception {
                                     ctx.close();
+                                    proxyClientBootstrap.shutdown();
                                 }
                             });
                         } catch (InterruptedException e) {
