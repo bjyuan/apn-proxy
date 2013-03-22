@@ -50,6 +50,10 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     @Override
     public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
 
+        if (logger.isDebugEnabled()) {
+            logger.debug(this);
+        }
+
         // send the request to remote server
 
         // proxy request directlly
@@ -141,6 +145,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                                 buf.writeBytes(Unpooled.copiedBuffer(
                                     Integer.toHexString(chunkSize), CharsetUtil.UTF_8));
                                 buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+
                             }
 
                             buf.writeBytes(_httpContent.data());
