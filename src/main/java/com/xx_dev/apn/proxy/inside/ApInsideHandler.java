@@ -44,7 +44,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     private boolean                    isRequestChunked     = false;
 
     public ApInsideHandler() {
-        proxyClientBootstrap.group(new NioEventLoopGroup(1)).channel(NioSocketChannel.class);
+        proxyClientBootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class);
     }
 
     @Override
@@ -272,6 +272,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             }
         }
         ctx.close();
+        proxyClientBootstrap.shutdown();
     }
 
     @Override
