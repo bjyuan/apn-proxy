@@ -1,6 +1,7 @@
 package com.xx_dev.apn.proxy.common;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,7 +40,7 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
     }
 
     @Override
-    public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+    public void inboundBufferUpdated(final ChannelHandlerContext ctx, ByteBuf in) throws Exception {
         if (logger.isInfoEnabled()) {
             logger.info(tag + ", size: " + in.readableBytes());
         }
@@ -51,8 +52,9 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
         // }
 
         if (relayChannel.isActive()) {
-            relayChannel.write(in);
-            // relayChannel.flush();
+            ByteBuf buf = Unpooled.buffer();
+            buf.writeBytes(in);
+            relayChannel.write(buf);
         }
 
     }
