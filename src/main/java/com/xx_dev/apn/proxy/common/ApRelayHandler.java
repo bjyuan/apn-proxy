@@ -9,7 +9,6 @@ import io.netty.channel.ChannelInboundByteHandlerAdapter;
 import org.apache.log4j.Logger;
 
 /**
- * 
  * @author xmx
  * @version $Id: ApRelayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
  */
@@ -45,11 +44,17 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
             logger.info(tag + ", size: " + in.readableBytes());
         }
 
-        ByteBuf out = relayChannel.outboundByteBuffer();
-        out.writeBytes(in);
+        // ByteBuf out = relayChannel.outboundByteBuffer();
+        // out.writeBytes(in);
+        // if (relayChannel.isActive()) {
+        // relayChannel.flush();
+        // }
+
         if (relayChannel.isActive()) {
-            relayChannel.flush();
+            relayChannel.write(in);
+            // relayChannel.flush();
         }
+
     }
 
     @Override
