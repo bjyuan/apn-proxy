@@ -53,7 +53,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     private boolean                    isConnectMode        = false;
 
     public ApInsideHandler() {
-        proxyClientBootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class);
+        proxyClientBootstrap.group(new NioEventLoopGroup(10)).channel(NioSocketChannel.class);
     }
 
     @Override
@@ -227,7 +227,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                 proxyClientBootstrap.remoteAddress(host, port).handler(
                     new ApHttpProxyChannelInitializer(cb));
-                proxyClientBootstrap.connect(host, port);
+                proxyClientBootstrap.connect(host, port).sync();
             }
 
         } else {
@@ -290,7 +290,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
         }
 
         proxyClientBootstrap.remoteAddress(host, port).handler(
-            new ApRelayChannelInitializer(ctx.channel()));
+            new ApRelayChannelInitializer(ctx.channel(), proxyClientBootstrap));
         proxyClientBootstrap.connect(host, port).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(final ChannelFuture future1) throws Exception {
