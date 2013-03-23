@@ -7,14 +7,23 @@
         </layout>
     </appender>
     
+	<appender name="DEFAULT_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="default.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="UTF-8" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %c %5p -: %m%n" />
+		</layout>
+	</appender>
+    
     <logger name="com.xx_dev.apn.proxy" additivity="false">
-        <level value="debug"/>
-        <appender-ref ref="CONSOLE_APPENDER"/>
+        <level value="info"/>
+        <appender-ref ref="DEFAULT_APPENDER"/>
     </logger>
 
     <root>
         <level value="warn"/>
-        <appender-ref ref="CONSOLE_APPENDER"/>
+        <appender-ref ref="DEFAULT_APPENDER"/>
     </root>
 
 </log4j:configuration>
