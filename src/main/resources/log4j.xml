@@ -17,7 +17,7 @@
 	</appender>
     
     <logger name="com.xx_dev.apn.proxy" additivity="false">
-        <level value="info"/>
+        <level value="debug"/>
         <appender-ref ref="DEFAULT_APPENDER"/>
     </logger>
 

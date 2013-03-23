@@ -7,3 +7,4 @@ classes/
 .pmd
 *.iml
 .DS_Store
+*.log*
