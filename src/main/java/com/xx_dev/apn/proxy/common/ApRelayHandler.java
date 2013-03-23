@@ -15,13 +15,7 @@ import org.apache.log4j.Logger;
  */
 public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
 
-    private static Logger       logger = Logger.getLogger(ApRelayHandler.class);
-
-    private static final String name   = "RELAY_HANDLER";
-
-    public static String getName() {
-        return name;
-    }
+    private static Logger logger = Logger.getLogger(ApRelayHandler.class);
 
     private final Channel relayChannel;
     private final String  tag;
@@ -57,6 +51,8 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
             relayChannel.write(buf);
         }
 
+        ctx.fireInboundBufferUpdated();
+
     }
 
     @Override
@@ -67,6 +63,7 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
         if (relayChannel != null && relayChannel.isActive()) {
             relayChannel.flush().addListener(ChannelFutureListener.CLOSE);
         }
+        ctx.fireChannelInactive();
     }
 
     @Override
