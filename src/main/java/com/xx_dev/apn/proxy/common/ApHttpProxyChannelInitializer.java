@@ -4,11 +4,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 
-import org.apache.log4j.Logger;
-
 public class ApHttpProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
-
-    private static Logger         logger = Logger.getLogger(ApHttpProxyChannelInitializer.class);
 
     private final ApProxyCallback cb;
 
@@ -18,10 +14,6 @@ public class ApHttpProxyChannelInitializer extends ChannelInitializer<SocketChan
 
     @Override
     public void initChannel(SocketChannel channel) throws Exception {
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("init proxy channel");
-        }
 
         // channel.pipeline().addLast("codec", new HttpClientCodec());
         channel.pipeline().addLast("decoder", new HttpResponseDecoder());

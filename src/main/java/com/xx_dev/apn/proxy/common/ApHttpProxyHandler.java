@@ -17,7 +17,9 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Remote channel active");
+        }
         cb.onConnectSuccess(ctx);
     }
 
@@ -35,7 +37,7 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("proxy channel inactive");
+            logger.debug("Remote channel inactive");
         }
         cb.onConnectClose();
     }

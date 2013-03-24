@@ -12,13 +12,14 @@
 		<param name="append" value="true" />
 		<param name="encoding" value="UTF-8" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d %c %5p -: %m%n" />
+			<param name="ConversionPattern" value="%d %t %c %5p -: %m%n" />
 		</layout>
 	</appender>
     
     <logger name="com.xx_dev.apn.proxy" additivity="false">
         <level value="debug"/>
         <appender-ref ref="DEFAULT_APPENDER"/>
+        <appender-ref ref="CONSOLE_APPENDER" />
     </logger>
 
     <root>

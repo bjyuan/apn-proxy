@@ -24,6 +24,7 @@ import io.netty.util.CharsetUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -39,18 +40,20 @@ import com.xx_dev.apn.proxy.common.ApRelayHandler;
  */
 public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger              logger               = Logger
-                                                                .getLogger(ApInsideHandler.class);
+    private static Logger                     logger                  = Logger
+                                                                          .getLogger(ApInsideHandler.class);
 
-    private Bootstrap                  proxyClientBootstrap = new Bootstrap();
+    private Bootstrap                         proxyClientBootstrap    = new Bootstrap();
 
-    private final Map<String, Channel> outbandChannelMap    = new HashMap<String, Channel>();
+    private final Map<String, Channel>        remoteChannelMap        = new HashMap<String, Channel>();
 
-    private String                     remoteAddr;
+    private final Map<String, CountDownLatch> remoteCountDownLatchMap = new HashMap<String, CountDownLatch>();
 
-    private boolean                    isRequestChunked     = false;
+    private String                            remoteAddr;
 
-    private boolean                    isConnectMode        = false;
+    private boolean                           isRequestChunked        = false;
+
+    private boolean                           isConnectMode           = false;
 
     public ApInsideHandler() {
         proxyClientBootstrap.group(new NioEventLoopGroup(10)).channel(NioSocketChannel.class);
@@ -60,7 +63,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         if (logger.isDebugEnabled()) {
-            logger.debug(this);
+            logger.debug("Proxy Request: " + msg + "Handler: " + this);
         }
 
         // send the request to remote server
@@ -99,14 +102,24 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             final HttpRequest httpRequest = (HttpRequest) msg;
 
             remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
+
+            String host = this.getHostName(remoteAddr);
+            int port = this.getPort(remoteAddr);
+
+            if (port == -1) {
+                port = 80;
+            }
+
+            remoteAddr = host + ":" + port;
+
             isRequestChunked = HttpHeaders.isTransferEncodingChunked(httpRequest);
 
-            if (outbandChannelMap.get(remoteAddr) != null
-                && outbandChannelMap.get(remoteAddr).isActive()) {
+            if (remoteChannelMap.get(remoteAddr) != null
+                && remoteChannelMap.get(remoteAddr).isActive()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("use old channel for: " + httpRequest.getUri());
                 }
-                outbandChannelMap.get(remoteAddr)
+                remoteChannelMap.get(remoteAddr)
                     .write(
                         Unpooled.copiedBuffer(constructRequestForProxy(httpRequest),
                             CharsetUtil.UTF_8));
@@ -117,13 +130,15 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                     private boolean isResponseChunked = false;
 
                     @Override
-                    public void onConnectSuccess(final ChannelHandlerContext outboundCtx) {
+                    public void onConnectSuccess(final ChannelHandlerContext remoteCtx) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("onConnectSuccess: " + remoteAddr);
                         }
-                        outbandChannelMap.put(remoteAddr, outboundCtx.channel());
+                        remoteChannelMap.put(remoteAddr, remoteCtx.channel());
 
-                        outboundCtx.write(Unpooled.copiedBuffer(
+                        remoteCountDownLatchMap.get(remoteAddr).countDown();
+
+                        remoteCtx.write(Unpooled.copiedBuffer(
                             constructRequestForProxy(httpRequest), CharsetUtil.UTF_8));
                     }
 
@@ -218,12 +233,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
 
                 };
 
-                String host = this.getHostName(remoteAddr);
-                int port = this.getPort(remoteAddr);
-
-                if (port == -1) {
-                    port = 80;
-                }
+                // create a
+                remoteCountDownLatchMap.put(remoteAddr, new CountDownLatch(1));
 
                 proxyClientBootstrap.remoteAddress(host, port).handler(
                     new ApHttpProxyChannelInitializer(cb));
@@ -233,26 +244,16 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
         } else {
             HttpContent _httpContent = (HttpContent) msg;
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(_httpContent + ", size=" + _httpContent.data().readableBytes());
-            }
+            // if (logger.isDebugEnabled()) {
+            // logger.debug(_httpContent + ", size=" + _httpContent.data().readableBytes());
+            // }
+            remoteCountDownLatchMap.get(remoteAddr).await();
 
-            for (int i = 0; i < 1000; i++) {
-                if (outbandChannelMap.get(remoteAddr) == null) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("cannot get outbandChannel for: " + remoteAddr);
-                    }
-                    Thread.sleep(10);
-                } else {
-                    break;
-                }
-            }
+            Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("got outbandChannel for: " + remoteAddr);
             }
-
-            Channel remoteChannel = outbandChannelMap.get(remoteAddr);
 
             if (remoteChannel != null && remoteChannel.isActive()) {
                 ByteBuf buf = Unpooled.buffer();
@@ -332,7 +333,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             logger.debug("user agent channel inactive");
         }
 
-        for (Map.Entry<String, Channel> entry : outbandChannelMap.entrySet()) {
+        for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
             // close the outband channel
             if (entry.getValue().isActive()) {
                 entry.getValue().close();
