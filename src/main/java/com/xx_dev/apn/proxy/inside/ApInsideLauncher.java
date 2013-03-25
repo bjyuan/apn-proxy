@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: ApInsideLauncher.java,v 0.1 Feb 11, 2013 11:07:34 PM xmx Exp $
+ * @version $Id: ApOutsideLauncher.java,v 0.1 Feb 11, 2013 11:07:34 PM xmx Exp $
  */
 public class ApInsideLauncher {
 

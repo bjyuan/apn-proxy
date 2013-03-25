@@ -36,7 +36,7 @@ import com.xx_dev.apn.proxy.common.ApRelayHandler;
 
 /**
  * @author xmx
- * @version $Id: ApInsideHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
+ * @version $Id: ApOutsideHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
 public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
@@ -83,6 +83,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                 remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
                 proxyConnectRequestDirectlly(ctx, msg);
                 return;
+            } else {
+                isConnectMode = false;
             }
         } else {
             if (isConnectMode) {
