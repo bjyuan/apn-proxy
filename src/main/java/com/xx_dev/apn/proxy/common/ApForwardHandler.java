@@ -237,7 +237,8 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
                 // create a
                 remoteCountDownLatchMap.put(remoteAddr, new CountDownLatch(1));
 
-                proxyClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb, true));
+                proxyClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb,
+                    this.isForwardToOutsideServer));
                 proxyClientBootstrap.connect(host, port).sync();
             }
 
@@ -291,7 +292,7 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
         }
 
         proxyClientBootstrap.handler(new ApRelayChannelInitializer(ctx.channel(),
-            proxyClientBootstrap, true));
+            proxyClientBootstrap, this.isForwardToOutsideServer));
         proxyClientBootstrap.connect(host, port).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(final ChannelFuture future1) throws Exception {
@@ -408,10 +409,27 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
     }
 
     private String constructConnectRequestForProxy(HttpRequest httpRequest) {
+        String url = httpRequest.getUri();
         StringBuilder sb = new StringBuilder();
-        sb.append(httpRequest.toString());
+        sb.append(httpRequest.getMethod().name()).append(" ").append(url).append(" ")
+            .append(httpRequest.getProtocolVersion().text()).append("\r\n");
 
-        // sb.append("\r\n");
+        Set<String> headerNames = httpRequest.headers().names();
+        for (String headerName : headerNames) {
+            if (StringUtils.equalsIgnoreCase(headerName, "Proxy-Connection")) {
+                continue;
+            }
+
+            if (StringUtils.equalsIgnoreCase(headerName, HttpHeaders.Names.CONNECTION)) {
+                continue;
+            }
+
+            for (String headerValue : httpRequest.headers().getAll(headerName)) {
+                sb.append(headerName).append(": ").append(headerValue).append("\r\n");
+            }
+        }
+
+        sb.append("\r\n");
 
         if (logger.isDebugEnabled()) {
             logger.debug(sb.toString());
