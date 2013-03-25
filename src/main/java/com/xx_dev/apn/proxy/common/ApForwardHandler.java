@@ -98,11 +98,7 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
         if (msg instanceof HttpRequest) {
             final HttpRequest httpRequest = (HttpRequest) msg;
 
-            if (this.isForwardToOutsideServer) {
-                remoteAddr = this.outsideServer;
-            } else {
-                remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            }
+            remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
 
             String host = this.getHostName(remoteAddr);
             int port = this.getPort(remoteAddr);
@@ -234,11 +230,16 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
 
                 };
 
-                // create a
                 remoteCountDownLatchMap.put(remoteAddr, new CountDownLatch(1));
 
                 proxyClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb,
                     this.isForwardToOutsideServer));
+                host = this.getHostName(outsideServer);
+                port = this.getPort(outsideServer);
+
+                if (port == -1) {
+                    port = 80;
+                }
                 proxyClientBootstrap.connect(host, port).sync();
             }
 
