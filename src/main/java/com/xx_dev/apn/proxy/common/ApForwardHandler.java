@@ -234,12 +234,16 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
 
                 proxyClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb,
                     this.isForwardToOutsideServer));
-                host = this.getHostName(outsideServer);
-                port = this.getPort(outsideServer);
 
-                if (port == -1) {
-                    port = 80;
+                if (this.isForwardToOutsideServer) {
+                    host = this.getHostName(outsideServer);
+                    port = this.getPort(outsideServer);
+
+                    if (port == -1) {
+                        port = 8700;
+                    }
                 }
+
                 proxyClientBootstrap.connect(host, port).sync();
             }
 
