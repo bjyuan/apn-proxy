@@ -28,8 +28,7 @@ public class ApOutsideChannelInitializer extends ChannelInitializer<SocketChanne
     private static final Logger logger             = Logger
                                                        .getLogger(ApOutsideChannelInitializer.class);
 
-    private static final String KEY_STORE_PASSWORD = ApConfig
-                                                       .getConfig("ap.outside.key_store_password");
+    private static final String KEY_STORE_PASSWORD = ApConfig.getConfig("ap.key_store_password");
 
     private static SSLContext   sslcontext         = null;
 
