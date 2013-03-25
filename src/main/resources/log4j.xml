@@ -8,7 +8,7 @@
     </appender>
     
 	<appender name="DEFAULT_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="file" value="default.log" />
+		<param name="file" value="log/default.log" />
 		<param name="append" value="true" />
 		<param name="encoding" value="UTF-8" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -17,7 +17,7 @@
 	</appender>
     
 	<appender name="INSIDE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="file" value="inside.log" />
+		<param name="file" value="log/inside.log" />
 		<param name="append" value="true" />
 		<param name="encoding" value="UTF-8" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -26,7 +26,7 @@
 	</appender>
 	
 	<appender name="OUTSIDE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="file" value="outside.log" />
+		<param name="file" value="log/outside.log" />
 		<param name="append" value="true" />
 		<param name="encoding" value="UTF-8" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -34,12 +34,11 @@
 		</layout>
 	</appender>
     
+    <!-- 
     <logger name="com.xx_dev.apn.proxy.inside" additivity="false">
         <level value="debug"/>
         <appender-ref ref="INSIDE_APPENDER"/>
-        <!--
         <appender-ref ref="CONSOLE_APPENDER" />
-        -->
     </logger>
     
     <logger name="com.xx_dev.apn.proxy.outside" additivity="false">
@@ -47,6 +46,7 @@
         <appender-ref ref="OUTSIDE_APPENDER"/>
         <appender-ref ref="CONSOLE_APPENDER" />
     </logger>
+     -->
     
     <logger name="com.xx_dev.apn.proxy" additivity="false">
         <level value="debug"/>

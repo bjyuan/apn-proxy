@@ -1,4 +1,4 @@
-package com.xx_dev.apn.proxy.inside;
+package com.xx_dev.apn.proxy.common;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -29,33 +29,34 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.proxy.common.ApHttpProxyChannelInitializer;
-import com.xx_dev.apn.proxy.common.ApProxyCallback;
-import com.xx_dev.apn.proxy.common.ApRelayChannelInitializer;
-import com.xx_dev.apn.proxy.common.ApRelayHandler;
-
 /**
  * @author xmx
  * @version $Id: ApOutsideHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
-public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object> {
+public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger                     logger                  = Logger
-                                                                          .getLogger(ApInsideHandler.class);
+    private static Logger                     logger                   = Logger
+                                                                           .getLogger(ApForwardHandler.class);
 
-    private Bootstrap                         proxyClientBootstrap    = new Bootstrap();
+    private boolean                           isForwardToOutsideServer = true;
 
-    private final Map<String, Channel>        remoteChannelMap        = new HashMap<String, Channel>();
+    private String                            outsideServer            = ApConfig
+                                                                           .getConfig("ap.outside.server");
 
-    private final Map<String, CountDownLatch> remoteCountDownLatchMap = new HashMap<String, CountDownLatch>();
+    private Bootstrap                         proxyClientBootstrap     = new Bootstrap();
+
+    private final Map<String, Channel>        remoteChannelMap         = new HashMap<String, Channel>();
+
+    private final Map<String, CountDownLatch> remoteCountDownLatchMap  = new HashMap<String, CountDownLatch>();
 
     private String                            remoteAddr;
 
-    private boolean                           isRequestChunked        = false;
+    private boolean                           isRequestChunked         = false;
 
-    private boolean                           isConnectMode           = false;
+    private boolean                           isConnectMode            = false;
 
-    public ApInsideHandler() {
+    public ApForwardHandler(boolean isForwardToOutsideServer) {
+        this.isForwardToOutsideServer = isForwardToOutsideServer;
         proxyClientBootstrap.group(new NioEventLoopGroup(10)).channel(NioSocketChannel.class);
     }
 
@@ -66,22 +67,16 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             logger.debug("Proxy Request: " + msg + "Handler: " + this);
         }
 
-        // send the request to remote server
-
-        // proxy request directlly
-        proxyRequestDirectlly(ctx, msg);
-
-    }
-
-    private void proxyRequestDirectlly(final ChannelHandlerContext ctx, final Object msg)
-                                                                                         throws Exception {
-
         if (msg instanceof HttpRequest) {
             final HttpRequest httpRequest = (HttpRequest) msg;
             if (httpRequest.getMethod().compareTo(HttpMethod.CONNECT) == 0) {
                 isConnectMode = true;
-                remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
-                proxyConnectRequestDirectlly(ctx, msg);
+                if (this.isForwardToOutsideServer) {
+                    remoteAddr = this.outsideServer;
+                } else {
+                    remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
+                }
+                forwardConnectRequest(ctx, httpRequest);
                 return;
             } else {
                 isConnectMode = false;
@@ -92,18 +87,22 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             }
         }
 
-        proxyNoConnectRequestDirectlly(ctx, msg);
+        forwardNoConnectRequest(ctx, msg);
 
     }
 
-    private void proxyNoConnectRequestDirectlly(final ChannelHandlerContext ctx, final Object msg)
-                                                                                                  throws Exception {
+    private void forwardNoConnectRequest(final ChannelHandlerContext ctx, final Object msg)
+                                                                                           throws Exception {
         final Channel uaChannel = ctx.channel();
 
         if (msg instanceof HttpRequest) {
             final HttpRequest httpRequest = (HttpRequest) msg;
 
-            remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            if (this.isForwardToOutsideServer) {
+                remoteAddr = this.outsideServer;
+            } else {
+                remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            }
 
             String host = this.getHostName(remoteAddr);
             int port = this.getPort(remoteAddr);
@@ -238,8 +237,7 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
                 // create a
                 remoteCountDownLatchMap.put(remoteAddr, new CountDownLatch(1));
 
-                proxyClientBootstrap.remoteAddress(host, port).handler(
-                    new ApHttpProxyChannelInitializer(cb));
+                proxyClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb, true));
                 proxyClientBootstrap.connect(host, port).sync();
             }
 
@@ -283,8 +281,8 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
         }
     }
 
-    private void proxyConnectRequestDirectlly(final ChannelHandlerContext ctx, final Object msg)
-                                                                                                throws Exception {
+    private void forwardConnectRequest(final ChannelHandlerContext ctx,
+                                       final HttpRequest httpRequest) throws Exception {
         String host = this.getHostName(remoteAddr);
         int port = this.getPort(remoteAddr);
 
@@ -292,33 +290,51 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             port = 443;
         }
 
-        proxyClientBootstrap.remoteAddress(host, port).handler(
-            new ApRelayChannelInitializer(ctx.channel(), proxyClientBootstrap));
+        proxyClientBootstrap.handler(new ApRelayChannelInitializer(ctx.channel(),
+            proxyClientBootstrap, true));
         proxyClientBootstrap.connect(host, port).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(final ChannelFuture future1) throws Exception {
                 if (future1.isSuccess()) {
                     // successfully connect to the original server
                     // send connect success msg to UA
-                    HttpResponse proxyConnectSuccessResponse = new DefaultHttpResponse(
-                        HttpVersion.HTTP_1_1, new HttpResponseStatus(200, "Connection established"));
-                    ctx.pipeline().addAfter("decoder", "encoder", new HttpResponseEncoder());
-                    ctx.write(proxyConnectSuccessResponse).addListener(new ChannelFutureListener() {
+                    if (ApForwardHandler.this.isForwardToOutsideServer) {
+                        ctx.pipeline().remove("decoder");
+                        ctx.pipeline().remove("handler");
 
-                        @Override
-                        public void operationComplete(ChannelFuture future2) throws Exception {
-                            // remove handlers
-                            ctx.pipeline().remove("decoder");
-                            ctx.pipeline().remove("encoder");
-                            ctx.pipeline().remove("handler");
+                        // add relay handler
+                        ctx.pipeline().addLast(
+                            new ApRelayHandler("relay uaChannel to remoteChannel", future1
+                                .channel()));
 
-                            // add relay handler
-                            ctx.pipeline().addLast(
-                                new ApRelayHandler("relay uaChannel to remoteChannel", future1
-                                    .channel()));
-                        }
+                        future1.channel().write(
+                            Unpooled.copiedBuffer(constructConnectRequestForProxy(httpRequest),
+                                CharsetUtil.UTF_8));
 
-                    });
+                    } else {
+                        HttpResponse proxyConnectSuccessResponse = new DefaultHttpResponse(
+                            HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
+                                "Connection established"));
+                        ctx.pipeline().addAfter("decoder", "encoder", new HttpResponseEncoder());
+                        ctx.write(proxyConnectSuccessResponse).addListener(
+                            new ChannelFutureListener() {
+
+                                @Override
+                                public void operationComplete(ChannelFuture future2)
+                                                                                    throws Exception {
+                                    // remove handlers
+                                    ctx.pipeline().remove("decoder");
+                                    ctx.pipeline().remove("encoder");
+                                    ctx.pipeline().remove("handler");
+
+                                    // add relay handler
+                                    ctx.pipeline().addLast(
+                                        new ApRelayHandler("relay uaChannel to remoteChannel",
+                                            future1.channel()));
+                                }
+
+                            });
+                    }
 
                 } else {
                     if (ctx.channel().isActive()) {
@@ -357,9 +373,12 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
     }
 
     private String constructRequestForProxy(HttpRequest httpRequest) {
+        String url = httpRequest.getUri();
+        if (!this.isForwardToOutsideServer) {
+            url = this.getPartialUrl(url);
+        }
         StringBuilder sb = new StringBuilder();
-        sb.append(httpRequest.getMethod().name()).append(" ")
-            .append(getPartialUrl(httpRequest.getUri())).append(" ")
+        sb.append(httpRequest.getMethod().name()).append(" ").append(url).append(" ")
             .append(httpRequest.getProtocolVersion().text()).append("\r\n");
 
         Set<String> headerNames = httpRequest.headers().names();
@@ -380,6 +399,19 @@ public class ApInsideHandler extends ChannelInboundMessageHandlerAdapter<Object>
             .append("\r\n");
 
         sb.append("\r\n");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(sb.toString());
+        }
+
+        return sb.toString();
+    }
+
+    private String constructConnectRequestForProxy(HttpRequest httpRequest) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(httpRequest.toString());
+
+        // sb.append("\r\n");
 
         if (logger.isDebugEnabled()) {
             logger.debug(sb.toString());

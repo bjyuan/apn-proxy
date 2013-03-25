@@ -16,7 +16,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.proxy.inside.ApInsideHandler;
+import com.xx_dev.apn.proxy.common.ApConfig;
+import com.xx_dev.apn.proxy.common.ApForwardHandler;
 
 /**
  * @author xmx
@@ -27,7 +28,8 @@ public class ApOutsideChannelInitializer extends ChannelInitializer<SocketChanne
     private static final Logger logger             = Logger
                                                        .getLogger(ApOutsideChannelInitializer.class);
 
-    private static final String KEY_STORE_PASSWORD = "123456";
+    private static final String KEY_STORE_PASSWORD = ApConfig
+                                                       .getConfig("ap.outside.key_store_password");
 
     private static SSLContext   sslcontext         = null;
 
@@ -73,7 +75,7 @@ public class ApOutsideChannelInitializer extends ChannelInitializer<SocketChanne
 
         pipeline.addLast("decoder", new HttpRequestDecoder());
 
-        pipeline.addLast("handler", new ApInsideHandler());
+        pipeline.addLast("handler", new ApForwardHandler(false));
 
     }
 
