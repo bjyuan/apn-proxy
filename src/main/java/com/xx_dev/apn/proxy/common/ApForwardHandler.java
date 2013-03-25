@@ -237,7 +237,8 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
                 // create a
                 remoteCountDownLatchMap.put(remoteAddr, new CountDownLatch(1));
 
-                proxyClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb, true));
+                proxyClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb,
+                    this.isForwardToOutsideServer));
                 proxyClientBootstrap.connect(host, port).sync();
             }
 
