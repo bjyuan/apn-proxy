@@ -7,7 +7,7 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 
 /**
  * @author xmx
- * @version $Id: ApInsideChannelInitializer.java,v 0.1 Feb 11, 2013 11:15:01 PM xmx Exp $
+ * @version $Id: ApOutsideChannelInitializer.java,v 0.1 Feb 11, 2013 11:15:01 PM xmx Exp $
  */
 public class ApInsideChannelInitializer extends ChannelInitializer<SocketChannel> {
 
