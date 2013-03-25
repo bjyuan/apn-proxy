@@ -8,3 +8,4 @@ classes/
 *.iml
 .DS_Store
 *.log*
+*.ks
