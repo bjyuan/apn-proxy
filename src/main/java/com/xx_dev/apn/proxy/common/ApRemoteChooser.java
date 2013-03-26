@@ -82,6 +82,11 @@ public class ApRemoteChooser {
             apRemote.setRemotePort(originalPort);
         }
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Remote info: original: " + apRemote.getOriginalRemote() + ", remote: "
+                         + apRemote.getRemote());
+        }
+
         return apRemote;
     }
 
