@@ -22,7 +22,7 @@ public class ApConfig {
     static {
         prop = new Properties();
         try {
-            prop.load(new FileInputStream("config.properties"));
+            prop.load(new FileInputStream("conf/config.properties"));
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
