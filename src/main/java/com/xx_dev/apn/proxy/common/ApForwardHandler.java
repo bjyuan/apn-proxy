@@ -25,9 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import com.xx_dev.apn.proxy.common.ApRemoteChooser.ApRemote;
 
 /**
  * @author xmx
@@ -35,47 +38,39 @@ import org.apache.log4j.Logger;
  */
 public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger                     logger                   = Logger
-                                                                           .getLogger(ApForwardHandler.class);
+    private static Logger                     logger                  = Logger
+                                                                          .getLogger(ApForwardHandler.class);
 
-    private boolean                           isForwardToOutsideServer = true;
+    private static final String               CRLF                    = "\r\n";
 
-    private String                            outsideServer            = ApConfig
-                                                                           .getConfig("ap.outside.server");
+    private Bootstrap                         remoteClientBootstrap   = new Bootstrap();
 
-    private Bootstrap                         proxyClientBootstrap     = new Bootstrap();
+    private final Map<String, Channel>        remoteChannelMap        = new HashMap<String, Channel>();
 
-    private final Map<String, Channel>        remoteChannelMap         = new HashMap<String, Channel>();
+    private final Map<String, CountDownLatch> remoteCountDownLatchMap = new HashMap<String, CountDownLatch>();
 
-    private final Map<String, CountDownLatch> remoteCountDownLatchMap  = new HashMap<String, CountDownLatch>();
+    private ApRemote                          apRemote;
 
-    private String                            remoteAddr;
+    private boolean                           isRequestChunked        = false;
 
-    private boolean                           isRequestChunked         = false;
+    private boolean                           isConnectMode           = false;
 
-    private boolean                           isConnectMode            = false;
-
-    public ApForwardHandler(boolean isForwardToOutsideServer) {
-        this.isForwardToOutsideServer = isForwardToOutsideServer;
-        proxyClientBootstrap.group(new NioEventLoopGroup(10)).channel(NioSocketChannel.class);
+    public ApForwardHandler() {
+        remoteClientBootstrap.group(new NioEventLoopGroup(1)).channel(NioSocketChannel.class);
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Proxy Request: " + msg + "Handler: " + this);
+        if (logger.isInfoEnabled()) {
+            logger.info("Proxy Request: " + msg + "Handler: " + this);
         }
 
         if (msg instanceof HttpRequest) {
             final HttpRequest httpRequest = (HttpRequest) msg;
+            apRemote = ApRemoteChooser.chooseRemoteAddr(httpRequest);
             if (httpRequest.getMethod().compareTo(HttpMethod.CONNECT) == 0) {
                 isConnectMode = true;
-                if (this.isForwardToOutsideServer) {
-                    remoteAddr = this.outsideServer;
-                } else {
-                    remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
-                }
                 forwardConnectRequest(ctx, httpRequest);
                 return;
             } else {
@@ -98,42 +93,33 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
         if (msg instanceof HttpRequest) {
             final HttpRequest httpRequest = (HttpRequest) msg;
 
-            remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
-
-            String host = this.getHostName(remoteAddr);
-            int port = this.getPort(remoteAddr);
-
-            if (port == -1) {
-                port = 80;
-            }
-
-            remoteAddr = host + ":" + port;
-
             isRequestChunked = HttpHeaders.isTransferEncodingChunked(httpRequest);
 
-            if (remoteChannelMap.get(remoteAddr) != null
-                && remoteChannelMap.get(remoteAddr).isActive()) {
+            if (remoteChannelMap.get(apRemote.getOriginalRemote()) != null
+                && remoteChannelMap.get(apRemote.getOriginalRemote()).isActive()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("use old channel for: " + httpRequest.getUri());
                 }
-                remoteChannelMap.get(remoteAddr)
+                remoteChannelMap.get(apRemote.getOriginalRemote())
                     .write(
                         Unpooled.copiedBuffer(constructRequestForProxy(httpRequest),
                             CharsetUtil.UTF_8));
             } else {
 
-                ApProxyCallback cb = new ApProxyCallback() {
+                ApConnectRemoteCallback cb = new ApConnectRemoteCallback() {
 
                     private boolean isResponseChunked = false;
 
                     @Override
                     public void onConnectSuccess(final ChannelHandlerContext remoteCtx) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("onConnectSuccess: " + remoteAddr);
-                        }
-                        remoteChannelMap.put(remoteAddr, remoteCtx.channel());
+                            logger.debug("onConnectSuccess: " + apRemote.getRemote() + ", for: "
+                                         + apRemote.getOriginalRemote());
 
-                        remoteCountDownLatchMap.get(remoteAddr).countDown();
+                        }
+                        remoteChannelMap.put(apRemote.getOriginalRemote(), remoteCtx.channel());
+
+                        remoteCountDownLatchMap.get(apRemote.getOriginalRemote()).countDown();
 
                         remoteCtx.write(Unpooled.copiedBuffer(
                             constructRequestForProxy(httpRequest), CharsetUtil.UTF_8));
@@ -142,11 +128,14 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
                     @Override
                     public void onReciveMessage(Object obj) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("onReciveMessage: " + obj + ", for: " + remoteAddr);
+                            logger.debug("onReciveMessage: " + obj + ", from: "
+                                         + apRemote.getRemote() + ", for: "
+                                         + apRemote.getOriginalRemote());
                         }
 
                         if (obj instanceof HttpResponse) {
                             HttpResponse _httpResponse = (HttpResponse) obj;
+                            isResponseChunked = false;
                             if (StringUtils.equalsIgnoreCase(
                                 _httpResponse.headers().get(HttpHeaders.Names.TRANSFER_ENCODING),
                                 HttpHeaders.Values.CHUNKED)) {
@@ -155,6 +144,7 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
 
                             StringBuilder buf = new StringBuilder();
 
+                            // xmxtodo: rewrite
                             String[] list = StringUtils.split(_httpResponse.toString(), "\r\n");
                             for (int i = 1; i < list.length; i++) {
                                 if (StringUtils.startsWithIgnoreCase(list[i], "Connection")) {
@@ -195,31 +185,16 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
                     @Override
                     public void onConnectClose() {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("onConnectClose: " + remoteAddr);
+                            logger.debug("onConnectClose: " + apRemote.getRemote() + ", for: "
+                                         + apRemote.getOriginalRemote());
                         }
-                        // ctx.flush().addListener(new ChannelFutureListener() {
-                        // @Override
-                        // public void operationComplete(ChannelFuture future) throws Exception {
-                        // StringBuilder buf = new StringBuilder();
-                        //
-                        // buf.append("HTTP/1.1 502 Remote Channel Reset").append("\r\n");
-                        // buf.append("Connection:close").append("\r\n");
-                        // buf.append("Content-Length:22").append("\r\n");
-                        // buf.append("Content-Type:text/plain").append("\r\n");
-                        // buf.append("\r\n");
-                        // buf.append("Remote Channel Reset").append("\r\n");
-                        //
-                        // uaChannel.write(Unpooled.copiedBuffer(buf.toString(),
-                        // CharsetUtil.UTF_8));
-                        // }
-                        // });
                         try {
                             ctx.flush().await().addListener(new ChannelFutureListener() {
                                 @Override
                                 public void operationComplete(ChannelFuture future)
                                                                                    throws Exception {
                                     ctx.close();
-                                    proxyClientBootstrap.shutdown();
+                                    remoteClientBootstrap.shutdown();
                                 }
                             });
                         } catch (InterruptedException e) {
@@ -230,21 +205,12 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
 
                 };
 
-                remoteCountDownLatchMap.put(remoteAddr, new CountDownLatch(1));
+                remoteCountDownLatchMap.put(apRemote.getOriginalRemote(), new CountDownLatch(1));
 
-                proxyClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb,
-                    this.isForwardToOutsideServer));
+                remoteClientBootstrap.handler(new ApHttpProxyChannelInitializer(cb, apRemote
+                    .isUseOutSideServer()));
 
-                if (this.isForwardToOutsideServer) {
-                    host = this.getHostName(outsideServer);
-                    port = this.getPort(outsideServer);
-
-                    if (port == -1) {
-                        port = 8700;
-                    }
-                }
-
-                proxyClientBootstrap.connect(host, port).sync();
+                remoteClientBootstrap.connect(apRemote.getRemoteHost(), apRemote.getRemotePort());
             }
 
         } else {
@@ -253,102 +219,108 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
             // if (logger.isDebugEnabled()) {
             // logger.debug(_httpContent + ", size=" + _httpContent.data().readableBytes());
             // }
-            remoteCountDownLatchMap.get(remoteAddr).await();
-
-            Channel remoteChannel = remoteChannelMap.get(remoteAddr);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("got outbandChannel for: " + remoteAddr);
+            if (apRemote == null) {
+                logger.error("apRemote is null when handling httpContent");
+                // xmxtodo throw an exception
             }
+            if (remoteCountDownLatchMap.get(apRemote.getOriginalRemote()).await(10,
+                TimeUnit.SECONDS)) {
+                // wait 30s for remote channel
+                Channel remoteChannel = remoteChannelMap.get(apRemote.getOriginalRemote());
 
-            if (remoteChannel != null && remoteChannel.isActive()) {
-                ByteBuf buf = Unpooled.buffer();
-                if (isRequestChunked) {
-                    int chunkSize = _httpContent.data().readableBytes();
-                    buf.writeBytes(Unpooled.copiedBuffer(Integer.toHexString(chunkSize),
-                        CharsetUtil.UTF_8));
-                    buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                if (logger.isDebugEnabled()) {
+                    logger.debug("got outbandChannel for: " + apRemote.getOriginalRemote());
                 }
 
-                buf.writeBytes(_httpContent.data());
+                if (remoteChannel != null && remoteChannel.isActive()) {
+                    ByteBuf buf = Unpooled.buffer();
+                    if (isRequestChunked) {
+                        int chunkSize = _httpContent.data().readableBytes();
+                        buf.writeBytes(Unpooled.copiedBuffer(Integer.toHexString(chunkSize),
+                            CharsetUtil.UTF_8));
+                        buf.writeBytes(Unpooled.copiedBuffer(CRLF, CharsetUtil.UTF_8));
+                    }
 
-                if (isRequestChunked) {
-                    buf.writeBytes(Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8));
+                    buf.writeBytes(_httpContent.data());
+
+                    if (isRequestChunked) {
+                        buf.writeBytes(Unpooled.copiedBuffer(CRLF, CharsetUtil.UTF_8));
+                    }
+
+                    remoteChannel.write(buf);
+                    remoteChannel.flush();
+                } else {
+                    logger.warn("remoteChannel is " + remoteChannel);
+                    if (remoteChannel != null) {
+                        logger.warn("remoteChannel active=" + remoteChannel.isActive());
+                    }
+
                 }
-
-                remoteChannel.write(buf);
             } else {
-                logger.warn("remoteChannel is " + remoteChannel);
-                if (remoteChannel != null) {
-                    logger.warn("remoteChannel active=" + remoteChannel.isActive());
-                }
-
+                logger.warn("CountDownLatch timeout: " + apRemote.getRemote());
+                ctx.close();
+                remoteClientBootstrap.shutdown();
             }
+
         }
     }
 
     private void forwardConnectRequest(final ChannelHandlerContext ctx,
                                        final HttpRequest httpRequest) throws Exception {
-        String host = this.getHostName(remoteAddr);
-        int port = this.getPort(remoteAddr);
+        // connect remote
+        remoteClientBootstrap.handler(new ApRelayRemoteToUaChannelInitializer(ctx.channel(),
+            remoteClientBootstrap, apRemote.isUseOutSideServer()));
+        remoteClientBootstrap.connect(apRemote.getRemoteHost(), apRemote.getRemotePort())
+            .addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(final ChannelFuture future1) throws Exception {
+                    if (future1.isSuccess()) {
+                        // successfully connect to the original server
+                        // send connect success msg to UA
+                        if (apRemote.isUseOutSideServer()) {
+                            ctx.pipeline().remove("decoder");
+                            ctx.pipeline().remove("handler");
 
-        if (port == -1) {
-            port = 443;
-        }
+                            // add relay handler
+                            ctx.pipeline().addLast(
+                                new ApRelayHandler("UA --> Remote", future1.channel()));
 
-        proxyClientBootstrap.handler(new ApRelayChannelInitializer(ctx.channel(),
-            proxyClientBootstrap, this.isForwardToOutsideServer));
-        proxyClientBootstrap.connect(host, port).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(final ChannelFuture future1) throws Exception {
-                if (future1.isSuccess()) {
-                    // successfully connect to the original server
-                    // send connect success msg to UA
-                    if (ApForwardHandler.this.isForwardToOutsideServer) {
-                        ctx.pipeline().remove("decoder");
-                        ctx.pipeline().remove("handler");
+                            future1.channel().write(
+                                Unpooled.copiedBuffer(constructConnectRequestForProxy(httpRequest),
+                                    CharsetUtil.UTF_8));
 
-                        // add relay handler
-                        ctx.pipeline().addLast(
-                            new ApRelayHandler("relay uaChannel to remoteChannel", future1
-                                .channel()));
+                        } else {
+                            HttpResponse proxyConnectSuccessResponse = new DefaultHttpResponse(
+                                HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
+                                    "Connection established"));
+                            ctx.pipeline()
+                                .addAfter("decoder", "encoder", new HttpResponseEncoder());
+                            ctx.write(proxyConnectSuccessResponse).addListener(
+                                new ChannelFutureListener() {
 
-                        future1.channel().write(
-                            Unpooled.copiedBuffer(constructConnectRequestForProxy(httpRequest),
-                                CharsetUtil.UTF_8));
+                                    @Override
+                                    public void operationComplete(ChannelFuture future2)
+                                                                                        throws Exception {
+                                        // remove handlers
+                                        ctx.pipeline().remove("decoder");
+                                        ctx.pipeline().remove("encoder");
+                                        ctx.pipeline().remove("handler");
+
+                                        // add relay handler
+                                        ctx.pipeline().addLast(
+                                            new ApRelayHandler("UA --> Remote", future1.channel()));
+                                    }
+
+                                });
+                        }
 
                     } else {
-                        HttpResponse proxyConnectSuccessResponse = new DefaultHttpResponse(
-                            HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
-                                "Connection established"));
-                        ctx.pipeline().addAfter("decoder", "encoder", new HttpResponseEncoder());
-                        ctx.write(proxyConnectSuccessResponse).addListener(
-                            new ChannelFutureListener() {
-
-                                @Override
-                                public void operationComplete(ChannelFuture future2)
-                                                                                    throws Exception {
-                                    // remove handlers
-                                    ctx.pipeline().remove("decoder");
-                                    ctx.pipeline().remove("encoder");
-                                    ctx.pipeline().remove("handler");
-
-                                    // add relay handler
-                                    ctx.pipeline().addLast(
-                                        new ApRelayHandler("relay uaChannel to remoteChannel",
-                                            future1.channel()));
-                                }
-
-                            });
-                    }
-
-                } else {
-                    if (ctx.channel().isActive()) {
-                        ctx.channel().flush().addListener(ChannelFutureListener.CLOSE);
+                        if (ctx.channel().isActive()) {
+                            ctx.channel().flush().addListener(ChannelFutureListener.CLOSE);
+                        }
                     }
                 }
-            }
-        });
+            });
     }
 
     @Override
@@ -364,13 +336,20 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
             }
         }
         ctx.close();
-        proxyClientBootstrap.shutdown();
+        remoteClientBootstrap.shutdown();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error(cause.getMessage(), cause);
+        for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
+            // close the outband channel
+            if (entry.getValue().isActive()) {
+                entry.getValue().close();
+            }
+        }
         ctx.close();
+        remoteClientBootstrap.shutdown();
     }
 
     @Override
@@ -380,12 +359,12 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
 
     private String constructRequestForProxy(HttpRequest httpRequest) {
         String url = httpRequest.getUri();
-        if (!this.isForwardToOutsideServer) {
+        if (!apRemote.isUseOutSideServer()) {
             url = this.getPartialUrl(url);
         }
         StringBuilder sb = new StringBuilder();
         sb.append(httpRequest.getMethod().name()).append(" ").append(url).append(" ")
-            .append(httpRequest.getProtocolVersion().text()).append("\r\n");
+            .append(httpRequest.getProtocolVersion().text()).append(CRLF);
 
         Set<String> headerNames = httpRequest.headers().names();
         for (String headerName : headerNames) {
@@ -398,13 +377,13 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
             }
 
             for (String headerValue : httpRequest.headers().getAll(headerName)) {
-                sb.append(headerName).append(": ").append(headerValue).append("\r\n");
+                sb.append(headerName).append(": ").append(headerValue).append(CRLF);
             }
         }
         sb.append(HttpHeaders.Names.CONNECTION).append(": ").append(HttpHeaders.Values.KEEP_ALIVE)
-            .append("\r\n");
+            .append(CRLF);
 
-        sb.append("\r\n");
+        sb.append(CRLF);
 
         if (logger.isDebugEnabled()) {
             logger.debug(sb.toString());
@@ -417,7 +396,7 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
         String url = httpRequest.getUri();
         StringBuilder sb = new StringBuilder();
         sb.append(httpRequest.getMethod().name()).append(" ").append(url).append(" ")
-            .append(httpRequest.getProtocolVersion().text()).append("\r\n");
+            .append(httpRequest.getProtocolVersion().text()).append(CRLF);
 
         Set<String> headerNames = httpRequest.headers().names();
         for (String headerName : headerNames) {
@@ -430,30 +409,17 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
             }
 
             for (String headerValue : httpRequest.headers().getAll(headerName)) {
-                sb.append(headerName).append(": ").append(headerValue).append("\r\n");
+                sb.append(headerName).append(": ").append(headerValue).append(CRLF);
             }
         }
 
-        sb.append("\r\n");
+        sb.append(CRLF);
 
         if (logger.isDebugEnabled()) {
             logger.debug(sb.toString());
         }
 
         return sb.toString();
-    }
-
-    private String getHostName(String addr) {
-        return StringUtils.split(addr, ": ")[0];
-    }
-
-    private int getPort(String addr) {
-        String[] ss = StringUtils.split(addr, ": ");
-        if (ss.length == 2) {
-            return Integer.parseInt(ss[1]);
-        }
-
-        return -1;
     }
 
     private String getPartialUrl(String fullUrl) {
@@ -464,4 +430,5 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
 
         return fullUrl;
     }
+
 }

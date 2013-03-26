@@ -6,6 +6,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 
 import com.xx_dev.apn.proxy.common.ApForwardHandler;
+import com.xx_dev.apn.proxy.common.LogHandler;
 
 /**
  * @author xmx
@@ -15,21 +16,11 @@ public class ApInsideChannelInitializer extends ChannelInitializer<SocketChannel
 
     @Override
     public void initChannel(SocketChannel channel) throws Exception {
-        // Create a default pipeline implementation.
         ChannelPipeline pipeline = channel.pipeline();
 
-        // Uncomment the following lines if you want HTTPS
-        // SSLEngine engine = SecureChatSslContextFactory.getServerContext().createSSLEngine();
-        // engine.setUseClientMode(false);
-        // pipeline.addLast("ssl", new SslHandler(engine));
-
+        pipeline.addLast("log", new LogHandler());
         pipeline.addLast("decoder", new HttpRequestDecoder());
-        // pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
-        // pipeline.addLast("encoder", new HttpResponseEncoder());
-        // pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
-        // pipeline.addLast("codec", new HttpServerCodec());
-
-        pipeline.addLast("handler", new ApForwardHandler(true));
+        pipeline.addLast("handler", new ApForwardHandler());
 
     }
 

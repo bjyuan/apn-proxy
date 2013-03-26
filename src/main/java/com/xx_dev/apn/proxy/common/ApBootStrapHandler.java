@@ -5,25 +5,21 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundByteHandlerAdapter;
 
-import org.apache.log4j.Logger;
-
 /**
  * @author xmx
  * @version $Id: ApRelayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
  */
-public final class BootStrapHandler extends ChannelInboundByteHandlerAdapter {
+public final class ApBootStrapHandler extends ChannelInboundByteHandlerAdapter {
 
-    private static Logger   logger = Logger.getLogger(BootStrapHandler.class);
+    private final Bootstrap remoteClientBootstrap;
 
-    private final Bootstrap proxyClientBootstrap;
-
-    public BootStrapHandler(Bootstrap proxyClientBootstrap) {
-        this.proxyClientBootstrap = proxyClientBootstrap;
+    public ApBootStrapHandler(Bootstrap proxyClientBootstrap) {
+        this.remoteClientBootstrap = proxyClientBootstrap;
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        proxyClientBootstrap.shutdown();
+        remoteClientBootstrap.shutdown();
     }
 
     /**
@@ -32,9 +28,6 @@ public final class BootStrapHandler extends ChannelInboundByteHandlerAdapter {
      */
     @Override
     protected void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("BootStrapHandler");
-        }
     }
 
 }

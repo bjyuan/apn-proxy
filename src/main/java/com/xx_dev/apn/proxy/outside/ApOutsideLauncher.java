@@ -6,6 +6,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import org.apache.log4j.Logger;
 
+import com.xx_dev.apn.proxy.common.ApConfig;
+
 /**
  * @author xmx
  * @version $Id: ApOutsideLauncher.java,v 0.1 Feb 11, 2013 11:07:34 PM xmx Exp $
@@ -19,8 +21,11 @@ public class ApOutsideLauncher {
         ServerBootstrap serverBootStrap = new ServerBootstrap();
 
         try {
-            serverBootStrap.group(new NioEventLoopGroup(50), new NioEventLoopGroup(50))
-                .channel(NioServerSocketChannel.class).localAddress(8700)
+            int threadCount = Integer.parseInt(ApConfig.getConfig("ap.accet_thread_count"));
+            int port = Integer.parseInt(ApConfig.getConfig("ap.port"));
+            serverBootStrap
+                .group(new NioEventLoopGroup(threadCount), new NioEventLoopGroup(threadCount))
+                .channel(NioServerSocketChannel.class).localAddress(port)
                 .childHandler(new ApOutsideChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {

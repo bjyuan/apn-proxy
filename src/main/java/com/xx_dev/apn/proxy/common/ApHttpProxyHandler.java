@@ -7,28 +7,21 @@ import org.apache.log4j.Logger;
 
 public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger         logger = Logger.getLogger(ApHttpProxyHandler.class);
+    private static Logger                 logger = Logger.getLogger(ApHttpProxyHandler.class);
 
-    private final ApProxyCallback cb;
+    private final ApConnectRemoteCallback cb;
 
-    public ApHttpProxyHandler(ApProxyCallback cb) {
+    public ApHttpProxyHandler(ApConnectRemoteCallback cb) {
         this.cb = cb;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Remote channel active");
-        }
         cb.onConnectSuccess(ctx);
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received a http response: " + msg);
-        }
 
         cb.onReciveMessage(msg);
 
@@ -36,9 +29,6 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Remote channel inactive");
-        }
         cb.onConnectClose();
     }
 
