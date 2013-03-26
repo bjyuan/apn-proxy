@@ -27,23 +27,37 @@ public class ApRemoteChooser {
     private static List<String> ruleList;
 
     static {
+        Thread t = new Thread(new Runnable() {
 
-        try {
-            ruleList = new ArrayList<String>();
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        ruleList = new ArrayList<String>();
 
-            File ruleFile = new File("ousiderule.txt");
+                        File ruleFile = new File("ousiderule.txt");
 
-            if (ruleFile.exists()) {
-                Scanner in = new Scanner(ruleFile, "UTF-8");
-                while (in.hasNextLine()) {
-                    String rule = in.nextLine();
-                    ruleList.add(rule);
+                        if (ruleFile.exists()) {
+                            Scanner in = new Scanner(ruleFile, "UTF-8");
+                            while (in.hasNextLine()) {
+                                String rule = in.nextLine();
+                                ruleList.add(rule);
+                            }
+                        }
+
+                        if (logger.isInfoEnabled()) {
+                            logger.info("ousiderule refresh finish");
+                        }
+
+                        Thread.sleep(1 * 60 * 1000);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+
                 }
             }
-
-        } catch (Exception e) {
-            logger.error("", e);
-        }
+        }, "outsiderule-refresh");
+        t.start();
     }
 
     public static ApRemote chooseRemoteAddr(HttpRequest httpRequest) {
