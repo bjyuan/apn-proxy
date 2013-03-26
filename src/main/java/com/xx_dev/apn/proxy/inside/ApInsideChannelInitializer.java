@@ -6,7 +6,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 
 import com.xx_dev.apn.proxy.common.ApForwardHandler;
-import com.xx_dev.apn.proxy.common.LogHandler;
 
 /**
  * @author xmx
@@ -18,7 +17,6 @@ public class ApInsideChannelInitializer extends ChannelInitializer<SocketChannel
     public void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
 
-        pipeline.addLast("log", new LogHandler());
         pipeline.addLast("decoder", new HttpRequestDecoder());
         pipeline.addLast("handler", new ApForwardHandler());
 
