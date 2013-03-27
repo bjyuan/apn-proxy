@@ -119,19 +119,17 @@ public class ApRemoteChooser {
 
     private static boolean useOutsideForHost(String host) {
         ReadLock readLock = ruleListReentrantReadWriteLock.readLock();
+        boolean useOutsideForHost = false;
         readLock.lock();
         for (String rule : ruleList) {
-            if (StringUtils.equals(rule, host)) {
-                return true;
-            }
-
-            if (StringUtils.endsWith(host, "." + rule)) {
-                return true;
+            if (StringUtils.equals(rule, host) || StringUtils.endsWith(host, "." + rule)) {
+                useOutsideForHost = true;
+                break;
             }
         }
         readLock.unlock();
 
-        return false;
+        return useOutsideForHost;
 
     }
 
