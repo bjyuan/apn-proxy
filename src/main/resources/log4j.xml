@@ -51,7 +51,6 @@
     <logger name="com.xx_dev.apn.proxy" additivity="false">
         <level value="info"/>
         <appender-ref ref="DEFAULT_APPENDER"/>
-        <appender-ref ref="CONSOLE_APPENDER" />
     </logger>
 
     <root>
