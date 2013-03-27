@@ -35,7 +35,7 @@ public class ApRemoteChooser {
                     try {
                         ruleList = new ArrayList<String>();
 
-                        File ruleFile = new File(ApConfig.getConfig("ap.outside_rule"));
+                        File ruleFile = new File(ApConfig.getConfig("ap.remote_rule"));
 
                         if (ruleFile.exists()) {
                             Scanner in = new Scanner(ruleFile, "UTF-8");

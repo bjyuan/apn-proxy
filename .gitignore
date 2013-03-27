@@ -10,4 +10,4 @@ classes/
 log/
 *.ks
 config.properties
-ousiderule.txt
+remote_rule.txt
