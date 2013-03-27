@@ -26,7 +26,7 @@ public class ApSSLContextFactory {
     static {
 
         try {
-            sslcontext = SSLContext.getInstance("SSL");
+            sslcontext = SSLContext.getInstance("TLS");
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");

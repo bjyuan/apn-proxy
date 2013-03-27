@@ -25,6 +25,7 @@ public class ApOutsideChannelInitializer extends ChannelInitializer<SocketChanne
         // Uncomment the following lines if you want HTTPS
         SSLEngine engine = ApSSLContextFactory.getSSLContext().createSSLEngine();
         engine.setUseClientMode(false);
+        engine.setNeedClientAuth(true);
         pipeline.addLast("ssl", new SslHandler(engine));
 
         // pipeline.addLast("decoder", new HttpRequestDecoder());
@@ -38,5 +39,4 @@ public class ApOutsideChannelInitializer extends ChannelInitializer<SocketChanne
         pipeline.addLast("handler", new ApForwardHandler());
 
     }
-
 }

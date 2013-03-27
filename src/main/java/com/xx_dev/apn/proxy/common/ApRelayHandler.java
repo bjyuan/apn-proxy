@@ -27,16 +27,16 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info(tag + " channel active");
+        if (logger.isDebugEnabled()) {
+            logger.debug(tag + " channel active");
         }
         ctx.flush();
     }
 
     @Override
     public void inboundBufferUpdated(final ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info(tag + ", size: " + in.readableBytes());
+        if (logger.isDebugEnabled()) {
+            logger.debug(tag + ", size: " + in.readableBytes());
         }
 
         // ByteBuf out = relayChannel.outboundByteBuffer();
@@ -57,8 +57,8 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info(tag + " channel inactive");
+        if (logger.isDebugEnabled()) {
+            logger.debug(tag + " channel inactive");
         }
         if (relayChannel != null && relayChannel.isActive()) {
             relayChannel.flush().addListener(ChannelFutureListener.CLOSE);

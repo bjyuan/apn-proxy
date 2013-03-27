@@ -12,6 +12,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -22,42 +25,52 @@ import org.apache.log4j.Logger;
  */
 public class ApRemoteChooser {
 
-    private static Logger       logger = Logger.getLogger(ApRemoteChooser.class);
+    private static Logger                 logger                         = Logger
+                                                                             .getLogger(ApRemoteChooser.class);
 
-    private static List<String> ruleList;
+    private static List<String>           ruleList                       = new ArrayList<String>();
+
+    private static ReentrantReadWriteLock ruleListReentrantReadWriteLock = new ReentrantReadWriteLock();
 
     static {
         Thread t = new Thread(new Runnable() {
-
             @Override
             public void run() {
                 while (true) {
                     try {
-                        ruleList = new ArrayList<String>();
-
-                        File ruleFile = new File(ApConfig.getConfig("ap.remote_rule"));
-
-                        if (ruleFile.exists()) {
-                            Scanner in = new Scanner(ruleFile, "UTF-8");
-                            while (in.hasNextLine()) {
-                                String rule = in.nextLine();
-                                ruleList.add(rule);
-                            }
-                        }
-
-                        if (logger.isInfoEnabled()) {
-                            logger.info("ousiderule refresh finish");
-                        }
-
+                        WriteLock writeLock = ruleListReentrantReadWriteLock.writeLock();
+                        writeLock.lock();
+                        refresh();
+                        writeLock.unlock();
                         Thread.sleep(1 * 60 * 1000);
-                    } catch (Exception e) {
+                    } catch (InterruptedException e) {
                         logger.error(e.getMessage(), e);
                     }
-
                 }
             }
-        }, "outsiderule-refresh");
+        }, "remote-rule-refresh");
         t.start();
+    }
+
+    private static void refresh() {
+        try {
+            ruleList.clear();
+            File ruleFile = new File(ApConfig.getConfig("ap.remote_rule"));
+
+            if (ruleFile.exists()) {
+                Scanner in = new Scanner(ruleFile, "UTF-8");
+                while (in.hasNextLine()) {
+                    String rule = in.nextLine();
+                    ruleList.add(rule);
+                }
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.info("Remote rule refresh finished: " + ruleList);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     public static ApRemote chooseRemoteAddr(HttpRequest httpRequest) {
@@ -105,7 +118,8 @@ public class ApRemoteChooser {
     }
 
     private static boolean useOutsideForHost(String host) {
-
+        ReadLock readLock = ruleListReentrantReadWriteLock.readLock();
+        readLock.lock();
         for (String rule : ruleList) {
             if (StringUtils.equals(rule, host)) {
                 return true;
@@ -115,6 +129,7 @@ public class ApRemoteChooser {
                 return true;
             }
         }
+        readLock.unlock();
 
         return false;
 
