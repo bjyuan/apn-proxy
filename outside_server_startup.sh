@@ -5,4 +5,4 @@ kill -9 $pid
 git pull --rebase
 mvn clean
 mvn compile
-mvn exec:java -Dexec.mainClass="com.xx_dev.apn.proxy.outside.ApOutsideLauncher" &
+mvn exec:java -Dexec.mainClass="com.xx_dev.apn.proxy.outside.ApOutsideLauncher" -Djava.net.preferIPv6Addresses=true &
