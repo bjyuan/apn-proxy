@@ -34,7 +34,7 @@ import com.xx_dev.apn.proxy.common.ApRemoteChooser.ApRemote;
 
 /**
  * @author xmx
- * @version $Id: ApOutsideHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
+ * @version $Id: ApForwardHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
 public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
@@ -57,6 +57,9 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
 
     public ApForwardHandler() {
         remoteClientBootstrap.group(new NioEventLoopGroup(1)).channel(NioSocketChannel.class);
+        if (StringUtils.isNotBlank(ApConfig.getConfig("ap.local_addr"))) {
+            remoteClientBootstrap.localAddress(ApConfig.getConfig("ap.local_addr"), 0);
+        }
     }
 
     @Override
