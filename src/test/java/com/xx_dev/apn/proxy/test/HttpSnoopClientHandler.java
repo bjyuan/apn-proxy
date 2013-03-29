@@ -14,12 +14,20 @@ package com.xx_dev.apn.proxy.test;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.util.CharsetUtil;
 
 public class HttpSnoopClientHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println(msg);
+        if (msg instanceof HttpResponse) {
+            System.out.println(msg);
+        } else if (msg instanceof HttpContent) {
+            System.out.println(((HttpContent) msg).data().toString(CharsetUtil.UTF_8));
+        }
+
     }
 
     @Override

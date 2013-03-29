@@ -63,7 +63,7 @@ public class HttpSnoopClient {
     public static void main(String[] args) throws Exception {
         Scanner in = new Scanner(System.in);
         while (true) {
-            new HttpSnoopClient().run("ipv6.google.com", 80);
+            new HttpSnoopClient().run("ip6.me", 80);
             in.nextLine();
         }
 
