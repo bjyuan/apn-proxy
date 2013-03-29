@@ -38,6 +38,7 @@ public class HttpSnoopClient {
         try {
             b.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
                 .handler(new HttpSnoopClientInitializer());
+            b.localAddress("2600:3c02:e000:e::1001", 0);
 
             // Make the connection attempt.
             Channel ch = b.connect(host, port).sync().channel();
@@ -62,7 +63,7 @@ public class HttpSnoopClient {
     public static void main(String[] args) throws Exception {
         Scanner in = new Scanner(System.in);
         while (true) {
-            new HttpSnoopClient().run("www.baidu.com", 80);
+            new HttpSnoopClient().run("ipv6.google.com", 80);
             in.nextLine();
         }
 
