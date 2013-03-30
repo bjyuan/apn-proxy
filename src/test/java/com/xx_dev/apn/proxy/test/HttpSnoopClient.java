@@ -23,8 +23,6 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 
-import java.util.Scanner;
-
 /**
  * A simple HTTP client that prints out the content of the HTTP response to {@link System#out} to
  * test {@link HttpSnoopServer}.
@@ -61,11 +59,6 @@ public class HttpSnoopClient {
     }
 
     public static void main(String[] args) throws Exception {
-        Scanner in = new Scanner(System.in);
-        while (true) {
-            new HttpSnoopClient().run("ip6.me", 80);
-            in.nextLine();
-        }
-
+        new HttpSnoopClient().run("ip6.me", 80);
     }
 }
