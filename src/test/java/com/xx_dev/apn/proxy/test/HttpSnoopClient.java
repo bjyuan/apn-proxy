@@ -59,6 +59,6 @@ public class HttpSnoopClient {
     }
 
     public static void main(String[] args) throws Exception {
-        new HttpSnoopClient().run("ip6.me", 80);
+        new HttpSnoopClient().run("twitter.com", 80);
     }
 }
