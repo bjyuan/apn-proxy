@@ -1,7 +1,3 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2013 All Rights Reserved.
- */
 package com.xx_dev.apn.proxy.common;
 
 import io.netty.channel.ChannelDuplexHandler;
