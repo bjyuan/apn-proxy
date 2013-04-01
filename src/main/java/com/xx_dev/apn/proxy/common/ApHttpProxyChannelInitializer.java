@@ -8,15 +8,17 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
+import com.xx_dev.apn.proxy.common.ApRemoteChooser.ApRemote;
+
 public class ApHttpProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final boolean         isRemoteSSL;
+    private final ApRemote                apRemote;
 
     private final ApConnectRemoteCallback cb;
 
-    public ApHttpProxyChannelInitializer(ApConnectRemoteCallback cb, boolean isRemoteSSL) {
+    public ApHttpProxyChannelInitializer(ApConnectRemoteCallback cb, ApRemote apRemote) {
         this.cb = cb;
-        this.isRemoteSSL = isRemoteSSL;
+        this.apRemote = apRemote;
     }
 
     @Override
@@ -24,7 +26,7 @@ public class ApHttpProxyChannelInitializer extends ChannelInitializer<SocketChan
 
         ChannelPipeline pipeline = channel.pipeline();
 
-        if (isRemoteSSL) {
+        if (apRemote.isUseOutSideServer()) {
             SSLEngine engine = ApSSLContextFactory.getSSLContext().createSSLEngine();
             engine.setUseClientMode(true);
 
