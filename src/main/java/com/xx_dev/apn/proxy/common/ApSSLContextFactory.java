@@ -34,8 +34,7 @@ public class ApSSLContextFactory {
             String keyStorePassword = ApConfig.getConfig("ap.key_store_password");
 
             ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
-            tks.load(new FileInputStream(ApConfig.getConfig("ap.key_store")),
-                keyStorePassword.toCharArray());
+            tks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
 
             String keyPassword = ApConfig.getConfig("ap.key_password");
             kmf.init(ks, keyPassword.toCharArray());
