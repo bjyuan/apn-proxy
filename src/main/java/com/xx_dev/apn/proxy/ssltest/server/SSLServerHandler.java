@@ -32,8 +32,7 @@ public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
         ByteBuf out = ctx.nextOutboundByteBuffer();
         out.writeBytes(in);
-        // ctx.write(in);
-        // ctx.flush();
+        ctx.flush();
     }
 
     @Override
