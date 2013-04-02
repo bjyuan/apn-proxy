@@ -33,32 +33,38 @@ public class HttpSnoopClient {
 
         // Configure the client.
         Bootstrap b = new Bootstrap();
-        try {
-            b.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
-                .handler(new HttpSnoopClientInitializer());
-            b.localAddress("2600:3c02:e000:e::1001", 0);
 
-            // Make the connection attempt.
-            Channel ch = b.connect(host, port).sync().channel();
+        for (int i = 0; i < 2; i++) {
+            try {
+                b.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
+                    .handler(new HttpSnoopClientInitializer());
+                // b.localAddress("2600:3c02:e000:e::1001", 0);
 
-            // Prepare the HTTP request.
-            HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
-            request.headers().set(HttpHeaders.Names.HOST, host);
-            request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
-            // request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
+                // Make the connection attempt.
+                Channel ch = b.connect(host, port).sync().channel();
 
-            // Send the HTTP request.
-            ch.write(request);
+                // Prepare the HTTP request.
+                HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                    "/");
+                request.headers().set(HttpHeaders.Names.HOST, host);
+                request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
+                // request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING,
+                // HttpHeaders.Values.GZIP);
 
-            // Wait for the server to close the connection.
-            ch.closeFuture().sync();
-        } finally {
-            // Shut down executor threads to exit.
-            b.shutdown();
+                // Send the HTTP request.
+                ch.write(request);
+
+                // Wait for the server to close the connection.
+                ch.closeFuture().sync();
+            } finally {
+                // Shut down executor threads to exit.
+                b.shutdown();
+            }
         }
+
     }
 
     public static void main(String[] args) throws Exception {
-        new HttpSnoopClient().run("twitter.com", 80);
+        new HttpSnoopClient().run("www.baidu.com", 80);
     }
 }
