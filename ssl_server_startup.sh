@@ -5,4 +5,4 @@ kill -9 $pid
 git pull --rebase
 mvn clean
 mvn compile
-mvn exec:java -Dexec.mainClass="com.xx_dev.apn.proxy.ssltest.server.SSLServerLauncher" -Djava.net.preferIPv6Addresses=true &
+mvn exec:java -Dexec.mainClass="com.xx_dev.apn.proxy.ssltest.server.SSLServerLauncher" -Djava.net.preferIPv6Addresses=true

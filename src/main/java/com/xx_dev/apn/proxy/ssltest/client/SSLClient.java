@@ -23,6 +23,7 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
+import com.xx_dev.apn.proxy.common.ApConfig;
 import com.xx_dev.apn.proxy.common.ApSSLContextFactory;
 
 /**
@@ -64,7 +65,7 @@ public class SSLClient {
             ChannelFuture f = b.connect(host, port).sync();
 
             // Wait until the connection is closed.
-            f.channel().closeFuture().sync();
+            f.channel().closeFuture().await();
         } finally {
             // Shut down the event loop to terminate all threads.
             b.shutdown();
@@ -72,7 +73,7 @@ public class SSLClient {
     }
 
     public static void main(String[] args) throws Exception {
-        final String host = "";
+        final String host = ApConfig.getConfig("ap.test");
         final int port = 8900;
 
         new SSLClient(host, port).run();

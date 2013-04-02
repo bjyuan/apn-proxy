@@ -29,15 +29,15 @@ public class SSLClientHandler extends ChannelInboundByteHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(SSLClientHandler.class);
 
-    private static final String msg    = "GET http://pbs.twimg.com/media/BGzxWkJCIAAuyhM.jpg:large HTTP/1.1\r\n"
-                                         + "Host: pbs.twimg.com\r\n"
+    private static final String msg    = "GET http://dongtaiwang.com/loc/phome.php?v=0 HTTP/1.1\r\n"
+                                         + "Host: dongtaiwang.com\r\n"
                                          + "Proxy-Connection: keep-alive\r\n"
                                          + "Accept-Encoding: gzip, deflate\r\n"
                                          + "Accept: */*\r\n"
                                          + "Accept-Language: en-us\r\n"
                                          + "Connection: keep-alive\r\n"
                                          + "Pragma: no-cache\r\n"
-                                         + "User-Agent: Tweetbot/27301 CFNetwork/609.1.4 Darwin/13.0.0\r\n"
+                                         + "User-Agent: Mozilla/5.0 (Windows NT 6.1; rv:19.0) Gecko/20100101 Firefox/19.0\r\n"
                                          + "\r\n";
 
     @Override
@@ -49,6 +49,7 @@ public class SSLClientHandler extends ChannelInboundByteHandlerAdapter {
     @Override
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
         logger.info("Server Said: " + in.toString(CharsetUtil.UTF_8));
+        in.clear();
 
         try {
             Thread.sleep(10 * 1000);
