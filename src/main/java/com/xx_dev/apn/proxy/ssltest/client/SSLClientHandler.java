@@ -42,6 +42,7 @@ public class SSLClientHandler extends ChannelInboundByteHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
+        logger.info("client channel active");
         ctx.write(Unpooled.copiedBuffer(msg, CharsetUtil.UTF_8));
     }
 
