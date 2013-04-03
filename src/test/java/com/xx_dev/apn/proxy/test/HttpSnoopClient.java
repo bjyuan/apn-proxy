@@ -32,10 +32,11 @@ public class HttpSnoopClient {
     public void run(String host, int port) throws Exception {
 
         // Configure the client.
-        Bootstrap b = new Bootstrap();
+        Bootstrap b = null;
 
         for (int i = 0; i < 2; i++) {
             try {
+                b = new Bootstrap();
                 b.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
                     .handler(new HttpSnoopClientInitializer());
                 // b.localAddress("2600:3c02:e000:e::1001", 0);

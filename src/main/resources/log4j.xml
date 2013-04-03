@@ -55,8 +55,9 @@
     </logger>
 
     <root>
-        <level value="warn"/>
+        <level value="debug"/>
         <appender-ref ref="DEFAULT_APPENDER"/>
+        <appender-ref ref="CONSOLE_APPENDER" />
     </root>
 
 </log4j:configuration>
