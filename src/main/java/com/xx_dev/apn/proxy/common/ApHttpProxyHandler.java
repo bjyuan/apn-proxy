@@ -29,6 +29,9 @@ public class ApHttpProxyHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("remote channel inactive");
+        }
         cb.onConnectClose();
     }
 

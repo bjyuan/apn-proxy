@@ -3,7 +3,7 @@ package com.xx_dev.apn.proxy.common;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpResponseDecoder;
+import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
@@ -33,8 +33,8 @@ public class ApHttpProxyChannelInitializer extends ChannelInitializer<SocketChan
             pipeline.addLast("ssl", new SslHandler(engine));
         }
 
-        // channel.pipeline().addLast("codec", new HttpClientCodec());
-        pipeline.addLast("decoder", new HttpResponseDecoder());
+        channel.pipeline().addLast("codec", new HttpClientCodec());
+        // pipeline.addLast("decoder", new HttpResponseDecoder());
         // channel.pipeline().addLast("decompressor", new HttpContentDecompressor());
         // channel.pipeline().addLast("aggregator", new HttpObjectAggregator(65536));
         pipeline.addLast("handler", new ApHttpProxyHandler(cb));

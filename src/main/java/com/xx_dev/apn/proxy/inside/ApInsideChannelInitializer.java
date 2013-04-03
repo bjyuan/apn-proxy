@@ -3,7 +3,7 @@ package com.xx_dev.apn.proxy.inside;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpServerCodec;
 
 import com.xx_dev.apn.proxy.common.ApForwardHandler;
 
@@ -16,8 +16,8 @@ public class ApInsideChannelInitializer extends ChannelInitializer<SocketChannel
     @Override
     public void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
-
-        pipeline.addLast("decoder", new HttpRequestDecoder());
+        pipeline.addLast("codec", new HttpServerCodec());
+        // pipeline.addLast("decoder", new HttpRequestDecoder());
         pipeline.addLast("handler", new ApForwardHandler());
 
     }
