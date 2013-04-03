@@ -191,19 +191,13 @@ public class ApForwardHandler extends ChannelInboundMessageHandlerAdapter<Object
                             logger.debug("onConnectClose: " + apRemote.getRemote() + ", for: "
                                          + apRemote.getOriginalRemote());
                         }
-                        try {
-                            ctx.flush().await().addListener(new ChannelFutureListener() {
-                                @Override
-                                public void operationComplete(ChannelFuture future)
-                                                                                   throws Exception {
-                                    ctx.close();
-                                    remoteClientBootstrap.shutdown();
-                                }
-                            });
-                        } catch (InterruptedException e) {
-                            logger.error(e.getMessage(), e);
-                        }
-
+                        ctx.flush().addListener(new ChannelFutureListener() {
+                            @Override
+                            public void operationComplete(ChannelFuture future) throws Exception {
+                                ctx.close();
+                                remoteClientBootstrap.shutdown();
+                            }
+                        });
                     }
 
                 };
