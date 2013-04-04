@@ -11,11 +11,13 @@ import com.xx_dev.apn.proxy.test.HttpProxyHandler.RemoteChannelInactiveCallback;
 public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private Channel                       uaChannel;
+    private String                        remoteAddr;
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public HttpProxyChannelInitializer(Channel uaChannel,
+    public HttpProxyChannelInitializer(Channel uaChannel, String remtoeAddr,
                                        RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
         this.uaChannel = uaChannel;
+        this.remoteAddr = remtoeAddr;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
     }
 
@@ -28,6 +30,7 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
         // pipeline.addLast("decoder", new HttpResponseDecoder());
         // channel.pipeline().addLast("decompressor", new HttpContentDecompressor());
         // channel.pipeline().addLast("aggregator", new HttpObjectAggregator(65536));
-        pipeline.addLast("handler", new HttpProxyHandler(uaChannel, remoteChannelInactiveCallback));
+        pipeline.addLast("handler", new HttpProxyHandler(uaChannel, remoteAddr,
+            remoteChannelInactiveCallback));
     }
 }

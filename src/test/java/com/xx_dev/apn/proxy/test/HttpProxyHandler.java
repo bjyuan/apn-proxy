@@ -16,18 +16,21 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
 
     private Channel                       uaChannel;
 
+    private String                        remoteAddr;
+
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public HttpProxyHandler(Channel uaChannel,
+    public HttpProxyHandler(Channel uaChannel, String remoteAddr,
                             RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
         this.uaChannel = uaChannel;
+        this.remoteAddr = remoteAddr;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if (logger.isInfoEnabled()) {
-            logger.info("Remote channel active");
+            logger.info("Remote channel: " + remoteAddr + " active");
         }
     }
 
@@ -36,7 +39,7 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
                                                                                       throws Exception {
 
         if (logger.isInfoEnabled()) {
-            logger.info("Recived remote msg: " + msg);
+            logger.info("From: " + remoteAddr + ", recived remote msg: " + msg);
         }
 
         if (msg instanceof HttpResponse) {
@@ -55,8 +58,8 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.warn("remote channel inactive");
-        remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx);
+        logger.warn("Remote channel: " + remoteAddr + " inactive");
+        remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
     }
 
     @Override
@@ -66,7 +69,8 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
     }
 
     public interface RemoteChannelInactiveCallback {
-        public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx) throws Exception;
+        public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
+                                                  String remoeAddr) throws Exception;
     }
 
 }

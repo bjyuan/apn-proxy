@@ -8,10 +8,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,12 +29,13 @@ import com.xx_dev.apn.proxy.test.HttpProxyHandler.RemoteChannelInactiveCallback;
  */
 public class HttpServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger               logger           = Logger
-                                                             .getLogger(HttpServerHandler.class);
+    private static Logger        logger            = Logger.getLogger(HttpServerHandler.class);
 
-    private String                      remoteHostHeader;
+    private String               remoteAddr;
 
-    private static Map<String, Channel> remoteChannelMap = new HashMap<String, Channel>();
+    private Map<String, Channel> remoteChannelMap  = new HashMap<String, Channel>();
+
+    private List<HttpContent>    httpContentBuffer = new ArrayList<HttpContent>();
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, final Object msg) throws Exception {
@@ -42,53 +46,65 @@ public class HttpServerHandler extends ChannelInboundMessageHandlerAdapter<Objec
 
         final Channel uaChannel = ctx.channel();
 
-        Channel remoteChannel = remoteChannelMap.get(remoteHostHeader);
-
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
-            remoteHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            String remoteHost = getHostName(remoteAddr);
+            int remotePort = getPort(remoteAddr) == -1 ? 80 : getPort(remoteAddr);
+            remoteAddr = remoteHost + ":" + remotePort;
+
+            Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
             if (remoteChannel != null && remoteChannel.isActive()) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Use old remote channel for: " + remoteHostHeader);
+                    logger.debug("Use old remote channel for: " + remoteAddr);
                 }
                 remoteChannel.write(constructRequestForProxy((HttpRequest) msg));
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Create new remote channel for: " + remoteHostHeader);
+                    logger.debug("Create new remote channel for: " + remoteAddr);
                 }
                 Bootstrap b = new Bootstrap();
                 RemoteChannelInactiveCallback cb = new RemoteChannelInactiveCallback() {
                     @Override
-                    public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx)
-                                                                                                     throws Exception {
-                        remoteChannelMap.remove(remoteHostHeader);
+                    public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
+                                                              String inactiveRemoteAddr)
+                                                                                        throws Exception {
+                        remoteChannelMap.remove(inactiveRemoteAddr);
                     }
 
                 };
                 b.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
-                    .handler(new HttpProxyChannelInitializer(uaChannel, cb));
-                ChannelFuture remoteConnectFuture = b.connect(getHostName(remoteHostHeader),
-                    getPort(remoteHostHeader));
+                    .handler(new HttpProxyChannelInitializer(uaChannel, remoteAddr, cb));
+                ChannelFuture remoteConnectFuture = b.connect(getHostName(remoteAddr),
+                    getPort(remoteAddr));
+                remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());
 
                 remoteConnectFuture.addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (future.isSuccess()) {
-                            Channel _remoteChannel = future.channel();
-                            remoteChannelMap.put(remoteHostHeader, _remoteChannel);
                             future.channel().write(constructRequestForProxy((HttpRequest) msg));
+                            for (HttpContent hc : httpContentBuffer) {
+                                future.channel().write(hc);
+                            }
+                            httpContentBuffer.clear();
                         } else {
                             logger.error("remote connect fail");
                             future.channel().close();
                         }
                     }
                 });
+
             }
 
         } else {
+            Channel remoteChannel = remoteChannelMap.get(remoteAddr);
+
             if (remoteChannel != null && remoteChannel.isActive()) {
                 remoteChannel.write(msg);
+            } else {
+                httpContentBuffer.add((HttpContent) msg);
             }
         }
 
@@ -147,7 +163,7 @@ public class HttpServerHandler extends ChannelInboundMessageHandlerAdapter<Objec
         if (ss.length == 2) {
             return Integer.parseInt(ss[1]);
         }
-        return 80;
+        return -1;
     }
 
 }
