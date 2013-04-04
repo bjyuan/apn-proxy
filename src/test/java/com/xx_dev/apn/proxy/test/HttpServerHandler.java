@@ -1,16 +1,23 @@
 package com.xx_dev.apn.proxy.test;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.CharsetUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +97,23 @@ public class HttpServerHandler extends ChannelInboundMessageHandlerAdapter<Objec
                             }
                             httpContentBuffer.clear();
                         } else {
-                            logger.error("remote connect fail");
+                            String errorMsg = "remote connect to " + remoteAddr + " fail";
+                            logger.error(errorMsg);
+                            ByteBuf errorResponseContent = Unpooled.copiedBuffer(
+                                "The remote server" + remoteAddr + " can not connect",
+                                CharsetUtil.UTF_8);
+                            // send error response
+                            FullHttpMessage errorResponseMsg = new DefaultFullHttpResponse(
+                                HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                                errorResponseContent);
+                            errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_ENCODING,
+                                CharsetUtil.UTF_8.name());
+                            errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_LENGTH,
+                                errorResponseContent.readableBytes());
+                            uaChannel.write(errorResponseMsg);
+                            uaChannel.flush();
+                            httpContentBuffer.clear();
+
                             future.channel().close();
                         }
                     }
