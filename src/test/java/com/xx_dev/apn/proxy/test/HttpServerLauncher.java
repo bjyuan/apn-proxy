@@ -19,8 +19,8 @@ public class HttpServerLauncher {
         ServerBootstrap serverBootStrap = new ServerBootstrap();
 
         try {
-            serverBootStrap.group(new NioEventLoopGroup(5), new NioEventLoopGroup(5))
-                .channel(NioServerSocketChannel.class).localAddress(9999)
+            serverBootStrap.group(new NioEventLoopGroup(10), new NioEventLoopGroup(100))
+                .channel(NioServerSocketChannel.class).localAddress(8700)
                 .childHandler(new HttpServerChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {
