@@ -4,7 +4,13 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import java.io.File;
+import java.net.MalformedURLException;
+
+import javax.xml.parsers.FactoryConfigurationError;
+
 import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 
 /**
  * @author xmx
@@ -13,6 +19,18 @@ import org.apache.log4j.Logger;
 public class HttpServerLauncher {
 
     private static Logger logger = Logger.getLogger(HttpServerLauncher.class);
+
+    static {
+        File log4jConfigFile = new File("conf/log4j.xml");
+        if (log4jConfigFile.exists()) {
+            try {
+                DOMConfigurator.configure(log4jConfigFile.toURI().toURL());
+            } catch (MalformedURLException e) {
+            } catch (FactoryConfigurationError e) {
+            }
+        }
+
+    }
 
     public static void main(String[] args) {
 
