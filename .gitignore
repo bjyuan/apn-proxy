@@ -8,6 +8,4 @@ classes/
 *.iml
 .DS_Store
 log/
-*.ks
-config.properties
-remote_rule.txt
+conf/
