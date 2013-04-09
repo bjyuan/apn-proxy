@@ -1,7 +1,10 @@
 #!/bin/bash
-pid=`ps aux | grep 'com.xx_dev.apn.proxy.test.HttpServerLauncher' |grep 'java' |awk '{print $2}'`
-echo $pid
-kill -9 $pid
+pids=`ps aux | grep 'com.xx_dev.apn.proxy.test.HttpServerLauncher' |grep 'java' |awk '{print $2}'`
+echo $pids
+for pid in $pids;
+do
+	kill -9 $pid
+done
 git pull --rebase
 mvn clean
 mvn test-compile
