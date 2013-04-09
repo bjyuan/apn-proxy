@@ -8,6 +8,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -82,6 +83,7 @@ public class HttpServerHandler extends ChannelInboundMessageHandlerAdapter<Objec
 
                 };
                 b.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                     .handler(new HttpProxyChannelInitializer(uaChannel, remoteAddr, cb));
                 ChannelFuture remoteConnectFuture = b.connect(getHostName(remoteAddr),
                     getPort(remoteAddr));
