@@ -13,12 +13,12 @@ import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: ApnProxyRemoteChoolser.java, v 0.1 2013-3-26 下午1:16:27 xmx Exp $
+ * @version $Id: ApnProxyRemoteChooser.java, v 0.1 2013-3-26 下午1:16:27 xmx Exp $
  */
-public class ApnProxyRemoteChoolser {
+public class ApnProxyRemoteChooser {
 
     private static Logger                 logger                         = Logger
-                                                                             .getLogger(ApnProxyRemoteChoolser.class);
+                                                                             .getLogger(ApnProxyRemoteChooser.class);
 
     private static List<String>           ruleList                       = new ArrayList<String>();
 

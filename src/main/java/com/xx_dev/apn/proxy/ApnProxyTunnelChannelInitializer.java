@@ -8,7 +8,7 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteChoolser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 
 /**
  * @author xmx

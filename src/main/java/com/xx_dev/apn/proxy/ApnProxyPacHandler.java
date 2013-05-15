@@ -72,7 +72,7 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
             .append(ApnProxyConfig.getConfig("apn.proxy.port"))
             .append("\";var DEFAULT = \"DIRECT\";");
 
-        List<String> rules = ApnProxyRemoteChoolser.getRuleList();
+        List<String> rules = ApnProxyRemoteChooser.getRuleList();
 
         for (String rule : rules) {
             sb.append("if(/^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?")

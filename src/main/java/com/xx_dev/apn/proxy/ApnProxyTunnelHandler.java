@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteChoolser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
             String remoteHost = getHostName(hostHeader);
             int remotePort = getPort(hostHeader);
 
-            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChoolser
+            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser
                 .chooseRemoteAddr(remoteHost + ":" + remotePort);
 
             Channel uaChannel = ctx.channel();

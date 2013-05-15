@@ -30,7 +30,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteChoolser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 
 /**
@@ -93,7 +93,7 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
 
                 };
 
-                ApnProxyRemote apnProxyRemote = ApnProxyRemoteChoolser.chooseRemoteAddr(remoteAddr);
+                ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(remoteAddr);
 
                 b.group(uaChannel.eventLoop())
                     .channel(NioSocketChannel.class)
