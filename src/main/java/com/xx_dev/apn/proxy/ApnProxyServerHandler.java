@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.xx_dev.apn.proxy.ApnProxyRemoteChoolser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 
 /**
@@ -91,11 +92,16 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
                     }
 
                 };
-                b.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
+
+                ApnProxyRemote apnProxyRemote = ApnProxyRemoteChoolser.chooseRemoteAddr(remoteAddr);
+
+                b.group(uaChannel.eventLoop())
+                    .channel(NioSocketChannel.class)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                    .handler(new HttpProxyChannelInitializer(uaChannel, remoteAddr, cb));
-                ChannelFuture remoteConnectFuture = b.connect(getHostName(remoteAddr),
-                    getPort(remoteAddr));
+                    .handler(
+                        new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
+                ChannelFuture remoteConnectFuture = b.connect(apnProxyRemote.getRemoteHost(),
+                    apnProxyRemote.getRemotePort());
                 remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());
 
                 remoteConnectFuture.addListener(new ChannelFutureListener() {

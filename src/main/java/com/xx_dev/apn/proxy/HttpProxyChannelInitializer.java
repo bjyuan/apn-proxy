@@ -5,17 +5,25 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.ssl.SslHandler;
 
+import javax.net.ssl.SSLEngine;
+
+import com.xx_dev.apn.proxy.ApnProxyRemoteChoolser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 
 public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
+
+    private ApnProxyRemote                apnProxyRemote;
 
     private Channel                       uaChannel;
     private String                        remoteAddr;
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
-    public HttpProxyChannelInitializer(Channel uaChannel, String remtoeAddr,
+    public HttpProxyChannelInitializer(ApnProxyRemote apnProxyRemote, Channel uaChannel,
+                                       String remtoeAddr,
                                        RemoteChannelInactiveCallback remoteChannelInactiveCallback) {
+        this.apnProxyRemote = apnProxyRemote;
         this.uaChannel = uaChannel;
         this.remoteAddr = remtoeAddr;
         this.remoteChannelInactiveCallback = remoteChannelInactiveCallback;
@@ -25,6 +33,13 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
     public void initChannel(SocketChannel channel) throws Exception {
 
         ChannelPipeline pipeline = channel.pipeline();
+
+        if (apnProxyRemote.isAppleyRemoteRule()) {
+            SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
+            engine.setUseClientMode(true);
+
+            pipeline.addLast("ssl", new SslHandler(engine));
+        }
 
         channel.pipeline().addLast("codec", new HttpClientCodec());
         // pipeline.addLast("decoder", new HttpResponseDecoder());
