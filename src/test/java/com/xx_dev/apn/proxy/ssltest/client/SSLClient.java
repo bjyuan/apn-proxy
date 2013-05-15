@@ -24,7 +24,7 @@ import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.SSLEngine;
 
 import com.xx_dev.apn.oldproxy.common.ApConfig;
-import com.xx_dev.apn.oldproxy.common.ApSSLContextFactory;
+import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
 
 /**
  * Sends one message when a connection is open and echoes back any received
@@ -52,7 +52,9 @@ public class SSLClient {
                     public void initChannel(SocketChannel channel) throws Exception {
                         ChannelPipeline pipeline = channel.pipeline();
 
-                        SSLEngine engine = ApSSLContextFactory.getSSLContext().createSSLEngine();
+                        SSLEngine engine = ApnProxySSLContextFactory.getSSLContext()
+                            .createSSLEngine();
+
                         engine.setUseClientMode(true);
 
                         pipeline.addLast("ssl", new SslHandler(engine));
@@ -74,7 +76,7 @@ public class SSLClient {
 
     public static void main(String[] args) throws Exception {
         final String host = ApConfig.getConfig("ap.test");
-        final int port = 8900;
+        final int port = 8700;
 
         new SSLClient(host, port).run();
     }

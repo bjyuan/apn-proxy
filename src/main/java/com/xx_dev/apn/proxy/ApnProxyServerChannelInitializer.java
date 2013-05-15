@@ -9,6 +9,7 @@ import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.xx_dev.apn.oldproxy.common.ApSSLContextFactory;
 
@@ -17,6 +18,7 @@ import com.xx_dev.apn.oldproxy.common.ApSSLContextFactory;
  * @version $Id: ApOutsideChannelInitializer.java,v 0.1 Feb 11, 2013 11:15:01 PM xmx Exp $
  */
 public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketChannel> {
+    private static Logger logger = Logger.getLogger(ApnProxyServerChannelInitializer.class);
 
     @Override
     public void initChannel(SocketChannel channel) throws Exception {
@@ -27,6 +29,10 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
             engine.setUseClientMode(false);
             engine.setNeedClientAuth(true);
             pipeline.addLast("ssl", new SslHandler(engine));
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("ssl added");
+            }
         }
 
         pipeline.addLast("codec", new HttpServerCodec());
