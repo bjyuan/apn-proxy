@@ -45,8 +45,9 @@ public class SSLClient {
     public void run() throws Exception {
         // Configure the client.
         Bootstrap b = new Bootstrap();
+        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         try {
-            b.group(new NioEventLoopGroup()).channel(NioSocketChannel.class)
+            b.group(eventLoopGroup).channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel channel) throws Exception {
@@ -70,7 +71,7 @@ public class SSLClient {
             f.channel().closeFuture().await();
         } finally {
             // Shut down the event loop to terminate all threads.
-            b.shutdown();
+            eventLoopGroup.shutdownGracefully();
         }
     }
 

@@ -1,12 +1,11 @@
 package com.xx_dev.apn.proxy.ssltest.server;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import org.apache.log4j.Logger;
-
-import com.xx_dev.apn.proxy.ApnProxyConfig;
 
 /**
  * @author xmx
@@ -20,19 +19,20 @@ public class SSLServerLauncher {
 
         ServerBootstrap serverBootStrap = new ServerBootstrap();
 
+        EventLoopGroup bossGroup = new NioEventLoopGroup(50);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(100);
+
         try {
-            int threadCount = Integer.parseInt(ApnProxyConfig.getConfig("ap.accet_thread_count"));
             int port = 8900;
-            serverBootStrap
-                .group(new NioEventLoopGroup(threadCount), new NioEventLoopGroup(threadCount))
-                .channel(NioServerSocketChannel.class).localAddress(port)
-                .childHandler(new SSLServerChannelInitializer());
+            serverBootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                .localAddress(port).childHandler(new SSLServerChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         } finally {
             logger.error("showdown the server");
-            serverBootStrap.shutdown();
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
         }
 
     }
