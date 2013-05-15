@@ -11,8 +11,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.oldproxy.common.ApConfig;
-
 /**
  * @author xmx
  * @version $Id: ApnProxyRemoteChoolser.java, v 0.1 2013-3-26 下午1:16:27 xmx Exp $
@@ -74,7 +72,7 @@ public class ApnProxyRemoteChoolser {
         ApnProxyRemote apRemote = new ApnProxyRemote();
 
         if (isApplyRemoteRule(originalHost)) {
-            String remote = ApConfig.getConfig("apn.proxy.remote_address");
+            String remote = ApnProxyConfig.getConfig("apn.proxy.remote_address");
             String remoteHost = getHostName(remote);
             int remotePort = getPort(remote);
 

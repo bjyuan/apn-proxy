@@ -23,7 +23,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.oldproxy.common.ApRelayHandler;
 import com.xx_dev.apn.proxy.ApnProxyRemoteChoolser.ApnProxyRemote;
 
 /**
@@ -72,7 +71,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
 
                                 // add relay handler
                                 ctx.pipeline().addLast(
-                                    new ApRelayHandler("UA --> Remote", future1.channel()));
+                                    new ApnProxyRelayHandler("UA --> Remote", future1.channel()));
 
                                 future1.channel().write(
                                     Unpooled.copiedBuffer(

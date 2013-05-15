@@ -7,7 +7,7 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
-import com.xx_dev.apn.oldproxy.common.ApSSLContextFactory;
+import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
 
 /**
  * @author xmx
@@ -19,7 +19,7 @@ public class SSLServerChannelInitializer extends ChannelInitializer<SocketChanne
     public void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
 
-        SSLEngine engine = ApSSLContextFactory.getSSLContext().createSSLEngine();
+        SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
         engine.setUseClientMode(false);
         engine.setNeedClientAuth(true);
         pipeline.addLast("ssl", new SslHandler(engine));

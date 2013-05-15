@@ -6,7 +6,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.oldproxy.common.ApConfig;
+import com.xx_dev.apn.proxy.ApnProxyConfig;
 
 /**
  * @author xmx
@@ -21,7 +21,7 @@ public class SSLServerLauncher {
         ServerBootstrap serverBootStrap = new ServerBootstrap();
 
         try {
-            int threadCount = Integer.parseInt(ApConfig.getConfig("ap.accet_thread_count"));
+            int threadCount = Integer.parseInt(ApnProxyConfig.getConfig("ap.accet_thread_count"));
             int port = 8900;
             serverBootStrap
                 .group(new NioEventLoopGroup(threadCount), new NioEventLoopGroup(threadCount))

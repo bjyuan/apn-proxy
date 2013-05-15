@@ -9,8 +9,6 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.log4j.Logger;
 
-import com.xx_dev.apn.oldproxy.common.ApConfig;
-
 /**
  * @author xmx
  * @version $Id: ApnProxySSLContextFactory.java, v 0.1 2013-3-26 上午11:22:10 xmx Exp $
@@ -38,7 +36,7 @@ public class ApnProxySSLContextFactory {
             ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
             tks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
 
-            String keyPassword = ApConfig.getConfig("apn.proxy.key_store_password");
+            String keyPassword = ApnProxyConfig.getConfig("apn.proxy.key_store_password");
             kmf.init(ks, keyPassword.toCharArray());
             tmf.init(tks);
 
