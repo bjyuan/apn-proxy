@@ -35,13 +35,13 @@
 	</appender>
     
     <!-- 
-    <logger name="com.xx_dev.apn.proxy.inside" additivity="false">
+    <logger name="com.xx_dev.apn.oldproxy.inside" additivity="false">
         <level value="debug"/>
         <appender-ref ref="INSIDE_APPENDER"/>
         <appender-ref ref="CONSOLE_APPENDER" />
     </logger>
     
-    <logger name="com.xx_dev.apn.proxy.outside" additivity="false">
+    <logger name="com.xx_dev.apn.oldproxy.outside" additivity="false">
         <level value="debug"/>
         <appender-ref ref="OUTSIDE_APPENDER"/>
         <appender-ref ref="CONSOLE_APPENDER" />
