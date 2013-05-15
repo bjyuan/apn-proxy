@@ -67,6 +67,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
 
                             if (apnProxyRemote.isAppleyRemoteRule()) {
                                 ctx.pipeline().remove("codec");
+                                ctx.pipeline().remove("pac");
                                 ctx.pipeline().remove("handler2");
 
                                 // add relay handler
@@ -91,6 +92,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
                                                                                         throws Exception {
                                         // remove handlers
                                         ctx.pipeline().remove("codec");
+                                        ctx.pipeline().remove("pac");
                                         ctx.pipeline().remove("handler2");
 
                                         // add relay handler

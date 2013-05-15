@@ -99,18 +99,28 @@ public class ApnProxyRemoteChoolser {
 
     private static boolean isApplyRemoteRule(String host) {
         ReadLock readLock = ruleListReentrantReadWriteLock.readLock();
-        boolean useOutsideForHost = false;
+        boolean isApplyRemoteRule = false;
         readLock.lock();
         for (String rule : ruleList) {
             if (StringUtils.equals(rule, host) || StringUtils.endsWith(host, "." + rule)) {
-                useOutsideForHost = true;
+                isApplyRemoteRule = true;
                 break;
             }
         }
         readLock.unlock();
 
-        return useOutsideForHost;
+        return isApplyRemoteRule;
 
+    }
+
+    public static List<String> getRuleList() {
+        ReadLock readLock = ruleListReentrantReadWriteLock.readLock();
+        readLock.lock();
+        List<String> _list = new ArrayList<String>();
+        _list.addAll(ruleList);
+        readLock.unlock();
+
+        return _list;
     }
 
     private static String getHostName(String addr) {
