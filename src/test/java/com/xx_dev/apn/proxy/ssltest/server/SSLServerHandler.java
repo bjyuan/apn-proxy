@@ -10,7 +10,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.xx_dev.apn.oldproxy.ssltest.server;
+package com.xx_dev.apn.proxy.ssltest.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler.Sharable;

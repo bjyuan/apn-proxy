@@ -1,4 +1,4 @@
-package com.xx_dev.apn.oldproxy.ssltest.server;
+package com.xx_dev.apn.proxy.ssltest.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;

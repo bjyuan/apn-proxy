@@ -10,7 +10,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.xx_dev.apn.oldproxy.ssltest.client;
+package com.xx_dev.apn.proxy.ssltest.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
