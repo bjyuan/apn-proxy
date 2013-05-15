@@ -35,14 +35,20 @@ public class ApnProxyServerLauncher {
 
     public static void main(String[] args) {
 
+        int bossThreadCount = Integer.parseInt(ApnProxyConfig
+            .getConfig("apn.proxy.boss_thread_count"));
+        int workerThreadCount = Integer.parseInt(ApnProxyConfig
+            .getConfig("apn.proxy.worker_thread_count"));
+        int port = Integer.parseInt(ApnProxyConfig.getConfig("apn.proxy.port"));
+
         ServerBootstrap serverBootStrap = new ServerBootstrap();
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup(50);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(100);
+        EventLoopGroup bossGroup = new NioEventLoopGroup(bossThreadCount);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(workerThreadCount);
 
         try {
             serverBootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                .localAddress(8700).childHandler(new ApnProxyServerChannelInitializer());
+                .localAddress(port).childHandler(new ApnProxyServerChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

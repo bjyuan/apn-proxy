@@ -4,6 +4,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.ssl.SslHandler;
+
+import javax.net.ssl.SSLEngine;
+
+import com.xx_dev.apn.proxy.ApnProxyRemoteChoolser.ApnProxyRemote;
 
 /**
  * @author xmx
@@ -11,11 +16,11 @@ import io.netty.channel.socket.SocketChannel;
  */
 public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final Channel uaChannel;
-    private final String  tag;
+    private final Channel        uaChannel;
+    private final ApnProxyRemote apnProxyRemote;
 
-    public ApnProxyTunnelChannelInitializer(String tag, Channel uaChannel) {
-        this.tag = tag;
+    public ApnProxyTunnelChannelInitializer(ApnProxyRemote apnProxyRemote, Channel uaChannel) {
+        this.apnProxyRemote = apnProxyRemote;
         this.uaChannel = uaChannel;
     }
 
@@ -27,14 +32,15 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
 
         ChannelPipeline pipeline = channel.pipeline();
 
-        //        if (isRemoteSSL) {
-        //            SSLEngine engine = ApSSLContextFactory.getSSLContext().createSSLEngine();
-        //            engine.setUseClientMode(true);
-        //
-        //            pipeline.addLast("ssl", new SslHandler(engine));
-        //        }
+        if (apnProxyRemote.isAppleyRemoteRule()) {
+            SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
+            engine.setUseClientMode(true);
 
-        pipeline.addLast("relay", new ApnProxyRelayHandler(tag, uaChannel));
+            pipeline.addLast("ssl", new SslHandler(engine));
+        }
+
+        pipeline.addLast("relay", new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA",
+            uaChannel));
+
     }
-
 }
