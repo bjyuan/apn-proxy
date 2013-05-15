@@ -12,8 +12,10 @@ import io.netty.channel.socket.SocketChannel;
 public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private final Channel uaChannel;
+    private final String  tag;
 
-    public ApnProxyTunnelChannelInitializer(Channel uaChannel) {
+    public ApnProxyTunnelChannelInitializer(String tag, Channel uaChannel) {
+        this.tag = tag;
         this.uaChannel = uaChannel;
     }
 
@@ -32,7 +34,7 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
         //            pipeline.addLast("ssl", new SslHandler(engine));
         //        }
 
-        pipeline.addLast("relay", new ApnProxyReLayHandler("Remote --> UA", uaChannel));
+        pipeline.addLast("relay", new ApnProxyRelayHandler(tag, uaChannel));
     }
 
 }

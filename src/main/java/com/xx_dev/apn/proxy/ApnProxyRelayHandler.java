@@ -11,16 +11,16 @@ import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: ApnProxyReLayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
+ * @version $Id: ApnProxyRelayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
  */
-public final class ApnProxyReLayHandler extends ChannelInboundByteHandlerAdapter {
+public final class ApnProxyRelayHandler extends ChannelInboundByteHandlerAdapter {
 
-    private static Logger logger = Logger.getLogger(ApnProxyReLayHandler.class);
+    private static Logger logger = Logger.getLogger(ApnProxyRelayHandler.class);
 
     private final Channel relayChannel;
     private final String  tag;
 
-    public ApnProxyReLayHandler(String tag, Channel relayChannel) {
+    public ApnProxyRelayHandler(String tag, Channel relayChannel) {
         this.tag = tag;
         this.relayChannel = relayChannel;
     }

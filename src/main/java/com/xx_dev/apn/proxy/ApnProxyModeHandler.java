@@ -21,10 +21,9 @@ public class ApnProxyModeHandler extends ChannelInboundMessageHandlerAdapter<Htt
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
             if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
-                ctx.pipeline().remove("mode");
-                ctx.pipeline().remove("handler1");
+                ctx.pipeline().addLast("handler2", new ApnProxyTunnelHandler());
             } else {
-                ctx.pipeline().remove("handler2");
+                ctx.pipeline().addLast("handler1", new ApnProxyServerHandler());
             }
         }
 

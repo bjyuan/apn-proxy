@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -56,6 +57,13 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
 
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
+
+            if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
+                ctx.pipeline().remove("handler1");
+                ctx.nextInboundMessageBuffer().add(msg);
+                ctx.fireInboundBufferUpdated();
+                return;
+            }
 
             remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
             String remoteHost = getHostName(remoteAddr);

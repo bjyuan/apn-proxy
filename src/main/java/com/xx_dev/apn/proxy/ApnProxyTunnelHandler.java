@@ -1,11 +1,14 @@
 package com.xx_dev.apn.proxy;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
-import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -31,14 +34,18 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
 
-            String remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            String remoteHost = getHostName(remoteAddr);
-            int remotePort = getPort(remoteAddr);
-            remoteAddr = remoteHost + ":" + remotePort;
+            String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            String remoteHost = getHostName(hostHeader);
+            int remotePort = getPort(hostHeader);
+            final String remoteAddr = remoteHost + ":" + remotePort;
+
+            Channel uaChannel = ctx.channel();
 
             // connect remote
             Bootstrap b = new Bootstrap();
-            b.handler(new ApnProxyTunnelChannelInitializer(ctx.channel()));
+            b.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+                .handler(new ApnProxyTunnelChannelInitializer(remoteAddr + " --> UA", uaChannel));
             b.connect(remoteHost, remotePort).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(final ChannelFuture future1) throws Exception {
@@ -46,25 +53,26 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
                         // successfully connect to the original server
                         // send connect success msg to UA
 
-                        HttpResponse proxyConnectSuccessResponse = new DefaultHttpResponse(
+                        HttpResponse proxyConnectSuccessResponse = new DefaultFullHttpResponse(
                             HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
                                 "Connection established"));
-                        ctx.write(proxyConnectSuccessResponse).addListener(
-                            new ChannelFutureListener() {
+                        ctx.write(proxyConnectSuccessResponse);
 
-                                @Override
-                                public void operationComplete(ChannelFuture future2)
-                                                                                    throws Exception {
-                                    // remove handlers
-                                    ctx.pipeline().remove("codec");
-                                    ctx.pipeline().remove("handler2");
+                        ctx.flush().addListener(new ChannelFutureListener() {
 
-                                    // add relay handler
-                                    ctx.pipeline().addLast(
-                                        new ApnProxyReLayHandler("UA --> Remote", future1.channel()));
-                                }
+                            @Override
+                            public void operationComplete(ChannelFuture future2) throws Exception {
+                                // remove handlers
+                                ctx.pipeline().remove("codec");
+                                ctx.pipeline().remove("handler2");
 
-                            });
+                                // add relay handler
+                                ctx.pipeline().addLast(
+                                    new ApnProxyRelayHandler("UA --> " + remoteAddr, future1
+                                        .channel()));
+                            }
+
+                        });
 
                     } else {
                         if (ctx.channel().isActive()) {

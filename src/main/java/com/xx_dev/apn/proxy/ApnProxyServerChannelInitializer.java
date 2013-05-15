@@ -15,7 +15,6 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
     public void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
         pipeline.addLast("codec", new HttpServerCodec());
-        pipeline.addLast("mode", new ApnProxyModeHandler());
         pipeline.addLast("handler1", new ApnProxyServerHandler());
         pipeline.addLast("handler2", new ApnProxyTunnelHandler());
     }
