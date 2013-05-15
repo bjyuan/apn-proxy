@@ -1,4 +1,4 @@
-package com.xx_dev.apn.oldproxy.common;
+package com.xx_dev.apn.proxy;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -11,16 +11,16 @@ import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: ApRelayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
+ * @version $Id: ApnProxyReLayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
  */
-public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
+public final class ApnProxyReLayHandler extends ChannelInboundByteHandlerAdapter {
 
-    private static Logger logger = Logger.getLogger(ApRelayHandler.class);
+    private static Logger logger = Logger.getLogger(ApnProxyReLayHandler.class);
 
     private final Channel relayChannel;
     private final String  tag;
 
-    public ApRelayHandler(String tag, Channel relayChannel) {
+    public ApnProxyReLayHandler(String tag, Channel relayChannel) {
         this.tag = tag;
         this.relayChannel = relayChannel;
     }
@@ -51,7 +51,7 @@ public final class ApRelayHandler extends ChannelInboundByteHandlerAdapter {
             relayChannel.write(buf);
         }
 
-        //ctx.fireInboundBufferUpdated();
+        ctx.fireInboundBufferUpdated();
 
     }
 

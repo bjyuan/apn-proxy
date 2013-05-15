@@ -56,9 +56,10 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
 
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
+
             remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
             String remoteHost = getHostName(remoteAddr);
-            int remotePort = getPort(remoteAddr) == -1 ? 80 : getPort(remoteAddr);
+            int remotePort = getPort(remoteAddr);
             remoteAddr = remoteHost + ":" + remotePort;
 
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
@@ -150,18 +151,18 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
 
         Set<String> headerNames = httpRequest.headers().names();
         for (String headerName : headerNames) {
-            if (StringUtils.equalsIgnoreCase(headerName, "Proxy-Connection")) {
-                continue;
-            }
-
-            if (StringUtils.equalsIgnoreCase(headerName, HttpHeaders.Names.CONNECTION)) {
-                continue;
-            }
+            //            if (StringUtils.equalsIgnoreCase(headerName, "Proxy-Connection")) {
+            //                continue;
+            //            }
+            //
+            //            if (StringUtils.equalsIgnoreCase(headerName, HttpHeaders.Names.CONNECTION)) {
+            //                continue;
+            //            }
 
             _httpRequest.headers().add(headerName, httpRequest.headers().getAll(headerName));
         }
 
-        _httpRequest.headers().add(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+        _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
 
         if (logger.isDebugEnabled()) {
             logger.debug(_httpRequest.toString());
@@ -188,7 +189,7 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
         if (ss.length == 2) {
             return Integer.parseInt(ss[1]);
         }
-        return -1;
+        return 80;
     }
 
 }

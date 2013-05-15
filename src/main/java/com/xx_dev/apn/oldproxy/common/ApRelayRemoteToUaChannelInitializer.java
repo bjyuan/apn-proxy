@@ -11,7 +11,7 @@ import javax.net.ssl.SSLEngine;
 
 /**
  * @author xmx
- * @version $Id: ApRelayRemoteToUaChannelInitializer.java, v 0.1 2013-3-22 下午10:00:21 xmx Exp $
+ * @version $Id: ApnProxyTunnelChannelInitializer.java, v 0.1 2013-3-22 下午10:00:21 xmx Exp $
  */
 public class ApRelayRemoteToUaChannelInitializer extends ChannelInitializer<SocketChannel> {
 
