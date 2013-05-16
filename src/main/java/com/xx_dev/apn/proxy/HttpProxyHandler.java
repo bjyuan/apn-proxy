@@ -39,7 +39,7 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
                                                                                       throws Exception {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Recive From: " + remoteAddr);
+            logger.debug("Recive From: " + remoteAddr + ", " + msg.getClass().getName());
         }
 
         if (msg instanceof HttpResponse) {

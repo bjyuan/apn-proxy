@@ -25,7 +25,7 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
     private static Logger logger         = Logger.getLogger(ApnProxyPacHandler.class);
 
-    private static Logger httpRestLogger = Logger.getLogger("HTTP-REST-LOGGER");
+    private static Logger httpRestLogger = Logger.getLogger("HTTP_REST_LOGGER");
 
     private boolean       isPacMode      = false;
 
@@ -39,7 +39,8 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
             if (httpRestLogger.isInfoEnabled()) {
                 httpRestLogger.info(httpRequest.getMethod().name() + " " + httpRequest.getUri()
-                                    + ", " + hostHeader + ", "
+                                    + " " + httpRequest.getProtocolVersion().text() + ", "
+                                    + hostHeader + ", "
                                     + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
             }
 

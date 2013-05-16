@@ -15,10 +15,19 @@
 			<param name="ConversionPattern" value="%d %t %c %5p -: %m%n" />
 		</layout>
 	</appender>
+	
+	<appender name="HTTP_REST_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="log/http_rest.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="UTF-8" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %5p -: %m%n" />
+		</layout>
+	</appender>
 
-	<logger name="HTTP-REST-LOGGER" additivity="false">
+	<logger name="HTTP_REST_LOGGER" additivity="false">
 		<level value="info" />
-		<appender-ref ref="CONSOLE_APPENDER" />
+		<appender-ref ref="HTTP_REST_APPENDER" />
 	</logger>
 
 	<logger name="com.xx_dev.apn.proxy" additivity="false">
