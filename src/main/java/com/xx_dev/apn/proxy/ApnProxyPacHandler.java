@@ -19,25 +19,29 @@ import org.apache.log4j.Logger;
 
 /**
  * @author xmx
- * @version $Id: ApnProxyServerHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
+ * @version $Id: ApnProxyPacHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
 public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger logger    = Logger.getLogger(ApnProxyPacHandler.class);
+    private static Logger logger         = Logger.getLogger(ApnProxyPacHandler.class);
 
-    private boolean       isPacMode = false;
+    private static Logger httpRestLogger = Logger.getLogger("HTTP-REST-LOGGER");
+
+    private boolean       isPacMode      = false;
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, final Object msg) throws Exception {
-
-        if (logger.isInfoEnabled()) {
-            logger.info("Handler: " + this + ", Proxy Request: " + msg);
-        }
 
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
             String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
             String originalHost = getHostName(hostHeader);
+
+            if (httpRestLogger.isInfoEnabled()) {
+                httpRestLogger.info(httpRequest.getMethod().name() + " " + httpRequest.getUri()
+                                    + ", " + hostHeader + ", "
+                                    + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
+            }
 
             if (StringUtils.equals(originalHost, ApnProxyConfig.getConfig("apn.proxy.pac_host"))) {
                 //

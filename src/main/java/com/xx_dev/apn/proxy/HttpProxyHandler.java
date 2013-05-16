@@ -29,8 +29,8 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info("Remote channel: " + remoteAddr + " active");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Remote channel: " + remoteAddr + " active");
         }
     }
 
@@ -38,8 +38,8 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
     public void messageReceived(final ChannelHandlerContext ctx, final HttpObject msg)
                                                                                       throws Exception {
 
-        if (logger.isInfoEnabled()) {
-            logger.info("From: " + remoteAddr + ", recived remote msg: " + msg);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Recive From: " + remoteAddr);
         }
 
         if (msg instanceof HttpResponse) {

@@ -35,11 +35,11 @@ import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 
 /**
  * @author xmx
- * @version $Id: ApnProxyServerHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
+ * @version $Id: ApnProxyForwardHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
-public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
+public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger        logger            = Logger.getLogger(ApnProxyServerHandler.class);
+    private static Logger        logger            = Logger.getLogger(ApnProxyForwardHandler.class);
 
     private String               remoteAddr;
 
@@ -50,17 +50,13 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
     @Override
     public void messageReceived(ChannelHandlerContext ctx, final Object msg) throws Exception {
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Handler: " + this + ", Proxy Request: " + msg);
-        }
-
         final Channel uaChannel = ctx.channel();
 
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
 
             if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
-                ctx.pipeline().remove("handler1");
+                ctx.pipeline().remove("forward");
                 ctx.nextInboundMessageBuffer().add(msg);
                 ctx.fireInboundBufferUpdated();
                 return;
@@ -153,6 +149,7 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error(cause.getMessage(), cause);
+        ctx.close();
     }
 
     private HttpRequest constructRequestForProxy(HttpRequest httpRequest) {
@@ -177,10 +174,6 @@ public class ApnProxyServerHandler extends ChannelInboundMessageHandlerAdapter<O
         }
 
         _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(_httpRequest.toString());
-        }
 
         return _httpRequest;
     }

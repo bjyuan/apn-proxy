@@ -37,7 +37,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
 
         pipeline.addLast("pac", new ApnProxyPacHandler());
 
-        pipeline.addLast("handler1", new ApnProxyServerHandler());
-        pipeline.addLast("handler2", new ApnProxyTunnelHandler());
+        pipeline.addLast("forward", new ApnProxyForwardHandler());
+        pipeline.addLast("tunnel", new ApnProxyTunnelHandler());
     }
 }

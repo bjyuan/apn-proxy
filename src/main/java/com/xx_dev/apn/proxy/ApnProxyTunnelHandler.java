@@ -68,7 +68,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
                             if (apnProxyRemote.isAppleyRemoteRule()) {
                                 ctx.pipeline().remove("codec");
                                 ctx.pipeline().remove("pac");
-                                ctx.pipeline().remove("handler2");
+                                ctx.pipeline().remove("tunnel");
 
                                 // add relay handler
                                 ctx.pipeline().addLast(
@@ -93,7 +93,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
                                         // remove handlers
                                         ctx.pipeline().remove("codec");
                                         ctx.pipeline().remove("pac");
-                                        ctx.pipeline().remove("handler2");
+                                        ctx.pipeline().remove("tunnel");
 
                                         // add relay handler
                                         ctx.pipeline().addLast(
@@ -153,10 +153,12 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
 
         sb.append(CRLF);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(sb.toString());
-        }
-
         return sb.toString();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error(cause.getMessage(), cause);
+        ctx.close();
     }
 }
