@@ -5,6 +5,9 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.timeout.IdleStateHandler;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLEngine;
 
@@ -21,6 +24,9 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
     @Override
     public void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
+
+        pipeline.addLast("idlestate", new IdleStateHandler(1, 1, 0, TimeUnit.MINUTES));
+        pipeline.addLast("idlehandler", new IdleHandler());
 
         if (StringUtils.equals(ApnProxyConfig.getConfig("apn.proxy.ssl_listen"), "true")) {
             SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
