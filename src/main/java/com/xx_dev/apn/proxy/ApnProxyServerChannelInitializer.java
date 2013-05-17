@@ -4,6 +4,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.logging.ByteLoggingHandler;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
@@ -32,6 +34,8 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
                 logger.debug("ssl added");
             }
         }
+
+        pipeline.addLast("log", new ByteLoggingHandler("BYTE_LOGGER", LogLevel.INFO));
 
         pipeline.addLast("codec", new HttpServerCodec());
 
