@@ -59,7 +59,7 @@ public class ApnProxyLocalAddressChooser {
                     if (StringUtils.startsWith(rule, "[") && StringUtils.endsWith(rule, "]")) {
                         currentLocalIp = StringUtils.substring(rule, 1,
                             StringUtils.length(rule) - 1);
-                    } else {
+                    } else if (StringUtils.isNotBlank(rule)) {
                         map.put(rule, currentLocalIp);
                     }
 
