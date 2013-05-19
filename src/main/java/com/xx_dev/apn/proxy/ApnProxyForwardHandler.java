@@ -78,7 +78,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                 if (logger.isDebugEnabled()) {
                     logger.debug("Create new remote channel for: " + remoteAddr);
                 }
-                Bootstrap b = new Bootstrap();
+
                 RemoteChannelInactiveCallback cb = new RemoteChannelInactiveCallback() {
                     @Override
                     public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
@@ -91,13 +91,16 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
 
                 ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(remoteAddr);
 
-                b.group(uaChannel.eventLoop())
+                Bootstrap bootstrap = new Bootstrap();
+
+                bootstrap
+                    .group(uaChannel.eventLoop())
                     .channel(NioSocketChannel.class)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                     .handler(
                         new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
-                ChannelFuture remoteConnectFuture = b.connect(apnProxyRemote.getRemoteHost(),
-                    apnProxyRemote.getRemotePort());
+                ChannelFuture remoteConnectFuture = bootstrap.connect(
+                    apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
                 remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());
 
                 remoteConnectFuture.addListener(new ChannelFutureListener() {
