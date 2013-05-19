@@ -93,13 +93,13 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                 ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(remoteAddr);
 
                 Bootstrap bootstrap = new Bootstrap();
-                bootstrap.bind(new InetSocketAddress("2600:3c02:e000:e::1001", 0));
                 bootstrap
                     .group(uaChannel.eventLoop())
                     .channel(NioSocketChannel.class)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                     .handler(
                         new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
+                bootstrap.bind(new InetSocketAddress("2600:3c02:e000:e::1001", 0));
                 ChannelFuture remoteConnectFuture = bootstrap.connect(
                     apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
                 remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());
