@@ -100,6 +100,9 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                     .handler(
                         new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
                 bootstrap.bind(new InetSocketAddress("2600:3c02:e000:e::1001", 0));
+                if (logger.isDebugEnabled()) {
+                    logger.debug("use ipv6 for: " + remoteAddr);
+                }
                 ChannelFuture remoteConnectFuture = bootstrap.connect(
                     apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
                 remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());
