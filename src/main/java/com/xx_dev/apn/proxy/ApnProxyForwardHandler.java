@@ -99,7 +99,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                     .handler(
                         new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
-                bootstrap.bind(new InetSocketAddress("2600:3c02:e000:e::1001", 0));
+                bootstrap.localAddress(new InetSocketAddress("2600:3c02:e000:e::1001", 0));
                 if (logger.isDebugEnabled()) {
                     logger.debug("use ipv6 for: " + remoteAddr);
                 }
