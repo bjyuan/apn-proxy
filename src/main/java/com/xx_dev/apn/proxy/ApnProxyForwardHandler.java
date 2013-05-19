@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +93,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                 ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(remoteAddr);
 
                 Bootstrap bootstrap = new Bootstrap();
-
+                bootstrap.bind(new InetSocketAddress("2600:3c02:e000:e::1001", 0));
                 bootstrap
                     .group(uaChannel.eventLoop())
                     .channel(NioSocketChannel.class)
