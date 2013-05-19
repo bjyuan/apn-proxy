@@ -31,6 +31,8 @@ public class ApnProxyServerLauncher {
             }
         }
 
+        System.setProperty("java.net.preferIPv6Addresses", "true");
+
     }
 
     public static void main(String[] args) {
