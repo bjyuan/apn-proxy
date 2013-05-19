@@ -47,7 +47,7 @@ public class ApnProxyRemoteChooser {
     private static void refresh() {
         try {
             ruleList.clear();
-            File ruleFile = new File(ApnProxyConfig.getConfig("apn.proxy.remote_rule"));
+            File ruleFile = new File(ApnProxyConfig.getStringConfig("apn.proxy.remote_rule"));
 
             if (ruleFile.exists()) {
                 Scanner in = new Scanner(ruleFile, "UTF-8");
@@ -72,7 +72,7 @@ public class ApnProxyRemoteChooser {
         ApnProxyRemote apRemote = new ApnProxyRemote();
 
         if (isApplyRemoteRule(originalHost)) {
-            String remote = ApnProxyConfig.getConfig("apn.proxy.remote_address");
+            String remote = ApnProxyConfig.getStringConfig("apn.proxy.remote_address");
             String remoteHost = getHostName(remote);
             int remotePort = getPort(remote);
 

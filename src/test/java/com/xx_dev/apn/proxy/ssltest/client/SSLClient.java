@@ -76,7 +76,7 @@ public class SSLClient {
     }
 
     public static void main(String[] args) throws Exception {
-        final String host = ApnProxyConfig.getConfig("ap.test");
+        final String host = ApnProxyConfig.getStringConfig("ap.test");
         final int port = 8700;
 
         new SSLClient(host, port).run();

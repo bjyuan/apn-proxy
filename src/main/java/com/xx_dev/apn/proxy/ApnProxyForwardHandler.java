@@ -99,10 +99,14 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                     .handler(
                         new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
-                bootstrap.localAddress(new InetSocketAddress("2600:3c02:e000:e::1001", 0));
-                if (logger.isDebugEnabled()) {
-                    logger.debug("use ipv6 for: " + remoteAddr);
+
+                // set local address
+                if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
+                    .getRemoteHost()))) {
+                    bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
+                        .choose(apnProxyRemote.getRemoteHost())), 0));
                 }
+
                 ChannelFuture remoteConnectFuture = bootstrap.connect(
                     apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
                 remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());

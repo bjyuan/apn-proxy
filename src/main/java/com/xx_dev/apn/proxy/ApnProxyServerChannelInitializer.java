@@ -30,7 +30,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         pipeline.addLast("idlestate", new IdleStateHandler(1, 1, 0, TimeUnit.MINUTES));
         pipeline.addLast("idlehandler", new IdleHandler());
 
-        if (StringUtils.equals(ApnProxyConfig.getConfig("apn.proxy.ssl_listen"), "true")) {
+        if (StringUtils.equals(ApnProxyConfig.getStringConfig("apn.proxy.ssl_listen"), "true")) {
             SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
             engine.setUseClientMode(false);
             engine.setNeedClientAuth(true);

@@ -18,6 +18,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 
+import java.net.InetSocketAddress;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -53,12 +54,20 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
             Channel uaChannel = ctx.channel();
 
             // connect remote
-            Bootstrap b = new Bootstrap();
-            b.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                 .handler(new ApnProxyTunnelChannelInitializer(apnProxyRemote, uaChannel));
-            b.connect(apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort()).addListener(
-                new ChannelFutureListener() {
+
+            // set local address
+            if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
+                .getRemoteHost()))) {
+                bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
+                    .choose(apnProxyRemote.getRemoteHost())), 0));
+            }
+
+            bootstrap.connect(apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort())
+                .addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(final ChannelFuture future1) throws Exception {
                         if (future1.isSuccess()) {

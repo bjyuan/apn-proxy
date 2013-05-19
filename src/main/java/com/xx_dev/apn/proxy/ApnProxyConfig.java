@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -24,8 +25,20 @@ public class ApnProxyConfig {
         }
     }
 
-    public static String getConfig(String configName) {
+    public static String getStringConfig(String configName) {
         return prop.getProperty(configName);
     }
 
+    public static boolean getBoolConfig(String configName) {
+        return StringUtils.equals(ApnProxyConfig.getStringConfig(configName), "true");
+    }
+
+    public static int getIntConfig(String configName) {
+        String str = ApnProxyConfig.getStringConfig(configName);
+        try {
+            return Integer.parseInt(str);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }
