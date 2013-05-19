@@ -54,15 +54,16 @@ public class ApnProxyLocalAddressChooser {
                 String currentLocalIp = "";
                 Scanner in = new Scanner(ruleFile, "UTF-8");
                 while (in.hasNextLine()) {
-                    String rule = in.nextLine();
+                    String rule = StringUtils.trim(in.nextLine());
 
-                    if (StringUtils.startsWith(rule, "[") && StringUtils.endsWith(rule, "]")) {
-                        currentLocalIp = StringUtils.substring(rule, 1,
-                            StringUtils.length(rule) - 1);
-                    } else if (StringUtils.isNotBlank(rule)) {
-                        map.put(rule, currentLocalIp);
+                    if (StringUtils.isNotBlank(rule) && !StringUtils.startsWith(rule, "#")) {
+                        if (StringUtils.startsWith(rule, "[") && StringUtils.endsWith(rule, "]")) {
+                            currentLocalIp = StringUtils.substring(rule, 1,
+                                StringUtils.length(rule) - 1);
+                        } else {
+                            map.put(rule, currentLocalIp);
+                        }
                     }
-
                 }
             }
 
