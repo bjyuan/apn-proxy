@@ -148,9 +148,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
         } else {
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
-            if (msg instanceof HttpContent) {
-                ((HttpContent) msg).retain();
-            }
+            ((HttpContent) msg).retain();
 
             if (remoteChannel != null && remoteChannel.isActive()) {
                 remoteChannel.write(msg);

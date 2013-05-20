@@ -44,7 +44,8 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
                                     + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
             }
 
-            if (StringUtils.equals(originalHost, ApnProxyConfig.getStringConfig("apn.proxy.pac_host"))) {
+            if (StringUtils.equals(originalHost,
+                ApnProxyConfig.getStringConfig("apn.proxy.pac_host"))) {
                 //
                 isPacMode = true;
                 ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
@@ -72,7 +73,7 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
     private String buildPac() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("function FindProxyForURL(url, host){var PROXY = \" PROXY ")
+        sb.append("function FindProxyForURL(url, host){var PROXY = \"PROXY ")
             .append(ApnProxyConfig.getStringConfig("apn.proxy.pac_host")).append(":")
             .append(ApnProxyConfig.getStringConfig("apn.proxy.port"))
             .append("\";var DEFAULT = \"DIRECT\";");
@@ -80,9 +81,11 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
         List<String> rules = ApnProxyRemoteChooser.getRuleList();
 
         for (String rule : rules) {
-            sb.append("if(/^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?")
-                .append(StringUtils.replace(rule, ".", "\\."))
-                .append("/i.test(url)) return PROXY;");
+            if (StringUtils.isNotBlank(rule)) {
+                sb.append("if(/^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?")
+                    .append(StringUtils.replace(rule, ".", "\\."))
+                    .append("/i.test(url)) return PROXY;");
+            }
         }
 
         sb.append("return DEFAULT;}");

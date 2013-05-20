@@ -91,4 +91,8 @@ public class ApnProxyLocalAddressChooser {
 
         return localIp;
     }
+
+    public static void load() {
+
+    }
 }

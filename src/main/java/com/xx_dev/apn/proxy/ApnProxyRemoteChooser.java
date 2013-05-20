@@ -172,4 +172,8 @@ public class ApnProxyRemoteChooser {
 
     }
 
+    public static void load() {
+
+    }
+
 }

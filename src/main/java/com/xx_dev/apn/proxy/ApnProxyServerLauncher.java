@@ -39,8 +39,8 @@ public class ApnProxyServerLauncher {
 
     public static void main(String[] args) {
 
-        ApnProxyRemoteChooser.class.getName();
-        ApnProxyLocalAddressChooser.class.getName();
+        ApnProxyRemoteChooser.load();
+        ApnProxyLocalAddressChooser.load();
 
         int bossThreadCount = ApnProxyConfig.getIntConfig("apn.proxy.boss_thread_count");
         int workerThreadCount = ApnProxyConfig.getIntConfig("apn.proxy.worker_thread_count");
