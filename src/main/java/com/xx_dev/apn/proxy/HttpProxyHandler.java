@@ -42,17 +42,20 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
             logger.debug("Recive From: " + remoteAddr + ", " + msg.getClass().getName());
         }
 
-        if (msg instanceof HttpResponse) {
-            HttpResponse httpResponse = (HttpResponse) msg;
+        HttpObject ho = msg;
+
+        if (ho instanceof HttpResponse) {
+            HttpResponse httpResponse = (HttpResponse) ho;
             httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
             httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
         }
 
         if (msg instanceof HttpContent) {
-            ((HttpContent) msg).retain();
+            ho = HttpContentCopyUtil.copy((HttpContent) msg);
+            ((HttpContent) ho).retain();
         }
 
-        uaChannel.write(msg);
+        uaChannel.write(ho);
 
     }
 

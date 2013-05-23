@@ -85,6 +85,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                     public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
                                                               String inactiveRemoteAddr)
                                                                                         throws Exception {
+                        uaChannel.close();
                         remoteChannelMap.remove(inactiveRemoteAddr);
                     }
 
@@ -148,12 +149,15 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
         } else {
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
-            ((HttpContent) msg).retain();
+            HttpContent hc = ((HttpContent) msg);
+            hc.retain();
+
+            HttpContent _hc = HttpContentCopyUtil.copy(hc);
 
             if (remoteChannel != null && remoteChannel.isActive()) {
-                remoteChannel.write(msg);
+                remoteChannel.write(_hc);
             } else {
-                httpContentBuffer.add((HttpContent) msg);
+                httpContentBuffer.add(_hc);
             }
         }
 
