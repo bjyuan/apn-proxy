@@ -52,9 +52,9 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
             httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
         }
 
-        if (msg instanceof HttpContent) {
-            ho = HttpContentCopyUtil.copy((HttpContent) msg);
+        if (ho instanceof HttpContent) {
             ((HttpContent) ho).retain();
+            ho = HttpContentCopyUtil.copy((HttpContent) msg);
         }
 
         uaChannel.write(ho);
