@@ -27,7 +27,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
     public void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
 
-        pipeline.addLast("idlestate", new IdleStateHandler(1, 1, 0, TimeUnit.MINUTES));
+        pipeline.addLast("idlestate", new IdleStateHandler(0, 0, 1, TimeUnit.MINUTES));
         pipeline.addLast("idlehandler", new IdleHandler());
 
         if (StringUtils.equals(ApnProxyConfig.getStringConfig("apn.proxy.ssl_listen"), "true")) {
