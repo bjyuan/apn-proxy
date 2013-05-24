@@ -170,6 +170,20 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        logger.warn("UA channel: " + " inactive");
+        for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
+            final Channel remoteChannel = entry.getValue();
+            remoteChannel.flush().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    remoteChannel.close();
+                }
+            });
+        }
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error(cause.getMessage(), cause);
         ctx.close();
