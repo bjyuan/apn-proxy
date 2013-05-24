@@ -50,15 +50,6 @@ public class SSLClientHandler extends ChannelInboundByteHandlerAdapter {
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
         logger.info("Server Said: " + in.toString(CharsetUtil.UTF_8));
         in.clear();
-
-        try {
-            Thread.sleep(10 * 1000);
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        ctx.write(Unpooled.copiedBuffer(msg, CharsetUtil.UTF_8));
-        ctx.flush();
     }
 
     @Override
@@ -67,4 +58,13 @@ public class SSLClientHandler extends ChannelInboundByteHandlerAdapter {
         logger.error(cause.getMessage(), cause);
         ctx.close();
     }
+
+    /** 
+     * @see io.netty.channel.ChannelStateHandlerAdapter#channelInactive(io.netty.channel.ChannelHandlerContext)
+     */
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        logger.info("client channel inactive");
+    }
+
 }

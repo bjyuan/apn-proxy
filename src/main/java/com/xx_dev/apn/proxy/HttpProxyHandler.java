@@ -70,6 +70,7 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
                 remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
             }
         });
+        ctx.fireChannelInactive();
 
     }
 

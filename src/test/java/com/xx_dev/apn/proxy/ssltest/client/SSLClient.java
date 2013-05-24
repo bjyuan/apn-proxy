@@ -23,7 +23,6 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
-import com.xx_dev.apn.proxy.ApnProxyConfig;
 import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
 
 /**
@@ -76,7 +75,7 @@ public class SSLClient {
     }
 
     public static void main(String[] args) throws Exception {
-        final String host = ApnProxyConfig.getStringConfig("ap.test");
+        final String host = "localhost";
         final int port = 8700;
 
         new SSLClient(host, port).run();

@@ -13,6 +13,7 @@
 package com.xx_dev.apn.proxy.ssltest.server;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundByteHandlerAdapter;
@@ -31,8 +32,10 @@ public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
     @Override
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
         ByteBuf out = ctx.nextOutboundByteBuffer();
+        Channel channel = ctx.channel();
         out.writeBytes(in);
-        ctx.flush();
+        channel.flush();
+        channel.close();
     }
 
     @Override

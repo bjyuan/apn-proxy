@@ -23,7 +23,7 @@ public class SSLServerLauncher {
         EventLoopGroup workerGroup = new NioEventLoopGroup(100);
 
         try {
-            int port = 8900;
+            int port = 8700;
             serverBootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
                 .localAddress(port).childHandler(new SSLServerChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
