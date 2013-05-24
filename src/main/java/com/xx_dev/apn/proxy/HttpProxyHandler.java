@@ -1,6 +1,8 @@
 package com.xx_dev.apn.proxy;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
@@ -60,9 +62,15 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         logger.warn("Remote channel: " + remoteAddr + " inactive");
-        remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
+        uaChannel.flush().addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);
+            }
+        });
+
     }
 
     @Override
