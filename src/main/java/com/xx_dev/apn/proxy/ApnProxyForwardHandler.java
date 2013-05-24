@@ -206,7 +206,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
             _httpRequest.headers().add(headerName, httpRequest.headers().getAll(headerName));
         }
 
-        _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+        _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
 
         return _httpRequest;
     }
