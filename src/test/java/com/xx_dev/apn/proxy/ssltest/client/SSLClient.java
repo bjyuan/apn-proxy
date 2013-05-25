@@ -75,7 +75,7 @@ public class SSLClient {
     }
 
     public static void main(String[] args) throws Exception {
-        final String host = "localhost";
+        final String host = "";
         final int port = 8700;
 
         new SSLClient(host, port).run();

@@ -40,7 +40,7 @@ public class SSLClientHandler extends ChannelInboundByteHandlerAdapter {
     @Override
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
         allBytesCount += in.readableBytes();
-        logger.info("Recived all: " + allBytesCount + ", total: " + 10 * 1024 * 1204);
+        logger.info("Recived all: " + allBytesCount + ", total: " + 1024 * 1204);
         in.clear();
     }
 
