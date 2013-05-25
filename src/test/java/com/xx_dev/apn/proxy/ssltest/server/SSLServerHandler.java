@@ -40,10 +40,12 @@ public class SSLServerHandler extends ChannelInboundMessageHandlerAdapter<Object
      */
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, Object msg) throws Exception {
+        logger.info(msg);
+
         ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
         // produce a lot of bytes
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 2; i++) {
             byte[] array = new byte[1024];
             for (int j = 0; j < 1024; j++) {
                 array[j] = 1;
