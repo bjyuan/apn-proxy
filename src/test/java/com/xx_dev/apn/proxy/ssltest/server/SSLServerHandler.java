@@ -13,7 +13,6 @@
 package com.xx_dev.apn.proxy.ssltest.server;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -31,9 +30,8 @@ public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
     private static final Logger logger = Logger.getLogger(SSLServerHandler.class.getName());
 
     @Override
-    public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
+    public void inboundBufferUpdated(final ChannelHandlerContext ctx, ByteBuf in) {
         ByteBuf out = ctx.nextOutboundByteBuffer();
-        final Channel channel = ctx.channel();
 
         logger.info(in.toString());
 
@@ -43,12 +41,12 @@ public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
         }
 
         logger.info("begin flush");
-        channel.flush().addListener(new ChannelFutureListener() {
+        ctx.flush().addListener(new ChannelFutureListener() {
 
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 logger.info("end flush");
-                channel.close();
+                ctx.close();
                 logger.info("closed");
             }
         });
