@@ -38,7 +38,7 @@ public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
         logger.info(in.toString());
 
         // produce a lot of bytes
-        for (int i = 0; i < 1024 * 1204; i++) {
+        for (int i = 0; i < 1024 * 1024; i++) {
             out.writeByte(1);
         }
 
