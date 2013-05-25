@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 
 import org.apache.log4j.Logger;
 
@@ -42,29 +43,32 @@ public class SSLServerHandler extends ChannelInboundMessageHandlerAdapter<Object
     public void messageReceived(final ChannelHandlerContext ctx, Object msg) throws Exception {
         logger.info(msg);
 
-        ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+        if (msg instanceof LastHttpContent) {
+            ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
-        // produce a lot of bytes
-        for (int i = 0; i < 2; i++) {
-            byte[] array = new byte[1024];
-            for (int j = 0; j < 1024; j++) {
-                array[j] = 1;
+            // produce a lot of bytes
+            for (int i = 0; i < 1024; i++) {
+                byte[] array = new byte[1024];
+                for (int j = 0; j < 1024; j++) {
+                    array[j] = 1;
+                }
+                ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array)));
             }
-            ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array)));
+
+            ctx.write(new DefaultLastHttpContent());
+
+            logger.info("begin flush");
+            ctx.flush().addListener(new ChannelFutureListener() {
+
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    logger.info("end flush");
+                    ctx.close();
+                    logger.info("closed");
+                }
+            });
         }
 
-        ctx.write(new DefaultLastHttpContent());
-
-        logger.info("begin flush");
-        ctx.flush().addListener(new ChannelFutureListener() {
-
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                logger.info("end flush");
-                ctx.close();
-                logger.info("closed");
-            }
-        });
     }
 
     @Override
