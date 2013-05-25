@@ -19,13 +19,10 @@ public class ApnProxyEncryptHandler extends ChannelDuplexHandler implements
     public void inboundBufferUpdated(ChannelHandlerContext ctx) throws Exception {
         ByteBuf buf = ctx.inboundByteBuffer();
 
-        byte[] array = buf.array();
-        byte[] decryptArray = new byte[array.length];
-        for (int i = 0; i < array.length; i++) {
-            decryptArray[i] = (byte) (array[i] ^ key);
+        ByteBuf decryptBuf = Unpooled.buffer();
+        for (int i = 0; i < buf.readableBytes(); i++) {
+            decryptBuf.writeByte(buf.readByte() ^ key);
         }
-
-        ByteBuf decryptBuf = Unpooled.copiedBuffer(decryptArray);
 
         ctx.nextInboundByteBuffer().writeBytes(decryptBuf);
         ctx.fireInboundBufferUpdated();
@@ -34,13 +31,11 @@ public class ApnProxyEncryptHandler extends ChannelDuplexHandler implements
     @Override
     public void flush(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
         ByteBuf buf = ctx.outboundByteBuffer();
-        byte[] array = buf.array();
-        byte[] encryptArray = new byte[array.length];
-        for (int i = 0; i < array.length; i++) {
-            encryptArray[i] = (byte) (array[i] ^ key);
+        ByteBuf encryptBuf = Unpooled.buffer();
+        for (int i = 0; i < buf.readableBytes(); i++) {
+            encryptBuf.writeByte(buf.readByte() ^ key);
         }
 
-        ByteBuf encryptBuf = Unpooled.copiedBuffer(encryptArray);
         ctx.nextOutboundByteBuffer().writeBytes(encryptBuf);
         ctx.flush(promise);
     }
