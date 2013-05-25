@@ -1,63 +1,72 @@
 package com.xx_dev.apn.proxy;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelHandlerUtil;
-import io.netty.channel.ChannelInboundByteHandler;
-import io.netty.channel.ChannelOutboundByteHandler;
-import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.ByteToByteCodec;
 
-public class ApnProxyEncryptHandler extends ChannelDuplexHandler implements
-                                                                ChannelInboundByteHandler,
-                                                                ChannelOutboundByteHandler {
+public class ApnProxyEncryptHandler extends ByteToByteCodec {
 
     private static final byte key = 4;
 
     @Override
-    public void inboundBufferUpdated(ChannelHandlerContext ctx) throws Exception {
-        ByteBuf buf = ctx.inboundByteBuffer();
+    protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception {
 
-        ByteBuf decryptBuf = Unpooled.buffer();
-        for (int i = 0; i < buf.readableBytes(); i++) {
-            decryptBuf.writeByte(buf.readByte() ^ key);
+        for (int i = 0; i < in.readableBytes(); i++) {
+            out.writeByte(in.readByte() ^ key);
         }
-
-        ctx.nextInboundByteBuffer().writeBytes(decryptBuf);
-        ctx.fireInboundBufferUpdated();
     }
 
     @Override
-    public void flush(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-        ByteBuf buf = ctx.outboundByteBuffer();
-        ByteBuf encryptBuf = Unpooled.buffer();
-        for (int i = 0; i < buf.readableBytes(); i++) {
-            encryptBuf.writeByte(buf.readByte() ^ key);
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception {
+        for (int i = 0; i < in.readableBytes(); i++) {
+            out.writeByte(in.readByte() ^ key);
         }
-
-        ctx.nextOutboundByteBuffer().writeBytes(encryptBuf);
-        ctx.flush(promise);
     }
 
-    @Override
-    public ByteBuf newOutboundBuffer(ChannelHandlerContext ctx) throws Exception {
-        return ChannelHandlerUtil.allocate(ctx);
-    }
-
-    @Override
-    public void discardOutboundReadBytes(ChannelHandlerContext ctx) throws Exception {
-        ctx.outboundByteBuffer().discardSomeReadBytes();
-    }
-
-    @Override
-    public ByteBuf newInboundBuffer(ChannelHandlerContext ctx) throws Exception {
-        return ChannelHandlerUtil.allocate(ctx);
-    }
-
-    @Override
-    public void discardInboundReadBytes(ChannelHandlerContext ctx) throws Exception {
-        ctx.inboundByteBuffer().discardSomeReadBytes();
-    }
+    // @Override
+    // public void inboundBufferUpdated(ChannelHandlerContext ctx) throws Exception {
+    // ByteBuf buf = ctx.inboundByteBuffer();
+    //
+    // ByteBuf decryptBuf = Unpooled.buffer();
+    // for (int i = 0; i < buf.readableBytes(); i++) {
+    // decryptBuf.writeByte(buf.readByte() ^ key);
+    // }
+    //
+    // ctx.nextInboundByteBuffer().writeBytes(decryptBuf);
+    // decryptBuf.toString(CharsetUtil.UTF_8);
+    // ctx.fireInboundBufferUpdated();
+    // }
+    //
+    // @Override
+    // public void flush(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
+    // ByteBuf buf = ctx.outboundByteBuffer();
+    // ByteBuf encryptBuf = Unpooled.buffer();
+    // for (int i = 0; i < buf.readableBytes(); i++) {
+    // encryptBuf.writeByte(buf.readByte() ^ key);
+    // }
+    //
+    // ctx.nextOutboundByteBuffer().writeBytes(encryptBuf);
+    // ctx.flush(promise);
+    // }
+    //
+    // @Override
+    // public ByteBuf newOutboundBuffer(ChannelHandlerContext ctx) throws Exception {
+    // return ChannelHandlerUtil.allocate(ctx);
+    // }
+    //
+    // @Override
+    // public void discardOutboundReadBytes(ChannelHandlerContext ctx) throws Exception {
+    // ctx.outboundByteBuffer().discardSomeReadBytes();
+    // }
+    //
+    // @Override
+    // public ByteBuf newInboundBuffer(ChannelHandlerContext ctx) throws Exception {
+    // return ChannelHandlerUtil.allocate(ctx);
+    // }
+    //
+    // @Override
+    // public void discardInboundReadBytes(ChannelHandlerContext ctx) throws Exception {
+    // ctx.inboundByteBuffer().discardSomeReadBytes();
+    // }
 
 }
