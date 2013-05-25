@@ -20,11 +20,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.ssl.SslHandler;
 
-import javax.net.ssl.SSLEngine;
-
-import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
+import com.xx_dev.apn.proxy.ApnProxyEncryptHandler;
 
 /**
  * Sends one message when a connection is open and echoes back any received
@@ -53,12 +50,13 @@ public class SSLClient {
                     public void initChannel(SocketChannel channel) throws Exception {
                         ChannelPipeline pipeline = channel.pipeline();
 
-                        SSLEngine engine = ApnProxySSLContextFactory.getSSLContext()
-                            .createSSLEngine();
+                        // SSLEngine engine = ApnProxySSLContextFactory.getSSLContext()
+                        // .createSSLEngine();
+                        //
+                        // engine.setUseClientMode(true);
 
-                        engine.setUseClientMode(true);
-
-                        pipeline.addLast("ssl", new SslHandler(engine));
+                        // pipeline.addLast("ssl", new SslHandler(engine));
+                        pipeline.addLast("encrypt", new ApnProxyEncryptHandler());
 
                         pipeline.addLast("codec", new HttpClientCodec());
 

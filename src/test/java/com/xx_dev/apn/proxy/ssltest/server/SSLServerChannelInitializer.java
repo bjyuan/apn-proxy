@@ -4,11 +4,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.ssl.SslHandler;
 
-import javax.net.ssl.SSLEngine;
-
-import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
+import com.xx_dev.apn.proxy.ApnProxyEncryptHandler;
 
 /**
  * @author xmx
@@ -20,10 +17,12 @@ public class SSLServerChannelInitializer extends ChannelInitializer<SocketChanne
     public void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
 
-        SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
-        engine.setUseClientMode(false);
-        engine.setNeedClientAuth(true);
-        pipeline.addLast("ssl", new SslHandler(engine));
+        // SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
+        // engine.setUseClientMode(false);
+        // engine.setNeedClientAuth(true);
+        // pipeline.addLast("ssl", new SslHandler(engine));
+
+        pipeline.addLast("encrypt", new ApnProxyEncryptHandler());
 
         pipeline.addLast("codec", new HttpServerCodec());
 
