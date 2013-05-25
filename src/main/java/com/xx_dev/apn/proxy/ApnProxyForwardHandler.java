@@ -195,18 +195,18 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
 
         Set<String> headerNames = httpRequest.headers().names();
         for (String headerName : headerNames) {
-            //            if (StringUtils.equalsIgnoreCase(headerName, "Proxy-Connection")) {
-            //                continue;
-            //            }
+            // if (StringUtils.equalsIgnoreCase(headerName, "Proxy-Connection")) {
+            // continue;
+            // }
             //
-            //            if (StringUtils.equalsIgnoreCase(headerName, HttpHeaders.Names.CONNECTION)) {
-            //                continue;
-            //            }
+            // if (StringUtils.equalsIgnoreCase(headerName, HttpHeaders.Names.CONNECTION)) {
+            // continue;
+            // }
 
             _httpRequest.headers().add(headerName, httpRequest.headers().getAll(headerName));
         }
 
-        _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
+        _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
 
         return _httpRequest;
     }
