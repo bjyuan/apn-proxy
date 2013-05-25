@@ -42,8 +42,11 @@ public class SSLServerHandler extends ChannelInboundMessageHandlerAdapter<Object
         ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
         // produce a lot of bytes
-        for (int i = 0; i < 1024 * 1024; i++) {
-            byte[] array = new byte[] { 1, 1, 1, 1, 1 };
+        for (int i = 0; i < 1024; i++) {
+            byte[] array = new byte[1024];
+            for (int j = 0; j < 1024; j++) {
+                array[j] = 1;
+            }
             ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array)));
         }
 
