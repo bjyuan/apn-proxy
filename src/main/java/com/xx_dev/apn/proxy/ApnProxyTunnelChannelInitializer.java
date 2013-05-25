@@ -4,9 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.ssl.SslHandler;
-
-import javax.net.ssl.SSLEngine;
 
 import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 
@@ -33,10 +30,11 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
         ChannelPipeline pipeline = channel.pipeline();
 
         if (apnProxyRemote.isAppleyRemoteRule()) {
-            SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
-            engine.setUseClientMode(true);
-
-            pipeline.addLast("ssl", new SslHandler(engine));
+            // SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
+            // engine.setUseClientMode(true);
+            //
+            // pipeline.addLast("ssl", new SslHandler(engine));
+            pipeline.addLast("encrypt", new ApnProxyEncryptHandler());
         }
 
         pipeline.addLast("relay", new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA",
