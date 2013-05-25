@@ -3,7 +3,6 @@ package com.xx_dev.apn.proxy.ssltest.server;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
@@ -22,7 +21,7 @@ public class SSLServerChannelInitializer extends ChannelInitializer<SocketChanne
         SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
         engine.setUseClientMode(false);
         engine.setNeedClientAuth(true);
-        pipeline.addLast("ssl", new SslHandler(engine));
+        //pipeline.addLast("ssl", new SslHandler(engine));
 
         pipeline.addLast("handler", new SSLServerHandler());
 
