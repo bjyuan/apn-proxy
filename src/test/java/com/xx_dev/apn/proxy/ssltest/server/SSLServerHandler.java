@@ -12,12 +12,17 @@
  */
 package com.xx_dev.apn.proxy.ssltest.server;
 
-import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundByteHandlerAdapter;
+import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 
 import org.apache.log4j.Logger;
 
@@ -25,20 +30,24 @@ import org.apache.log4j.Logger;
  * Handler implementation for the echo server.
  */
 @Sharable
-public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
+public class SSLServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
     private static final Logger logger = Logger.getLogger(SSLServerHandler.class.getName());
 
+    /** 
+     * @see io.netty.channel.ChannelHandlerUtil.SingleInboundMessageHandler#messageReceived(io.netty.channel.ChannelHandlerContext, java.lang.Object)
+     */
     @Override
-    public void inboundBufferUpdated(final ChannelHandlerContext ctx, ByteBuf in) {
-        ByteBuf out = ctx.nextOutboundByteBuffer();
-
-        logger.info(in.toString());
+    public void messageReceived(final ChannelHandlerContext ctx, Object msg) throws Exception {
+        ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
         // produce a lot of bytes
         for (int i = 0; i < 1024 * 1024; i++) {
-            out.writeByte(1);
+            byte[] array = new byte[] { 1, 1, 1, 1, 1 };
+            ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array)));
         }
+
+        ctx.write(new DefaultLastHttpContent());
 
         logger.info("begin flush");
         ctx.flush().addListener(new ChannelFutureListener() {
@@ -50,7 +59,6 @@ public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
                 logger.info("closed");
             }
         });
-
     }
 
     @Override
@@ -59,4 +67,5 @@ public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
         logger.warn("Unexpected exception from downstream.", cause);
         ctx.close();
     }
+
 }

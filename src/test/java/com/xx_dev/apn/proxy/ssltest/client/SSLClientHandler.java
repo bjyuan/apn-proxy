@@ -12,11 +12,11 @@
  */
 package com.xx_dev.apn.proxy.ssltest.client;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundByteHandlerAdapter;
-import io.netty.util.CharsetUtil;
+import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 
 import org.apache.log4j.Logger;
 
@@ -25,23 +25,23 @@ import org.apache.log4j.Logger;
  * traffic between the echo client and server by sending the first message to
  * the server.
  */
-public class SSLClientHandler extends ChannelInboundByteHandlerAdapter {
+public class SSLClientHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static final Logger logger        = Logger.getLogger(SSLClientHandler.class);
-
-    private long                allBytesCount = 0;
+    private static final Logger logger = Logger.getLogger(SSLClientHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         logger.info("client channel active");
-        ctx.write(Unpooled.copiedBuffer("aaa", CharsetUtil.UTF_8));
+        ctx.write(new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+            "http://www.baidu.com"));
     }
 
+    /** 
+     * @see io.netty.channel.ChannelHandlerUtil.SingleInboundMessageHandler#messageReceived(io.netty.channel.ChannelHandlerContext, java.lang.Object)
+     */
     @Override
-    public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
-        allBytesCount += in.readableBytes();
-        logger.info("Recived all: " + allBytesCount + ", total: " + 1024 * 1204);
-        in.clear();
+    public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
+        logger.info(msg);
     }
 
     @Override
