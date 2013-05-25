@@ -27,28 +27,20 @@ import org.apache.log4j.Logger;
  */
 public class SSLClientHandler extends ChannelInboundByteHandlerAdapter {
 
-    private static final Logger logger = Logger.getLogger(SSLClientHandler.class);
+    private static final Logger logger        = Logger.getLogger(SSLClientHandler.class);
 
-    private static final String msg    = "GET http://dongtaiwang.com/loc/phome.php?v=0 HTTP/1.1\r\n"
-                                         + "Host: dongtaiwang.com\r\n"
-                                         + "Proxy-Connection: keep-alive\r\n"
-                                         + "Accept-Encoding: gzip, deflate\r\n"
-                                         + "Accept: */*\r\n"
-                                         + "Accept-Language: en-us\r\n"
-                                         + "Connection: keep-alive\r\n"
-                                         + "Pragma: no-cache\r\n"
-                                         + "User-Agent: Mozilla/5.0 (Windows NT 6.1; rv:19.0) Gecko/20100101 Firefox/19.0\r\n"
-                                         + "\r\n";
+    private long                allBytesCount = 0;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         logger.info("client channel active");
-        ctx.write(Unpooled.copiedBuffer(msg, CharsetUtil.UTF_8));
+        ctx.write(Unpooled.copiedBuffer("aaa", CharsetUtil.UTF_8));
     }
 
     @Override
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
-        logger.info("Server Said: " + in.toString(CharsetUtil.UTF_8));
+        allBytesCount += in.readableBytes();
+        logger.info("Recived all: " + allBytesCount + ", total: " + 10 * 1024 * 1204);
         in.clear();
     }
 

@@ -14,12 +14,13 @@ package com.xx_dev.apn.proxy.ssltest.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundByteHandlerAdapter;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * Handler implementation for the echo server.
@@ -32,16 +33,32 @@ public class SSLServerHandler extends ChannelInboundByteHandlerAdapter {
     @Override
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
         ByteBuf out = ctx.nextOutboundByteBuffer();
-        Channel channel = ctx.channel();
-        out.writeBytes(in);
-        channel.flush();
-        channel.close();
+        final Channel channel = ctx.channel();
+
+        logger.info(in.toString());
+
+        // produce a lot of bytes
+        for (int i = 0; i < 10 * 1024 * 1204; i++) {
+            out.writeByte(1);
+        }
+
+        logger.info("begin flush");
+        channel.flush().addListener(new ChannelFutureListener() {
+
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                logger.info("end flush");
+                channel.close();
+                logger.info("closed");
+            }
+        });
+
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // Close the connection when an exception is raised.
-        logger.log(Level.WARNING, "Unexpected exception from downstream.", cause);
+        logger.warn("Unexpected exception from downstream.", cause);
         ctx.close();
     }
 }
