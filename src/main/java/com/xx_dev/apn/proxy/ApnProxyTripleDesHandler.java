@@ -71,14 +71,15 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
                 Key securekey = new SecretKeySpec(key.getBytes(Charset.forName("UTF-8")), DESEDE);
                 Cipher c1 = Cipher.getInstance(DESEDE_PADDING);
                 c1.init(Cipher.DECRYPT_MODE, securekey);
-                byte[] data = new byte[in.readableBytes()];
-                in.readBytes(data);
+                byte[] data = new byte[encryptDataLength];
+                in.readBytes(data, 0, encryptDataLength);
                 byte[] raw = c1.doFinal(data);
                 out.writeBytes(raw);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
             decodeState = DECODE_STATE_INIT;
+            encryptDataLength = 0;
         }
 
     }
