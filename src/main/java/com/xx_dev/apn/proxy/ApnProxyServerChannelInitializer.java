@@ -10,8 +10,6 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * @author xmx
  * @version $Id: ApOutsideChannelInitializer.java,v 0.1 Feb 11, 2013 11:15:01 PM xmx Exp $
@@ -25,13 +23,20 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         pipeline.addLast("idlestate", new IdleStateHandler(0, 0, 1, TimeUnit.MINUTES));
         pipeline.addLast("idlehandler", new IdleHandler());
 
-        if (StringUtils.equals(ApnProxyConfig.getStringConfig("apn.proxy.ssl_listen"), "true")) {
-            // SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
-            // engine.setUseClientMode(false);
-            // engine.setNeedClientAuth(true);
-            // pipeline.addLast("ssl", new SslHandler(engine));
-            //
-            pipeline.addLast("encrypt", new ApnProxyEncryptHandler());
+        //        if (ApnProxyConfig.getBoolConfig("apn.proxy.ssl_listen")) {
+        //            SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
+        //            engine.setUseClientMode(false);
+        //            engine.setNeedClientAuth(true);
+        //            pipeline.addLast("ssl", new SslHandler(engine));
+        //
+        //        } else if (ApnProxyConfig.getBoolConfig("apn.proxy.3des_listen")) {
+        //            pipeline.addLast("3des", new ApnProxyTripleDesHandler());
+        //        } else if (ApnProxyConfig.getBoolConfig("apn.proxy.simple_encrypt_listen")) {
+        //            pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
+        //        }
+
+        if (ApnProxyConfig.getBoolConfig("apn.proxy.3des_listen")) {
+            pipeline.addLast("3des", new ApnProxyTripleDesHandler());
         }
 
         pipeline.addLast("log", new ByteLoggingHandler("BYTE_LOGGER", LogLevel.INFO));

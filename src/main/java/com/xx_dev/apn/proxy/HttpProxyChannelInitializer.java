@@ -37,7 +37,8 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
             //
             // pipeline.addLast("ssl", new SslHandler(engine));
 
-            pipeline.addLast("encrypt", new ApnProxyEncryptHandler());
+            // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
+            pipeline.addLast("3des", new ApnProxyTripleDesHandler());
         }
 
         channel.pipeline().addLast("codec", new HttpClientCodec());

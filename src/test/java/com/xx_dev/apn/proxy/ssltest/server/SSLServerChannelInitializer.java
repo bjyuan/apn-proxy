@@ -5,7 +5,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 
-import com.xx_dev.apn.proxy.ApnProxyEncryptHandler;
+import com.xx_dev.apn.proxy.ApnProxySimpleEncryptHandler;
 
 /**
  * @author xmx
@@ -22,7 +22,7 @@ public class SSLServerChannelInitializer extends ChannelInitializer<SocketChanne
         // engine.setNeedClientAuth(true);
         // pipeline.addLast("ssl", new SslHandler(engine));
 
-        pipeline.addLast("encrypt", new ApnProxyEncryptHandler());
+        pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
 
         pipeline.addLast("codec", new HttpServerCodec());
 

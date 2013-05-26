@@ -34,7 +34,9 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
             // engine.setUseClientMode(true);
             //
             // pipeline.addLast("ssl", new SslHandler(engine));
-            pipeline.addLast("encrypt", new ApnProxyEncryptHandler());
+            //pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
+
+            pipeline.addLast("3des", new ApnProxyTripleDesHandler());
         }
 
         pipeline.addLast("relay", new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA",

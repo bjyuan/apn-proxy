@@ -21,7 +21,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 
-import com.xx_dev.apn.proxy.ApnProxyEncryptHandler;
+import com.xx_dev.apn.proxy.ApnProxySimpleEncryptHandler;
 
 /**
  * Sends one message when a connection is open and echoes back any received
@@ -56,7 +56,7 @@ public class SSLClient {
                         // engine.setUseClientMode(true);
 
                         // pipeline.addLast("ssl", new SslHandler(engine));
-                        pipeline.addLast("encrypt", new ApnProxyEncryptHandler());
+                        pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
 
                         pipeline.addLast("codec", new HttpClientCodec());
 
