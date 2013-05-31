@@ -31,7 +31,7 @@ public class ApnProxyServerLauncher {
             }
         }
 
-        if (ApnProxyConfig.getBoolConfig("apn.proxy.use_ipv6")) {
+        if (ApnProxyXmlConfig.isUseIpV6()) {
             System.setProperty("java.net.preferIPv6Addresses", "true");
         }
 
@@ -42,9 +42,9 @@ public class ApnProxyServerLauncher {
         ApnProxyRemoteChooser.load();
         ApnProxyLocalAddressChooser.load();
 
-        int bossThreadCount = ApnProxyConfig.getIntConfig("apn.proxy.boss_thread_count");
-        int workerThreadCount = ApnProxyConfig.getIntConfig("apn.proxy.worker_thread_count");
-        int port = ApnProxyConfig.getIntConfig("apn.proxy.port");
+        int bossThreadCount = ApnProxyXmlConfig.bossThreadCount();
+        int workerThreadCount = ApnProxyXmlConfig.workerThreadCount();
+        int port = ApnProxyXmlConfig.port();
 
         ServerBootstrap serverBootStrap = new ServerBootstrap();
 

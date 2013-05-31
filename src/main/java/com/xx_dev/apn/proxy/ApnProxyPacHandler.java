@@ -12,10 +12,10 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
 
 /**
  * @author xmx
@@ -44,8 +44,7 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
                                     + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
             }
 
-            if (StringUtils.equals(originalHost,
-                ApnProxyConfig.getStringConfig("apn.proxy.pac_host"))) {
+            if (StringUtils.equals(originalHost, ApnProxyXmlConfig.pacHost())) {
                 //
                 isPacMode = true;
                 ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
@@ -74,17 +73,16 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
 
         StringBuilder sb = new StringBuilder();
         sb.append("function FindProxyForURL(url, host){var PROXY = \"PROXY ")
-            .append(ApnProxyConfig.getStringConfig("apn.proxy.pac_host")).append(":")
-            .append(ApnProxyConfig.getStringConfig("apn.proxy.port"))
+            .append(ApnProxyXmlConfig.pacHost()).append(":").append(ApnProxyXmlConfig.port())
             .append("\";var DEFAULT = \"DIRECT\";");
 
-        List<String> rules = ApnProxyRemoteChooser.getRuleList();
-
-        for (String rule : rules) {
-            if (StringUtils.isNotBlank(rule)) {
-                sb.append("if(/^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?")
-                    .append(StringUtils.replace(rule, ".", "\\."))
-                    .append("/i.test(url)) return PROXY;");
+        for (ApnProxyRemoteRule remoteRule : ApnProxyXmlConfig.remoteRuleList()) {
+            for (String originalHost : remoteRule.getOriginalHostList()) {
+                if (StringUtils.isNotBlank(originalHost)) {
+                    sb.append("if(/^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?")
+                        .append(StringUtils.replace(originalHost, ".", "\\."))
+                        .append("/i.test(url)) return PROXY;");
+                }
             }
         }
 

@@ -30,13 +30,13 @@ public class ApnProxySSLContextFactory {
             KeyStore ks = KeyStore.getInstance("JKS");
             KeyStore tks = KeyStore.getInstance("JKS");
 
-            String keyStorePath = ApnProxyConfig.getStringConfig("apn.proxy.key_store");
-            String keyStorePassword = ApnProxyConfig.getStringConfig("apn.proxy.key_store_password");
+            String keyStorePath = ApnProxyXmlConfig.keyStorePath();
+            String keyStorePassword = ApnProxyXmlConfig.keyStorePassword();
 
             ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
             tks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
 
-            String keyPassword = ApnProxyConfig.getStringConfig("apn.proxy.key_store_password");
+            String keyPassword = ApnProxyXmlConfig.keyStorePassword();
             kmf.init(ks, keyPassword.toCharArray());
             tmf.init(tks);
 
