@@ -37,7 +37,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
         // }
 
-        if (StringUtils.equals(ApnProxyXmlConfig.listenType(), "3ds")) {
+        if (StringUtils.equals(ApnProxyXmlConfig.listenType(), "3des")) {
             pipeline.addLast("3des", new ApnProxyTripleDesHandler());
         }
 
