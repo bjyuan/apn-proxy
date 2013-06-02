@@ -63,7 +63,7 @@ public class ApnProxyXmlConfig {
         Elements listenTypeElements = rootElement.getChildElements("listen-type");
         if (listenTypeElements.size() == 1) {
             String _listenType = listenTypeElements.get(0).getValue();
-            if (StringUtils.equals(_listenType, "3DES")) {
+            if (StringUtils.equals(_listenType, "3des")) {
                 this.listenType = ApnProxyListenType.TRIPLE_DES;
             } else if (StringUtils.equals(_listenType, "ssl")) {
                 this.listenType = ApnProxyListenType.SSL;
