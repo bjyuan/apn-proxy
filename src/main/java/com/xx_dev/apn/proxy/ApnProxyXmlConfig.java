@@ -128,7 +128,7 @@ public class ApnProxyXmlConfig {
 
         Elements useIpv6Elements = rootElement.getChildElements("use-ipv6");
         if (useIpv6Elements.size() == 1) {
-            this.useIpV6 = Boolean.parseBoolean(portElements.get(0).getValue());
+            this.useIpV6 = Boolean.parseBoolean(useIpv6Elements.get(0).getValue());
         }
 
         Elements remoteRulesElements = rootElement.getChildElements("remote-rules");
