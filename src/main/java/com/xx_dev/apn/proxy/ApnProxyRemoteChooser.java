@@ -39,7 +39,7 @@ public class ApnProxyRemoteChooser {
     }
 
     private static ApnProxyRemoteRule getApplyRemoteRule(String host) {
-        for (ApnProxyRemoteRule remoteRule : ApnProxyXmlConfig.remoteRuleList()) {
+        for (ApnProxyRemoteRule remoteRule : ApnProxyXmlConfig.getConfig().getRemoteRuleList()) {
             for (String originalHost : remoteRule.getOriginalHostList()) {
                 if (StringUtils.equals(originalHost, host)
                     || StringUtils.endsWith(host, "." + originalHost)) {

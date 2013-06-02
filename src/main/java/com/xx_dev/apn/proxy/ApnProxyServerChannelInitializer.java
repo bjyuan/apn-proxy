@@ -10,7 +10,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
+import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 
 /**
  * @author xmx
@@ -37,7 +37,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
         // }
 
-        if (StringUtils.equals(ApnProxyXmlConfig.listenType(), "3des")) {
+        if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
             pipeline.addLast("3des", new ApnProxyTripleDesHandler());
         }
 
