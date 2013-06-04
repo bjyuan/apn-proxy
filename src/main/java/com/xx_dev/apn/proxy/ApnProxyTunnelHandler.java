@@ -28,7 +28,6 @@ import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 
 /**
- * 
  * @author mingxing.xumx
  * @version $Id: ApnProxyTunnelHandler.java, v 0.1 2013-5-15 上午11:18:36 mingxing.xumx Exp $
  */
@@ -38,8 +37,9 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
 
     public static final String  HANDLER_NAME = "apnproxy.tunnel";
 
-    /** 
-     * @see io.netty.channel.ChannelHandlerUtil.SingleInboundMessageHandler#messageReceived(io.netty.channel.ChannelHandlerContext, java.lang.Object)
+    /**
+     * @see io.netty.channel.ChannelHandlerUtil.SingleInboundMessageHandler#messageReceived(io.netty.channel.ChannelHandlerContext,
+     *      java.lang.Object)
      */
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, HttpObject msg) throws Exception {
@@ -67,6 +67,11 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
                 .getRemoteHost()))) {
                 bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
                     .choose(apnProxyRemote.getRemoteHost())), 0));
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.info("TUNNEL to: " + apnProxyRemote.getRemote() + " for: " + remoteHost
+                            + ":" + remotePort);
             }
 
             bootstrap.connect(apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort())
