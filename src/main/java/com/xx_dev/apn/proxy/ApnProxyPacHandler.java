@@ -38,7 +38,8 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
             String originalHost = getHostName(hostHeader);
 
             if (httpRestLogger.isInfoEnabled()) {
-                httpRestLogger.info(httpRequest.getMethod().name() + " " + httpRequest.getUri()
+                httpRestLogger.info(ctx.channel().remoteAddress() + " "
+                                    + httpRequest.getMethod().name() + " " + httpRequest.getUri()
                                     + " " + httpRequest.getProtocolVersion().text() + ", "
                                     + hostHeader + ", "
                                     + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
