@@ -15,9 +15,9 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxySSLContextFactory {
 
-    private static Logger     logger     = Logger.getLogger(ApnProxySSLContextFactory.class);
+    private static final Logger logger     = Logger.getLogger(ApnProxySSLContextFactory.class);
 
-    private static SSLContext sslcontext = null;
+    private static SSLContext   sslcontext = null;
 
     static {
 

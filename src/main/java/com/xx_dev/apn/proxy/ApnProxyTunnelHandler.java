@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 
 /**
  * 
@@ -33,7 +34,9 @@ import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
  */
 public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<HttpObject> {
 
-    private static Logger logger = Logger.getLogger(ApnProxyTunnelHandler.class);
+    private static final Logger logger       = Logger.getLogger(ApnProxyTunnelHandler.class);
+
+    public static final String  HANDLER_NAME = "apnproxy.tunnel";
 
     /** 
      * @see io.netty.channel.ChannelHandlerUtil.SingleInboundMessageHandler#messageReceived(io.netty.channel.ChannelHandlerContext, java.lang.Object)
@@ -45,8 +48,8 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
             final HttpRequest httpRequest = (HttpRequest) msg;
 
             String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            String remoteHost = getHostName(hostHeader);
-            int remotePort = getPort(hostHeader);
+            String remoteHost = HostNamePortUtil.getHostName(hostHeader);
+            int remotePort = HostNamePortUtil.getPort(hostHeader, 443);
 
             final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser
                 .chooseRemoteAddr(remoteHost + ":" + remotePort);
@@ -76,8 +79,8 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
 
                             if (apnProxyRemote.isAppleyRemoteRule()) {
                                 ctx.pipeline().remove("codec");
-                                ctx.pipeline().remove("pac");
-                                ctx.pipeline().remove("tunnel");
+                                ctx.pipeline().remove(ApnProxyPreHandler.HANDLER_NAME);
+                                ctx.pipeline().remove(ApnProxyTunnelHandler.HANDLER_NAME);
 
                                 // add relay handler
                                 ctx.pipeline().addLast(
@@ -101,8 +104,8 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
                                                                                         throws Exception {
                                         // remove handlers
                                         ctx.pipeline().remove("codec");
-                                        ctx.pipeline().remove("pac");
-                                        ctx.pipeline().remove("tunnel");
+                                        ctx.pipeline().remove(ApnProxyPreHandler.HANDLER_NAME);
+                                        ctx.pipeline().remove(ApnProxyTunnelHandler.HANDLER_NAME);
 
                                         // add relay handler
                                         ctx.pipeline().addLast(
@@ -124,18 +127,6 @@ public class ApnProxyTunnelHandler extends ChannelInboundMessageHandlerAdapter<H
 
         }
 
-    }
-
-    private static String getHostName(String addr) {
-        return StringUtils.split(addr, ": ")[0];
-    }
-
-    private static int getPort(String addr) {
-        String[] ss = StringUtils.split(addr, ": ");
-        if (ss.length == 2) {
-            return Integer.parseInt(ss[1]);
-        }
-        return 443;
     }
 
     private String constructConnectRequestForProxy(HttpRequest httpRequest) {

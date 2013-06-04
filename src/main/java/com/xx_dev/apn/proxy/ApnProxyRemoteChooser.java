@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
+import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 
 /**
  * @author xmx
@@ -11,11 +12,11 @@ import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
  */
 public class ApnProxyRemoteChooser {
 
-    private static Logger logger = Logger.getLogger(ApnProxyRemoteChooser.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyRemoteChooser.class);
 
     public static ApnProxyRemote chooseRemoteAddr(String originalRemoteAddr) {
-        String originalHost = getHostName(originalRemoteAddr);
-        int originalPort = getPort(originalRemoteAddr);
+        String originalHost = HostNamePortUtil.getHostName(originalRemoteAddr);
+        int originalPort = HostNamePortUtil.getPort(originalRemoteAddr, -1);
 
         ApnProxyRemote apRemote = new ApnProxyRemote();
 
@@ -49,18 +50,6 @@ public class ApnProxyRemoteChooser {
         }
 
         return null;
-    }
-
-    private static String getHostName(String addr) {
-        return StringUtils.split(addr, ": ")[0];
-    }
-
-    private static int getPort(String addr) {
-        String[] ss = StringUtils.split(addr, ": ");
-        if (ss.length == 2) {
-            return Integer.parseInt(ss[1]);
-        }
-        return -1;
     }
 
     public static class ApnProxyRemote {

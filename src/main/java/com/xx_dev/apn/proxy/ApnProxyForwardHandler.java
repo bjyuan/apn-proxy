@@ -33,6 +33,8 @@ import org.apache.log4j.Logger;
 
 import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
+import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
+import com.xx_dev.apn.proxy.utils.HttpContentCopyUtil;
 
 /**
  * @author xmx
@@ -40,7 +42,9 @@ import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
  */
 public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger        logger            = Logger.getLogger(ApnProxyForwardHandler.class);
+    private static final Logger  logger            = Logger.getLogger(ApnProxyForwardHandler.class);
+
+    public static final String   HANDLER_NAME      = "apnproxy.forward";
 
     private String               remoteAddr;
 
@@ -57,15 +61,15 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
             HttpRequest httpRequest = (HttpRequest) msg;
 
             if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
-                ctx.pipeline().remove("forward");
+                ctx.pipeline().remove(ApnProxyForwardHandler.HANDLER_NAME);
                 ctx.nextInboundMessageBuffer().add(msg);
                 ctx.fireInboundBufferUpdated();
                 return;
             }
 
             remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            String remoteHost = getHostName(remoteAddr);
-            int remotePort = getPort(remoteAddr);
+            String remoteHost = HostNamePortUtil.getHostName(remoteAddr);
+            int remotePort = HostNamePortUtil.getPort(remoteAddr, 80);
             remoteAddr = remoteHost + ":" + remotePort;
 
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
@@ -218,18 +222,6 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
         }
 
         return fullUrl;
-    }
-
-    private static String getHostName(String addr) {
-        return StringUtils.split(addr, ": ")[0];
-    }
-
-    private static int getPort(String addr) {
-        String[] ss = StringUtils.split(addr, ": ");
-        if (ss.length == 2) {
-            return Integer.parseInt(ss[1]);
-        }
-        return 80;
     }
 
 }

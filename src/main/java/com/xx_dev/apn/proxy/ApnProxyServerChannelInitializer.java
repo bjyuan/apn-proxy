@@ -38,16 +38,16 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         // }
 
         if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
-            pipeline.addLast("3des", new ApnProxyTripleDesHandler());
+            pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler());
         }
 
         pipeline.addLast("log", new ByteLoggingHandler("BYTE_LOGGER", LogLevel.INFO));
 
         pipeline.addLast("codec", new HttpServerCodec());
 
-        pipeline.addLast("pac", new ApnProxyPacHandler());
+        pipeline.addLast(ApnProxyPreHandler.HANDLER_NAME, new ApnProxyPreHandler());
 
-        pipeline.addLast("forward", new ApnProxyForwardHandler());
-        pipeline.addLast("tunnel", new ApnProxyTunnelHandler());
+        pipeline.addLast(ApnProxyForwardHandler.HANDLER_NAME, new ApnProxyForwardHandler());
+        pipeline.addLast(ApnProxyTunnelHandler.HANDLER_NAME, new ApnProxyTunnelHandler());
     }
 }

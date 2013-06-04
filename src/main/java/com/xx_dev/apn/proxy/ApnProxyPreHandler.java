@@ -16,18 +16,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
+import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 
 /**
  * @author xmx
- * @version $Id: ApnProxyPacHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
+ * @version $Id: ApnProxyPreHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
-public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Object> {
+public class ApnProxyPreHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static Logger logger         = Logger.getLogger(ApnProxyPacHandler.class);
+    private static final Logger logger         = Logger.getLogger(ApnProxyPreHandler.class);
 
-    private static Logger httpRestLogger = Logger.getLogger("HTTP_REST_LOGGER");
+    public static final String  HANDLER_NAME   = "apnproxy.pre";
 
-    private boolean       isPacMode      = false;
+    private static Logger       httpRestLogger = Logger.getLogger("HTTP_REST_LOGGER");
+
+    private boolean             isPacMode      = false;
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, final Object msg) throws Exception {
@@ -35,7 +38,7 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
             String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            String originalHost = getHostName(hostHeader);
+            String originalHost = HostNamePortUtil.getHostName(hostHeader);
 
             if (httpRestLogger.isInfoEnabled()) {
                 httpRestLogger.info(ctx.channel().remoteAddress() + " "
@@ -95,10 +98,6 @@ public class ApnProxyPacHandler extends ChannelInboundMessageHandlerAdapter<Obje
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error(cause.getMessage(), cause);
-    }
-
-    private static String getHostName(String addr) {
-        return StringUtils.split(addr, ": ")[0];
     }
 
 }

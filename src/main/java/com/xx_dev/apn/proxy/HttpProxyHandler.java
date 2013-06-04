@@ -12,9 +12,13 @@ import io.netty.handler.codec.http.HttpResponse;
 
 import org.apache.log4j.Logger;
 
+import com.xx_dev.apn.proxy.utils.HttpContentCopyUtil;
+
 public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpObject> {
 
-    private static Logger                 logger = Logger.getLogger(HttpProxyHandler.class);
+    private static final Logger           logger       = Logger.getLogger(HttpProxyHandler.class);
+
+    public static final String            HANDLER_NAME = "apnproxy.proxy";
 
     private Channel                       uaChannel;
 

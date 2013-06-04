@@ -19,7 +19,7 @@ import org.apache.log4j.xml.DOMConfigurator;
  */
 public class ApnProxyServerLauncher {
 
-    private static Logger logger = Logger.getLogger(ApnProxyServerLauncher.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyServerLauncher.class);
 
     static {
         File log4jConfigFile = new File("conf/log4j.xml");

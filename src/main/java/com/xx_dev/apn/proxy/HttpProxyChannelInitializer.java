@@ -38,14 +38,14 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
             // pipeline.addLast("ssl", new SslHandler(engine));
 
             // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
-            pipeline.addLast("3des", new ApnProxyTripleDesHandler());
+            pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler());
         }
 
         channel.pipeline().addLast("codec", new HttpClientCodec());
         // pipeline.addLast("decoder", new HttpResponseDecoder());
         // channel.pipeline().addLast("decompressor", new HttpContentDecompressor());
         // channel.pipeline().addLast("aggregator", new HttpObjectAggregator(65536));
-        pipeline.addLast("handler", new HttpProxyHandler(uaChannel, remoteAddr,
+        pipeline.addLast(HttpProxyHandler.HANDLER_NAME, new HttpProxyHandler(uaChannel, remoteAddr,
             remoteChannelInactiveCallback));
     }
 }

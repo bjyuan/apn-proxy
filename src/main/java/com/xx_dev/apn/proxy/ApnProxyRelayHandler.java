@@ -15,10 +15,12 @@ import org.apache.log4j.Logger;
  */
 public final class ApnProxyRelayHandler extends ChannelInboundByteHandlerAdapter {
 
-    private static Logger logger = Logger.getLogger(ApnProxyRelayHandler.class);
+    private static final Logger logger       = Logger.getLogger(ApnProxyRelayHandler.class);
 
-    private final Channel relayChannel;
-    private final String  tag;
+    public static final String  HANDLER_NAME = "apnproxy.relay";
+
+    private final Channel       relayChannel;
+    private final String        tag;
 
     public ApnProxyRelayHandler(String tag, Channel relayChannel) {
         this.tag = tag;

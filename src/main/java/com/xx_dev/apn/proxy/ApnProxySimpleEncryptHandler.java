@@ -6,7 +6,9 @@ import io.netty.handler.codec.ByteToByteCodec;
 
 public class ApnProxySimpleEncryptHandler extends ByteToByteCodec {
 
-    private static final byte key = 4;
+    public static final String HANDLER_NAME = "apnproxy.encrypt";
+
+    private static final byte  key          = 4;
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception {

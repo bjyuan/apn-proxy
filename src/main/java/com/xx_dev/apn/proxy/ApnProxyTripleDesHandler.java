@@ -17,6 +17,8 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
     private static final Logger logger                        = Logger
                                                                   .getLogger(ApnProxyTripleDesHandler.class);
 
+    public static final String  HANDLER_NAME                  = "apnproxy.encrypt";
+
     /** DES **/
     private static final String DESEDE                        = "DESede";
 

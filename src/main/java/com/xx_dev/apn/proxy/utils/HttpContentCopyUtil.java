@@ -1,4 +1,4 @@
-package com.xx_dev.apn.proxy;
+package com.xx_dev.apn.proxy.utils;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
