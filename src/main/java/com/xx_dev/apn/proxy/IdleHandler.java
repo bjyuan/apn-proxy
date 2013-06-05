@@ -25,16 +25,16 @@ public class IdleHandler extends ChannelDuplexHandler {
 
     @Override
     public void flush(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info("Idle flush");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Idle flush");
         }
         ctx.flush(promise);
     }
 
     @Override
     public void inboundBufferUpdated(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info("Idle inboundBufferUpdated");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Idle inboundBufferUpdated");
         }
         ctx.fireInboundBufferUpdated();
     }
