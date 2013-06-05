@@ -29,8 +29,8 @@ public final class ApnProxyRelayHandler extends ChannelInboundByteHandlerAdapter
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug(tag + " channel active");
+        if (logger.isInfoEnabled()) {
+            logger.info(tag + " channel active");
         }
         ctx.flush();
     }
@@ -59,8 +59,8 @@ public final class ApnProxyRelayHandler extends ChannelInboundByteHandlerAdapter
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug(tag + " channel inactive");
+        if (logger.isInfoEnabled()) {
+            logger.info(tag + " channel inactive");
         }
         if (relayChannel != null && relayChannel.isActive()) {
             relayChannel.flush().addListener(ChannelFutureListener.CLOSE);

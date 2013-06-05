@@ -75,15 +75,11 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
             if (remoteChannel != null && remoteChannel.isActive()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Use old remote channel for: " + remoteAddr);
+                if (logger.isInfoEnabled()) {
+                    logger.info("Use old remote channel for: " + remoteAddr);
                 }
                 remoteChannel.write(constructRequestForProxy((HttpRequest) msg));
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Create new remote channel for: " + remoteAddr);
-                }
-
                 RemoteChannelInactiveCallback cb = new RemoteChannelInactiveCallback() {
                     @Override
                     public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
@@ -98,6 +94,11 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                 };
 
                 ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(remoteAddr);
+
+                if (logger.isInfoEnabled()) {
+                    logger
+                        .info("FORWARD to: " + apnProxyRemote.getRemote() + " for: " + remoteAddr);
+                }
 
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap

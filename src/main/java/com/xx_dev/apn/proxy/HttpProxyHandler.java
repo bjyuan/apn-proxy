@@ -35,8 +35,8 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Remote channel: " + remoteAddr + " active");
+        if (logger.isInfoEnabled()) {
+            logger.info("Remote channel: " + remoteAddr + " active");
         }
     }
 
@@ -67,7 +67,10 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
 
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-        logger.warn("Remote channel: " + remoteAddr + " inactive");
+        if (logger.isInfoEnabled()) {
+            logger.info("Remote channel: " + remoteAddr + " inactive");
+        }
+
         uaChannel.flush().addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
