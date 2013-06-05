@@ -72,7 +72,8 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
         }
         if (decodeState == DECODE_STATE_READ_ENCRPT_DATA) {
             if (logger.isDebugEnabled()) {
-                logger.debug("3DES decode readable length: " + in.readableBytes());
+                logger.debug("3DES decode readable length: " + in.readableBytes() + ", want: "
+                             + encryptDataLength);
             }
             if (in.readableBytes() < encryptDataLength) {
                 return;
