@@ -15,6 +15,7 @@ public class HttpContentCopyUtil {
 
     public static HttpContent copy(HttpContent httpContent) {
         HttpContent _hc = null;
+
         if (httpContent instanceof LastHttpContent) {
             _hc = new DefaultLastHttpContent(Unpooled.copiedBuffer(httpContent.content()));
         } else {
