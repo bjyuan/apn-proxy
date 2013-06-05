@@ -63,7 +63,9 @@ public class ApnProxyXmlConfig {
         Elements listenTypeElements = rootElement.getChildElements("listen-type");
         if (listenTypeElements.size() == 1) {
             String _listenType = listenTypeElements.get(0).getValue();
-            if (StringUtils.equals(_listenType, "3des")) {
+            if (StringUtils.equals(_listenType, "simple")) {
+                this.listenType = ApnProxyListenType.SIMPLE;
+            } else if (StringUtils.equals(_listenType, "3des")) {
                 this.listenType = ApnProxyListenType.TRIPLE_DES;
             } else if (StringUtils.equals(_listenType, "ssl")) {
                 this.listenType = ApnProxyListenType.SSL;
@@ -361,7 +363,7 @@ public class ApnProxyXmlConfig {
     }
 
     public enum ApnProxyListenType {
-        TRIPLE_DES, SSL, PLAIN;
+        SIMPLE, TRIPLE_DES, SSL, PLAIN;
     }
 
     public class ApnProxyConfigException extends RuntimeException {

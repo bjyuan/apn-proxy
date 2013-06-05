@@ -37,7 +37,10 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
         // }
 
-        if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
+        if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.SIMPLE) {
+            pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
+                new ApnProxySimpleEncryptHandler());
+        } else if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler());
         }
 

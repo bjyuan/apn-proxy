@@ -47,6 +47,9 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
             int length = raw.length;
             out.writeInt(length);
             out.writeBytes(raw);
+            if (logger.isDebugEnabled()) {
+                logger.debug("3DES encode data length: " + length);
+            }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -54,11 +57,17 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("3DES decode state: " + decodeState);
+        }
         if (decodeState == DECODE_STATE_INIT) {
             if (in.readableBytes() < 4) {
                 return;
             }
             encryptDataLength = in.readInt();
+            if (logger.isDebugEnabled()) {
+                logger.debug("3DES decode data length: " + encryptDataLength);
+            }
             decodeState = DECODE_STATE_READ_ENCRPT_DATA;
         }
         if (decodeState == DECODE_STATE_READ_ENCRPT_DATA) {
@@ -77,6 +86,10 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
                 in.readBytes(data, 0, encryptDataLength);
                 byte[] raw = c1.doFinal(data);
                 out.writeBytes(raw);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("3DES decode data complete: " + raw.length);
+                }
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
