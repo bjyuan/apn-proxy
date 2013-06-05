@@ -98,6 +98,7 @@ public class ApnProxyPreHandler extends ChannelInboundMessageHandlerAdapter<Obje
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error(cause.getMessage(), cause);
+        ctx.close();
     }
 
 }
