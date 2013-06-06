@@ -7,6 +7,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.FactoryConfigurationError;
 
@@ -42,12 +44,23 @@ public class ApnProxyServerLauncher {
 
     public static void main(String[] args) {
 
+        Properties sysProperties = System.getProperties();
+        for (Map.Entry<Object, Object> entry : sysProperties.entrySet()) {
+            if (logger.isInfoEnabled()) {
+                logger.info(entry.getKey() + " = " + entry.getValue());
+            }
+        }
+
         ApnProxyRemoteChooser.load();
         ApnProxyLocalAddressChooser.load();
 
         int bossThreadCount = ApnProxyXmlConfig.getConfig().getBossThreadCount();
         int workerThreadCount = ApnProxyXmlConfig.getConfig().getWorkerThreadCount();
         int port = ApnProxyXmlConfig.getConfig().getPort();
+
+        if (logger.isInfoEnabled()) {
+            logger.info("ApnProxy Server Listen on: " + port);
+        }
 
         ServerBootstrap serverBootStrap = new ServerBootstrap();
 
