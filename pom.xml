@@ -16,9 +16,9 @@
 
 	<repositories>
 		<repository>
-			<id>mvn.xx-dev.com</id>
-			<name>mvn.xx-dev.com repository</name>
-			<url>http://mvn.xx-dev.com/content/groups/public</url>
+			<id>mvn.xx-dev.net</id>
+			<name>mvn.xx-dev.net repository</name>
+			<url>http://mvn.xx-dev.net/content/groups/public</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -27,9 +27,9 @@
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>mvn.xx-dev.com</id>
-			<name>mvn.xx-dev.com repository</name>
-			<url>http://mvn.xx-dev.com/content/groups/public</url>
+			<id>mvn.xx-dev.net</id>
+			<name>mvn.xx-dev.net repository</name>
+			<url>http://mvn.xx-dev.net/content/groups/public</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -38,12 +38,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>mvn.xx-dev.com.release</id>
-			<url>http://mvn.xx-dev.com/content/repositories/releases/</url>
+			<id>mvn.xx-dev.net.release</id>
+			<url>http://mvn.xx-dev.net/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
-			<id>mvn.xx-dev.com.snapshots</id>
-			<url>http://mvn.xx-dev.com/content/repositories/snapshots/</url>
+			<id>mvn.xx-dev.net.snapshots</id>
+			<url>http://mvn.xx-dev.net/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
