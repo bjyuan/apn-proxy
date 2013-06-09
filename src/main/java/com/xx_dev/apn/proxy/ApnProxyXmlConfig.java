@@ -85,7 +85,7 @@ public class ApnProxyXmlConfig {
         }
 
         Elements portElements = rootElement.getChildElements("port");
-        if (tripleDesKeyElements.size() == 1) {
+        if (portElements.size() == 1) {
             try {
                 this.port = Integer.parseInt(portElements.get(0).getValue());
             } catch (NumberFormatException nfe) {
