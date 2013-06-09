@@ -51,9 +51,6 @@ public class ApnProxyServerLauncher {
             }
         }
 
-        ApnProxyRemoteChooser.load();
-        ApnProxyLocalAddressChooser.load();
-
         int bossThreadCount = ApnProxyXmlConfig.getConfig().getBossThreadCount();
         int workerThreadCount = ApnProxyXmlConfig.getConfig().getWorkerThreadCount();
         int port = ApnProxyXmlConfig.getConfig().getPort();

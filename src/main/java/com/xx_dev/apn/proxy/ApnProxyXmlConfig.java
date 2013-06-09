@@ -63,17 +63,7 @@ public class ApnProxyXmlConfig {
         Elements listenTypeElements = rootElement.getChildElements("listen-type");
         if (listenTypeElements.size() == 1) {
             String _listenType = listenTypeElements.get(0).getValue();
-            if (StringUtils.equals(_listenType, "simple")) {
-                this.listenType = ApnProxyListenType.SIMPLE;
-            } else if (StringUtils.equals(_listenType, "3des")) {
-                this.listenType = ApnProxyListenType.TRIPLE_DES;
-            } else if (StringUtils.equals(_listenType, "ssl")) {
-                this.listenType = ApnProxyListenType.SSL;
-            } else if (StringUtils.equals(_listenType, "plain")) {
-                this.listenType = ApnProxyListenType.PLAIN;
-            } else {
-                throw new ApnProxyConfigException("Unknown listen type");
-            }
+            this.listenType = ApnProxyListenType.fromString(_listenType);
         }
 
         Elements tripleDesKeyElements = rootElement.getChildElements("triple-des-key");
@@ -148,6 +138,8 @@ public class ApnProxyXmlConfig {
                 }
                 String remoteHost = remoteHostElements.get(0).getValue();
 
+                apnProxyRemoteRule.setRemoteHost(remoteHost);
+
                 Elements remotePortElements = ruleElement.getChildElements("remote-port");
                 if (remoteHostElements.size() != 1) {
                     throw new ApnProxyConfigException("Wrong config for: remote-port");
@@ -159,8 +151,27 @@ public class ApnProxyXmlConfig {
                     throw new ApnProxyConfigException("Invalid format for: remote-port", nfe);
                 }
 
-                apnProxyRemoteRule.setRemoteHost(remoteHost);
                 apnProxyRemoteRule.setRemotePort(remotePort);
+
+                Elements remoteListenTypeElements = ruleElement
+                    .getChildElements("remote-listen-type");
+                if (remoteListenTypeElements.size() != 1) {
+                    throw new ApnProxyConfigException("Wrong config for: remote-listen-type");
+                }
+                String _remoteListenType = remoteListenTypeElements.get(0).getValue();
+                ApnProxyListenType remoteListenType = ApnProxyListenType
+                    .fromString(_remoteListenType);
+                apnProxyRemoteRule.setRemoteListenType(remoteListenType);
+
+                Elements remoteTripleDesKeyElements = ruleElement
+                    .getChildElements("remote-3des-key");
+                if (remoteListenTypeElements.size() > 1) {
+                    throw new ApnProxyConfigException("Wrong config for: remote-3des-key");
+                }
+                String remoteTripleDesKey = remoteTripleDesKeyElements.get(0).getValue();
+                apnProxyRemoteRule.setRemoteTripleDesKey(remoteTripleDesKey);
+
+                // simple key; ssl trust store
 
                 Elements applyListElements = ruleElement.getChildElements("apply-list");
                 if (applyListElements.size() == 1) {
@@ -311,9 +322,11 @@ public class ApnProxyXmlConfig {
     }
 
     public class ApnProxyRemoteRule {
-        private String       remoteHost;
-        private int          remotePort;
-        private List<String> originalHostList;
+        private String             remoteHost;
+        private int                remotePort;
+        private ApnProxyListenType remoteListenType;
+        private String             remoteTripleDesKey;
+        private List<String>       originalHostList;
 
         public final String getRemoteHost() {
             return remoteHost;
@@ -329,6 +342,22 @@ public class ApnProxyXmlConfig {
 
         public final void setRemotePort(int remotePort) {
             this.remotePort = remotePort;
+        }
+
+        public final ApnProxyListenType getRemoteListenType() {
+            return remoteListenType;
+        }
+
+        public final void setRemoteListenType(ApnProxyListenType remoteListenType) {
+            this.remoteListenType = remoteListenType;
+        }
+
+        public final String getRemoteTripleDesKey() {
+            return remoteTripleDesKey;
+        }
+
+        public final void setRemoteTripleDesKey(String remoteTripleDesKey) {
+            this.remoteTripleDesKey = remoteTripleDesKey;
         }
 
         public final List<String> getOriginalHostList() {
@@ -364,20 +393,20 @@ public class ApnProxyXmlConfig {
 
     public enum ApnProxyListenType {
         SIMPLE, TRIPLE_DES, SSL, PLAIN;
-    }
 
-    public class ApnProxyConfigException extends RuntimeException {
-
-        private static final long serialVersionUID = 1L;
-
-        public ApnProxyConfigException(String msg) {
-            super(msg);
+        public static ApnProxyListenType fromString(String _listenType) {
+            if (StringUtils.equals(_listenType, "simple")) {
+                return ApnProxyListenType.SIMPLE;
+            } else if (StringUtils.equals(_listenType, "3des")) {
+                return ApnProxyListenType.TRIPLE_DES;
+            } else if (StringUtils.equals(_listenType, "ssl")) {
+                return ApnProxyListenType.SSL;
+            } else if (StringUtils.equals(_listenType, "plain")) {
+                return ApnProxyListenType.PLAIN;
+            } else {
+                throw new ApnProxyConfigException("Unknown listen type");
+            }
         }
-
-        public ApnProxyConfigException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
     }
 
 }

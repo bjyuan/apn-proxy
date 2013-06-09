@@ -3,6 +3,7 @@ package com.xx_dev.apn.proxy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 
@@ -23,12 +24,16 @@ public class ApnProxyRemoteChooser {
         ApnProxyRemoteRule remoteRule = getApplyRemoteRule(originalHost);
         if (remoteRule != null) {
             apRemote.setAppleyRemoteRule(true);
-
             apRemote.setRemoteHost(remoteRule.getRemoteHost());
             apRemote.setRemotePort(remoteRule.getRemotePort());
+
+            apRemote.setRemoteListenType(remoteRule.getRemoteListenType());
+            apRemote.setRemoteTripleDesKey(remoteRule.getRemoteTripleDesKey());
         } else {
+            apRemote.setAppleyRemoteRule(false);
             apRemote.setRemoteHost(originalHost);
             apRemote.setRemotePort(originalPort);
+            apRemote.setRemoteListenType(ApnProxyListenType.PLAIN);
         }
 
         if (logger.isDebugEnabled()) {
@@ -54,10 +59,13 @@ public class ApnProxyRemoteChooser {
 
     public static class ApnProxyRemote {
 
-        private boolean isAppleyRemoteRule = false;
+        private String             remoteHost;
+        private int                remotePort;
 
-        private String  remoteHost;
-        private int     remotePort;
+        private ApnProxyListenType remoteListenType;
+        private String             remoteTripleDesKey;
+
+        private boolean            isAppleyRemoteRule = false;
 
         public final String getRemoteHost() {
             return remoteHost;
@@ -75,6 +83,22 @@ public class ApnProxyRemoteChooser {
             this.remotePort = remotePort;
         }
 
+        public final ApnProxyListenType getRemoteListenType() {
+            return remoteListenType;
+        }
+
+        public final void setRemoteListenType(ApnProxyListenType remoteListenType) {
+            this.remoteListenType = remoteListenType;
+        }
+
+        public final String getRemoteTripleDesKey() {
+            return remoteTripleDesKey;
+        }
+
+        public final void setRemoteTripleDesKey(String remoteTripleDesKey) {
+            this.remoteTripleDesKey = remoteTripleDesKey;
+        }
+
         public final boolean isAppleyRemoteRule() {
             return isAppleyRemoteRule;
         }
@@ -86,10 +110,6 @@ public class ApnProxyRemoteChooser {
         public final String getRemote() {
             return this.remoteHost + ":" + this.remotePort;
         }
-
-    }
-
-    public static void load() {
 
     }
 

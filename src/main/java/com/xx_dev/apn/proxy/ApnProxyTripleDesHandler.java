@@ -25,15 +25,18 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
     /** DES Padding **/
     private static final String DESEDE_PADDING                = "DESede/ECB/PKCS5Padding";
 
-    private static final String key                           = ApnProxyXmlConfig.getConfig()
-                                                                  .getTripleDesKey();
-
     private static final int    DECODE_STATE_INIT             = 0;
     private static final int    DECODE_STATE_READ_ENCRPT_DATA = 1;
     private static final int    DECODE_STATE_CAN_DECRPT       = 2;
 
     private int                 decodeState                   = DECODE_STATE_INIT;
     private int                 encryptDataLength             = 0;
+
+    private String              key;
+
+    public ApnProxyTripleDesHandler(String key) {
+        this.key = key;
+    }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception {

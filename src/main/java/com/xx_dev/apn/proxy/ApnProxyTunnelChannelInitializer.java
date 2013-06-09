@@ -6,6 +6,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 
 import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 
 /**
  * @author xmx
@@ -29,14 +30,15 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
 
         ChannelPipeline pipeline = channel.pipeline();
 
-        if (apnProxyRemote.isAppleyRemoteRule()) {
+        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
             // SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
             // engine.setUseClientMode(true);
             //
             // pipeline.addLast("ssl", new SslHandler(engine));
             //pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
 
-            pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler());
+            pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
+                apnProxyRemote.getRemoteTripleDesKey()));
         }
 
         pipeline
