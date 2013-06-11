@@ -5,7 +5,8 @@ for pid in $pids;
 do
 	kill -9 $pid
 done
-git pull --rebase
-mvn clean
-mvn compile
-mvn exec:java -Dexec.mainClass="com.xx_dev.apn.proxy.ApnProxyServerLauncher" &
+for jar in `ls lib/*.jar`
+do
+	jars="$jars:""$jar"
+done 
+java -cp $jars com.xx_dev.apn.proxy.ApnProxyServerLauncher %* &
