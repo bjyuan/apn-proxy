@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 	<id>release</id>
 	<formats>
-		<format>zip</format>
+		<format>dir</format>
 	</formats>
 
 	<dependencySets>
@@ -17,13 +17,14 @@
 	
 	<fileSets>
 		<fileSet>
-			<directory>${project.basedir}/src/main/conf</directory>
+			<directory>${project.basedir}/src/main/config</directory>
 			<outputDirectory>conf</outputDirectory>
 		</fileSet>
 	</fileSets>
+	
 	<files>
 		<file>
-			<source>${project.basedir}/src/mian/bin/startup.sh</source>
+			<source>${project.basedir}/src/main/bin/startup.sh</source>
 			<outputDirectory></outputDirectory>
 		</file>
 	</files>
