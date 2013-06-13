@@ -6,6 +6,7 @@ classes/
 .pmd
 *.iml
 .DS_Store
+log
 log/
 conf/
 build.sh
