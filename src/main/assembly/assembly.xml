@@ -20,12 +20,9 @@
 			<directory>${project.basedir}/src/main/config</directory>
 			<outputDirectory>conf</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>${project.basedir}/src/main/bin</directory>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
 	</fileSets>
-	
-	<files>
-		<file>
-			<source>${project.basedir}/src/main/bin/startup.sh</source>
-			<outputDirectory></outputDirectory>
-		</file>
-	</files>
 </assembly>
