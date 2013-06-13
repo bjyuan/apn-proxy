@@ -9,4 +9,4 @@ for jar in `ls lib/*.jar`
 do
 	jars="$jars:""$jar"
 done 
-java -cp $jars com.xx_dev.apn.proxy.ApnProxyServerLauncher %* &
+java -cp $jars com.xx_dev.apn.proxy.ApnProxyServerLauncher %* >log/out.log &

@@ -4,25 +4,8 @@
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 	<id>release</id>
 	<formats>
-		<format>dir</format>
+		<format>zip</format>
 	</formats>
-	<fileSets>
-		<fileSet>
-			<directory>${project.basedir}/conf</directory>
-			<excludes>
-				<exclude>*.xml</exclude>
-				<exclude>*.ks</exclude>
-			</excludes>
-			<outputDirectory>conf</outputDirectory>
-		</fileSet>
-	</fileSets>
-	<files>
-		<file>
-			<source>${project.basedir}/startup.sh</source>
-			<outputDirectory></outputDirectory>
-		</file>
-		
-	</files>
 
 	<dependencySets>
 		<dependencySet>
@@ -31,4 +14,17 @@
 			<scope>runtime</scope>
 		</dependencySet>
 	</dependencySets>
+	
+	<fileSets>
+		<fileSet>
+			<directory>${project.basedir}/src/main/conf</directory>
+			<outputDirectory>conf</outputDirectory>
+		</fileSet>
+	</fileSets>
+	<files>
+		<file>
+			<source>${project.basedir}/src/mian/bin/startup.sh</source>
+			<outputDirectory></outputDirectory>
+		</file>
+	</files>
 </assembly>
