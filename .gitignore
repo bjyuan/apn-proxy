@@ -3,9 +3,9 @@
 .settings/
 target/
 classes/
-*.properties
 .pmd
 *.iml
 .DS_Store
 log/
 conf/
+build.sh
