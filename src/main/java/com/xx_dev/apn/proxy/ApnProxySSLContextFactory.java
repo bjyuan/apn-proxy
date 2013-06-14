@@ -1,13 +1,12 @@
 package com.xx_dev.apn.proxy;
 
-import java.io.FileInputStream;
-import java.security.KeyStore;
+import org.apache.log4j.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
-
-import org.apache.log4j.Logger;
+import java.io.FileInputStream;
+import java.security.KeyStore;
 
 /**
  * @author xmx
@@ -15,9 +14,9 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxySSLContextFactory {
 
-    private static final Logger logger     = Logger.getLogger(ApnProxySSLContextFactory.class);
+    private static final Logger logger = Logger.getLogger(ApnProxySSLContextFactory.class);
 
-    private static SSLContext   sslcontext = null;
+    private static SSLContext sslcontext = null;
 
     static {
 

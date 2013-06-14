@@ -1,5 +1,9 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
+import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
+import com.xx_dev.apn.proxy.utils.HttpContentCopyUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -21,6 +25,8 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -29,29 +35,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
-import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
-import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
-import com.xx_dev.apn.proxy.utils.HttpContentCopyUtil;
-
 /**
  * @author xmx
  * @version $Id: ApnProxyForwardHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
 public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<Object> {
 
-    private static final Logger  logger            = Logger.getLogger(ApnProxyForwardHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyForwardHandler.class);
 
-    public static final String   HANDLER_NAME      = "apnproxy.forward";
+    public static final String HANDLER_NAME = "apnproxy.forward";
 
-    private String               remoteAddr;
+    private String remoteAddr;
 
-    private Map<String, Channel> remoteChannelMap  = new HashMap<String, Channel>();
+    private Map<String, Channel> remoteChannelMap = new HashMap<String, Channel>();
 
-    private List<HttpContent>    httpContentBuffer = new ArrayList<HttpContent>();
+    private List<HttpContent> httpContentBuffer = new ArrayList<HttpContent>();
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, final Object msg) throws Exception {
@@ -85,9 +83,9 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                     @Override
                     public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
                                                               String inactiveRemoteAddr)
-                                                                                        throws Exception {
+                            throws Exception {
                         logger.warn("Remote channel: " + inactiveRemoteAddr
-                                    + " inactive, and flush end");
+                                + " inactive, and flush end");
                         uaChannel.close();
                         remoteChannelMap.remove(inactiveRemoteAddr);
                     }
@@ -98,27 +96,27 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
 
                 if (logger.isInfoEnabled()) {
                     logger
-                        .info("FORWARD to: " + apnProxyRemote.getRemote() + " for: " + remoteAddr);
+                            .info("FORWARD to: " + apnProxyRemote.getRemote() + " for: " + remoteAddr);
                 }
 
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap
-                    .group(uaChannel.eventLoop())
-                    .channel(NioSocketChannel.class)
-                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                    .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
-                    .handler(
-                        new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
+                        .group(uaChannel.eventLoop())
+                        .channel(NioSocketChannel.class)
+                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+                        .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                        .handler(
+                                new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
 
                 // set local address
                 if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
-                    .getRemoteHost()))) {
+                        .getRemoteHost()))) {
                     bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
-                        .choose(apnProxyRemote.getRemoteHost())), 0));
+                            .choose(apnProxyRemote.getRemoteHost())), 0));
                 }
 
                 ChannelFuture remoteConnectFuture = bootstrap.connect(
-                    apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
+                        apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
                 remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());
 
                 remoteConnectFuture.addListener(new ChannelFutureListener() {
@@ -134,16 +132,16 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                             String errorMsg = "remote connect to " + remoteAddr + " fail";
                             logger.error(errorMsg);
                             ByteBuf errorResponseContent = Unpooled.copiedBuffer(
-                                "The remote server" + remoteAddr + " can not connect",
-                                CharsetUtil.UTF_8);
+                                    "The remote server" + remoteAddr + " can not connect",
+                                    CharsetUtil.UTF_8);
                             // send error response
                             FullHttpMessage errorResponseMsg = new DefaultFullHttpResponse(
-                                HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                                errorResponseContent);
+                                    HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                                    errorResponseContent);
                             errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_ENCODING,
-                                CharsetUtil.UTF_8.name());
+                                    CharsetUtil.UTF_8.name());
                             errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_LENGTH,
-                                errorResponseContent.readableBytes());
+                                    errorResponseContent.readableBytes());
                             uaChannel.write(errorResponseMsg);
                             uaChannel.flush();
                             httpContentBuffer.clear();
@@ -198,7 +196,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
         uri = this.getPartialUrl(uri);
 
         HttpRequest _httpRequest = new DefaultHttpRequest(httpRequest.getProtocolVersion(),
-            httpRequest.getMethod(), uri);
+                httpRequest.getMethod(), uri);
 
         Set<String> headerNames = httpRequest.headers().names();
         for (String headerName : headerNames) {

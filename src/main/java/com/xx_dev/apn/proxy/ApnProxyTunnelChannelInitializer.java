@@ -1,12 +1,11 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-
-import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 
 /**
  * @author xmx
@@ -14,7 +13,7 @@ import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
  */
 public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final Channel        uaChannel;
+    private final Channel uaChannel;
     private final ApnProxyRemote apnProxyRemote;
 
     public ApnProxyTunnelChannelInitializer(ApnProxyRemote apnProxyRemote, Channel uaChannel) {
@@ -38,11 +37,11 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
             //pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
 
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                apnProxyRemote.getRemoteTripleDesKey()));
+                    apnProxyRemote.getRemoteTripleDesKey()));
         }
 
         pipeline
-            .addLast(new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA", uaChannel));
+                .addLast(new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA", uaChannel));
 
     }
 }

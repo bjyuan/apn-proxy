@@ -1,5 +1,6 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -9,8 +10,6 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
-
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 
 /**
  * @author xmx
@@ -39,10 +38,10 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
 
         if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.SIMPLE) {
             pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
-                new ApnProxySimpleEncryptHandler());
+                    new ApnProxySimpleEncryptHandler());
         } else if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                ApnProxyXmlConfig.getConfig().getTripleDesKey()));
+                    ApnProxyXmlConfig.getConfig().getTripleDesKey()));
         }
 
         pipeline.addLast("log", new ByteLoggingHandler("BYTE_LOGGER", LogLevel.INFO));

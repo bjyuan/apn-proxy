@@ -6,16 +6,14 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 
+import javax.xml.parsers.FactoryConfigurationError;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.xml.parsers.FactoryConfigurationError;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 
 /**
  * @author xmx
@@ -69,7 +67,7 @@ public class ApnProxyServerLauncher {
 
         try {
             serverBootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                .localAddress(port).childHandler(new ApnProxyServerChannelInitializer());
+                    .localAddress(port).childHandler(new ApnProxyServerChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

@@ -1,11 +1,10 @@
 package com.xx_dev.apn.proxy;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  * @author xmx
@@ -38,7 +37,7 @@ public class ApnProxyRemoteChooser {
 
         if (logger.isDebugEnabled()) {
             logger.debug("Remote info: original: " + originalRemoteAddr + ", remote: "
-                         + apRemote.getRemote());
+                    + apRemote.getRemote());
         }
 
         return apRemote;
@@ -48,7 +47,7 @@ public class ApnProxyRemoteChooser {
         for (ApnProxyRemoteRule remoteRule : ApnProxyXmlConfig.getConfig().getRemoteRuleList()) {
             for (String originalHost : remoteRule.getOriginalHostList()) {
                 if (StringUtils.equals(originalHost, host)
-                    || StringUtils.endsWith(host, "." + originalHost)) {
+                        || StringUtils.endsWith(host, "." + originalHost)) {
                     return remoteRule;
                 }
             }
@@ -59,13 +58,13 @@ public class ApnProxyRemoteChooser {
 
     public static class ApnProxyRemote {
 
-        private String             remoteHost;
-        private int                remotePort;
+        private String remoteHost;
+        private int remotePort;
 
         private ApnProxyListenType remoteListenType;
-        private String             remoteTripleDesKey;
+        private String remoteTripleDesKey;
 
-        private boolean            isAppleyRemoteRule = false;
+        private boolean isAppleyRemoteRule = false;
 
         public final String getRemoteHost() {
             return remoteHost;

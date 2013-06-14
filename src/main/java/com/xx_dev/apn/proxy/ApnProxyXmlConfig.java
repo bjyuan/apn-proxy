@@ -1,17 +1,16 @@
 package com.xx_dev.apn.proxy;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author xmx
@@ -19,29 +18,29 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxyXmlConfig {
 
-    private static final Logger       logger          = Logger.getLogger(ApnProxyXmlConfig.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyXmlConfig.class);
 
-    private static ApnProxyXmlConfig  config;
+    private static ApnProxyXmlConfig config;
 
-    private ApnProxyListenType        listenType;
+    private ApnProxyListenType listenType;
 
-    private String                    tripleDesKey;
+    private String tripleDesKey;
 
-    private String                    keyStorePath;
+    private String keyStorePath;
 
-    private String                    keyStroePassword;
+    private String keyStroePassword;
 
-    private int                       port;
+    private int port;
 
-    private int                       bossThreadCount;
+    private int bossThreadCount;
 
-    private int                       workerThreadCount;
+    private int workerThreadCount;
 
-    private String                    pacHost;
+    private String pacHost;
 
-    private boolean                   useIpV6;
+    private boolean useIpV6;
 
-    private List<ApnProxyRemoteRule>  remoteRuleList  = new ArrayList<ApnProxyRemoteRule>();
+    private List<ApnProxyRemoteRule> remoteRuleList = new ArrayList<ApnProxyRemoteRule>();
 
     private List<ApnProxyLocalIpRule> localIpRuleList = new ArrayList<ApnProxyLocalIpRule>();
 
@@ -78,7 +77,7 @@ public class ApnProxyXmlConfig {
                 this.keyStorePath = keyStorePathElements.get(0).getValue();
             }
             Elements keyStorePasswordElements = keyStoreElements.get(0)
-                .getChildElements("password");
+                    .getChildElements("password");
             if (keyStorePasswordElements.size() == 1) {
                 this.keyStroePassword = keyStorePasswordElements.get(0).getValue();
             }
@@ -154,17 +153,17 @@ public class ApnProxyXmlConfig {
                 apnProxyRemoteRule.setRemotePort(remotePort);
 
                 Elements remoteListenTypeElements = ruleElement
-                    .getChildElements("remote-listen-type");
+                        .getChildElements("remote-listen-type");
                 if (remoteListenTypeElements.size() != 1) {
                     throw new ApnProxyConfigException("Wrong config for: remote-listen-type");
                 }
                 String _remoteListenType = remoteListenTypeElements.get(0).getValue();
                 ApnProxyListenType remoteListenType = ApnProxyListenType
-                    .fromString(_remoteListenType);
+                        .fromString(_remoteListenType);
                 apnProxyRemoteRule.setRemoteListenType(remoteListenType);
 
                 Elements remoteTripleDesKeyElements = ruleElement
-                    .getChildElements("remote-3des-key");
+                        .getChildElements("remote-3des-key");
                 if (remoteListenTypeElements.size() > 1) {
                     throw new ApnProxyConfigException("Wrong config for: remote-3des-key");
                 }
@@ -176,7 +175,7 @@ public class ApnProxyXmlConfig {
                 Elements applyListElements = ruleElement.getChildElements("apply-list");
                 if (applyListElements.size() == 1) {
                     Elements originalHostElements = applyListElements.get(0).getChildElements(
-                        "original-host");
+                            "original-host");
 
                     List<String> originalHostList = new ArrayList<String>();
                     for (int j = 0; j < originalHostElements.size(); j++) {
@@ -210,7 +209,7 @@ public class ApnProxyXmlConfig {
                 Elements applyListElements = ruleElement.getChildElements("apply-list");
                 if (applyListElements.size() == 1) {
                     Elements originalHostElements = applyListElements.get(0).getChildElements(
-                        "original-host");
+                            "original-host");
 
                     List<String> originalHostList = new ArrayList<String>();
                     for (int j = 0; j < originalHostElements.size(); j++) {
@@ -322,11 +321,11 @@ public class ApnProxyXmlConfig {
     }
 
     public class ApnProxyRemoteRule {
-        private String             remoteHost;
-        private int                remotePort;
+        private String remoteHost;
+        private int remotePort;
         private ApnProxyListenType remoteListenType;
-        private String             remoteTripleDesKey;
-        private List<String>       originalHostList;
+        private String remoteTripleDesKey;
+        private List<String> originalHostList;
 
         public final String getRemoteHost() {
             return remoteHost;
@@ -370,7 +369,7 @@ public class ApnProxyXmlConfig {
     }
 
     public class ApnProxyLocalIpRule {
-        private String       localIp;
+        private String localIp;
         private List<String> originalHostList;
 
         public final String getLocalIp() {

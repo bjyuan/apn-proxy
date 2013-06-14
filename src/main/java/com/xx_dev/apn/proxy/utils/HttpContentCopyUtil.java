@@ -7,7 +7,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 
 /**
- * 
  * @author xmx
  * @version $Id: HttpContentCopyUtil.java, v 0.1 2013-5-23 下午7:20:11 mingxing.xumx Exp $
  */

@@ -1,5 +1,6 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.utils.HttpContentCopyUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -9,20 +10,17 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
-
 import org.apache.log4j.Logger;
-
-import com.xx_dev.apn.proxy.utils.HttpContentCopyUtil;
 
 public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpObject> {
 
-    private static final Logger           logger       = Logger.getLogger(HttpProxyHandler.class);
+    private static final Logger logger = Logger.getLogger(HttpProxyHandler.class);
 
-    public static final String            HANDLER_NAME = "apnproxy.proxy";
+    public static final String HANDLER_NAME = "apnproxy.proxy";
 
-    private Channel                       uaChannel;
+    private Channel uaChannel;
 
-    private String                        remoteAddr;
+    private String remoteAddr;
 
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
@@ -42,7 +40,7 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
 
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, final HttpObject msg)
-                                                                                      throws Exception {
+            throws Exception {
 
         if (logger.isDebugEnabled()) {
             logger.debug("Recive From: " + remoteAddr + ", " + msg.getClass().getName());

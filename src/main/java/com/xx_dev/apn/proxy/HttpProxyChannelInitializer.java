@@ -1,21 +1,20 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
+import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
-import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
-
 public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private ApnProxyRemote                apnProxyRemote;
+    private ApnProxyRemote apnProxyRemote;
 
-    private Channel                       uaChannel;
-    private String                        remoteAddr;
+    private Channel uaChannel;
+    private String remoteAddr;
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
     public HttpProxyChannelInitializer(ApnProxyRemote apnProxyRemote, Channel uaChannel,
@@ -40,7 +39,7 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
 
             // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                apnProxyRemote.getRemoteTripleDesKey()));
+                    apnProxyRemote.getRemoteTripleDesKey()));
 
             //            pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
             //                new ApnProxySimpleEncryptHandler());
@@ -51,6 +50,6 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
         // channel.pipeline().addLast("decompressor", new HttpContentDecompressor());
         // channel.pipeline().addLast("aggregator", new HttpObjectAggregator(65536));
         pipeline.addLast(HttpProxyHandler.HANDLER_NAME, new HttpProxyHandler(uaChannel, remoteAddr,
-            remoteChannelInactiveCallback));
+                remoteChannelInactiveCallback));
     }
 }

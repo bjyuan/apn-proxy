@@ -6,7 +6,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundByteHandlerAdapter;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -15,12 +14,12 @@ import org.apache.log4j.Logger;
  */
 public final class ApnProxyRelayHandler extends ChannelInboundByteHandlerAdapter {
 
-    private static final Logger logger       = Logger.getLogger(ApnProxyRelayHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyRelayHandler.class);
 
-    public static final String  HANDLER_NAME = "apnproxy.relay";
+    public static final String HANDLER_NAME = "apnproxy.relay";
 
-    private final Channel       relayChannel;
-    private final String        tag;
+    private final Channel relayChannel;
+    private final String tag;
 
     public ApnProxyRelayHandler(String tag, Channel relayChannel) {
         this.tag = tag;

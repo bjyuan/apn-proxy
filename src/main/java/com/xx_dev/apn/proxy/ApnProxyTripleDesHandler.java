@@ -3,36 +3,38 @@ package com.xx_dev.apn.proxy;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToByteCodec;
-
-import java.nio.charset.Charset;
-import java.security.Key;
+import org.apache.log4j.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.log4j.Logger;
+import java.nio.charset.Charset;
+import java.security.Key;
 
 public class ApnProxyTripleDesHandler extends ByteToByteCodec {
 
-    private static final Logger logger                        = Logger
-                                                                  .getLogger(ApnProxyTripleDesHandler.class);
+    private static final Logger logger = Logger
+            .getLogger(ApnProxyTripleDesHandler.class);
 
-    public static final String  HANDLER_NAME                  = "apnproxy.encrypt";
+    public static final String HANDLER_NAME = "apnproxy.encrypt";
 
-    /** DES **/
-    private static final String DESEDE                        = "DESede";
+    /**
+     * DES *
+     */
+    private static final String DESEDE = "DESede";
 
-    /** DES Padding **/
-    private static final String DESEDE_PADDING                = "DESede/ECB/PKCS5Padding";
+    /**
+     * DES Padding *
+     */
+    private static final String DESEDE_PADDING = "DESede/ECB/PKCS5Padding";
 
-    private static final int    DECODE_STATE_INIT             = 0;
-    private static final int    DECODE_STATE_READ_ENCRPT_DATA = 1;
-    private static final int    DECODE_STATE_CAN_DECRPT       = 2;
+    private static final int DECODE_STATE_INIT = 0;
+    private static final int DECODE_STATE_READ_ENCRPT_DATA = 1;
+    private static final int DECODE_STATE_CAN_DECRPT = 2;
 
-    private int                 decodeState                   = DECODE_STATE_INIT;
-    private int                 encryptDataLength             = 0;
+    private int decodeState = DECODE_STATE_INIT;
+    private int encryptDataLength = 0;
 
-    private String              key;
+    private String key;
 
     public ApnProxyTripleDesHandler(String key) {
         this.key = key;
@@ -76,7 +78,7 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
         if (decodeState == DECODE_STATE_READ_ENCRPT_DATA) {
             if (logger.isDebugEnabled()) {
                 logger.debug("3DES decode readable length: " + in.readableBytes() + ", want: "
-                             + encryptDataLength);
+                        + encryptDataLength);
             }
             if (in.readableBytes() < encryptDataLength) {
                 return;
