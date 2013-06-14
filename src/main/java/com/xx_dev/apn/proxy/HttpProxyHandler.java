@@ -59,7 +59,11 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
             ho = HttpContentCopyUtil.copy((HttpContent) msg);
         }
 
-        uaChannel.write(ho);
+        if(uaChannel.isActive()) {
+            uaChannel.write(ho);
+            uaChannel.flush();
+        }
+
 
     }
 
