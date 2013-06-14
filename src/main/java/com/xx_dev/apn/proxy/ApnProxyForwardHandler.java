@@ -157,7 +157,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
             HttpContent hc = ((HttpContent) msg);
-            hc.retain();
+            //hc.retain();
 
             HttpContent _hc = HttpContentCopyUtil.copy(hc);
 

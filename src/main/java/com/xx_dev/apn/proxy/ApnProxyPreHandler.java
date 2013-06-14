@@ -8,6 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpMessage;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -64,6 +65,10 @@ public class ApnProxyPreHandler extends ChannelInboundMessageHandlerAdapter<Obje
             if (isPacMode) {
                 return;
             }
+        }
+
+        if(msg instanceof HttpContent) {
+            ((HttpContent) msg).retain();
         }
 
         ctx.nextInboundMessageBuffer().add(msg);

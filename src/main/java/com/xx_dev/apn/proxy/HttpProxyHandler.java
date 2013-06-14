@@ -55,7 +55,7 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
         }
 
         if (ho instanceof HttpContent) {
-            ((HttpContent) ho).retain();
+            //((HttpContent) ho).retain();
             ho = HttpContentCopyUtil.copy((HttpContent) msg);
         }
 
