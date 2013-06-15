@@ -8,4 +8,4 @@ for jar in `ls lib/*.jar`
 do
 	jars="$jars:""$jar"
 done
-java -cp $jars com.xx_dev.apn.proxy.ApnProxyServerLauncher %*  1>/dev/null 2>&1 & echo $! > pid
+java -cp $jars com.xx_dev.apn.proxy.ApnProxyServerLauncher $*  1>/dev/null 2>&1 & echo $! > pid
