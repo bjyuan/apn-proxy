@@ -4,7 +4,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -25,7 +24,7 @@ public class SSLServerLauncher {
         try {
             int port = 8700;
             serverBootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                .localAddress(port).childHandler(new SSLServerChannelInitializer());
+                    .localAddress(port).childHandler(new SSLServerChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

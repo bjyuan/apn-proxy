@@ -18,7 +18,6 @@ import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -34,7 +33,7 @@ public class SSLClientHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) {
         logger.info("client channel active");
         ctx.write(new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-            "http://www.baidu.com"));
+                "http://www.baidu.com"));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.xx_dev.apn.proxy.ssltest.server;
 
+import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -7,8 +8,6 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
-
-import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
 
 /**
  * @author xmx

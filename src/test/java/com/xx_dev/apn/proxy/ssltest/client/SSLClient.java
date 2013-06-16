@@ -12,6 +12,7 @@
  */
 package com.xx_dev.apn.proxy.ssltest.client;
 
+import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -24,8 +25,6 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
-import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
-
 /**
  * Sends one message when a connection is open and echoes back any received
  * data to the server. Simply put, the echo client initiates the ping-pong
@@ -35,7 +34,7 @@ import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
 public class SSLClient {
 
     private final String host;
-    private final int    port;
+    private final int port;
 
     public SSLClient(String host, int port) {
         this.host = host;
@@ -48,23 +47,23 @@ public class SSLClient {
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         try {
             b.group(eventLoopGroup).channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    public void initChannel(SocketChannel channel) throws Exception {
-                        ChannelPipeline pipeline = channel.pipeline();
+                    .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        public void initChannel(SocketChannel channel) throws Exception {
+                            ChannelPipeline pipeline = channel.pipeline();
 
-                        SSLEngine engine = ApnProxySSLContextFactory.getSSLContext()
-                            .createSSLEngine();
+                            SSLEngine engine = ApnProxySSLContextFactory.getSSLContext()
+                                    .createSSLEngine();
 
-                        engine.setUseClientMode(true);
+                            engine.setUseClientMode(true);
 
-                        pipeline.addLast("ssl", new SslHandler(engine));
+                            pipeline.addLast("ssl", new SslHandler(engine));
 
-                        pipeline.addLast("codec", new HttpClientCodec());
+                            pipeline.addLast("codec", new HttpClientCodec());
 
-                        pipeline.addLast("handler", new SSLClientHandler());
-                    }
-                });
+                            pipeline.addLast("handler", new SSLClientHandler());
+                        }
+                    });
 
             // Start the client.
             ChannelFuture f = b.connect(host, port).sync();

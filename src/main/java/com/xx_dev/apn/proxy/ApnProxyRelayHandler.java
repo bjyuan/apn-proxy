@@ -1,6 +1,5 @@
 package com.xx_dev.apn.proxy;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;

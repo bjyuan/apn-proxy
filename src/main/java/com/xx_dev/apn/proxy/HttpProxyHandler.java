@@ -1,6 +1,5 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.utils.HttpContentCopyUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -46,7 +45,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
         MessageList<HttpObject> _msgs = msgs.cast();
 
-        for(HttpObject msg : _msgs) {
+        for (HttpObject msg : _msgs) {
             HttpObject ho = msg;
             if (logger.isDebugEnabled()) {
                 logger.debug("Recive From: " + remoteAddr + ", " + ho.getClass().getName());
@@ -62,7 +61,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                 ho = ((HttpContent) ho).copy();
             }
 
-            if(uaChannel.isActive()) {
+            if (uaChannel.isActive()) {
                 uaChannel.write(ho);
             }
         }
