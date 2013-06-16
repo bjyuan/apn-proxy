@@ -12,6 +12,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -21,6 +22,7 @@ import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -39,7 +41,7 @@ import java.util.Set;
  * @author xmx
  * @version $Id: ApnProxyForwardHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
-public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<Object> {
+public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(ApnProxyForwardHandler.class);
 
@@ -52,7 +54,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
     private List<HttpContent> httpContentBuffer = new ArrayList<HttpContent>();
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, final Object msg) throws Exception {
+    public void messageReceived(ChannelHandlerContext ctx, final HttpObject msg) throws Exception {
 
         final Channel uaChannel = ctx.channel();
 
@@ -61,8 +63,7 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
 
             if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
                 ctx.pipeline().remove(ApnProxyForwardHandler.HANDLER_NAME);
-                ctx.nextInboundMessageBuffer().add(msg);
-                ctx.fireInboundBufferUpdated();
+                ctx.fireMessageReceived(msg);
                 return;
             }
 
@@ -143,7 +144,6 @@ public class ApnProxyForwardHandler extends ChannelInboundMessageHandlerAdapter<
                             errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_LENGTH,
                                     errorResponseContent.readableBytes());
                             uaChannel.write(errorResponseMsg);
-                            uaChannel.flush();
                             httpContentBuffer.clear();
 
                             future.channel().close();
