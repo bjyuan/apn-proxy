@@ -5,14 +5,15 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundByteHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
 import org.apache.log4j.Logger;
 
 /**
  * @author xmx
  * @version $Id: ApnProxyRelayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
  */
-public final class ApnProxyRelayHandler extends ChannelInboundByteHandlerAdapter {
+public final class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(ApnProxyRelayHandler.class);
 
@@ -31,29 +32,15 @@ public final class ApnProxyRelayHandler extends ChannelInboundByteHandlerAdapter
         if (logger.isInfoEnabled()) {
             logger.info(tag + " channel active");
         }
-        ctx.flush();
     }
 
     @Override
-    public void inboundBufferUpdated(final ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug(tag + ", size: " + in.readableBytes());
-        }
-
-        // ByteBuf out = relayChannel.outboundByteBuffer();
-        // out.writeBytes(in);
-        // if (relayChannel.isActive()) {
-        // relayChannel.flush();
-        // }
-
+    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
         if (relayChannel.isActive()) {
-            ByteBuf buf = Unpooled.buffer();
-            buf.writeBytes(in);
-            relayChannel.write(buf);
+            relayChannel.write(msgs);
         }
 
-        ctx.fireInboundBufferUpdated();
-
+        // TODO shold relese msgs?
     }
 
     @Override
@@ -62,7 +49,7 @@ public final class ApnProxyRelayHandler extends ChannelInboundByteHandlerAdapter
             logger.info(tag + " channel inactive");
         }
         if (relayChannel != null && relayChannel.isActive()) {
-            relayChannel.flush().addListener(ChannelFutureListener.CLOSE);
+            relayChannel.write(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
         ctx.fireChannelInactive();
     }

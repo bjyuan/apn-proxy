@@ -13,7 +13,8 @@
 package com.xx_dev.apn.proxy.ssltest.client;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
@@ -25,7 +26,7 @@ import org.apache.log4j.Logger;
  * traffic between the echo client and server by sending the first message to
  * the server.
  */
-public class SSLClientHandler extends ChannelInboundMessageHandlerAdapter<Object> {
+public class SSLClientHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(SSLClientHandler.class);
 
@@ -36,12 +37,10 @@ public class SSLClientHandler extends ChannelInboundMessageHandlerAdapter<Object
             "http://www.baidu.com"));
     }
 
-    /** 
-     * @see io.netty.channel.ChannelHandlerUtil.SingleInboundMessageHandler#messageReceived(io.netty.channel.ChannelHandlerContext, java.lang.Object)
-     */
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
-        logger.info(msg);
+    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
+        logger.info(msgs);
+        msgs.releaseAllAndRecycle();
     }
 
     @Override
@@ -51,9 +50,6 @@ public class SSLClientHandler extends ChannelInboundMessageHandlerAdapter<Object
         ctx.close();
     }
 
-    /** 
-     * @see io.netty.channel.ChannelStateHandlerAdapter#channelInactive(io.netty.channel.ChannelHandlerContext)
-     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.info("client channel inactive");

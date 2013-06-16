@@ -17,7 +17,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -31,43 +32,40 @@ import org.apache.log4j.Logger;
  * Handler implementation for the echo server.
  */
 @Sharable
-public class SSLServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
+public class SSLServerHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(SSLServerHandler.class.getName());
 
-    /**
-     * @see io.netty.channel.ChannelHandlerUtil.SingleInboundMessageHandler#messageReceived(io.netty.channel.ChannelHandlerContext,
-     *      java.lang.Object)
-     */
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, Object msg) throws Exception {
-        logger.info(msg);
+    public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
+        logger.info(msgs);
 
-        if (msg instanceof LastHttpContent) {
-            ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+        for (Object msg : msgs) {
+            if (msg instanceof LastHttpContent) {
+                ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
-            // produce a lot of bytes
-            for (int i = 0; i < 1024; i++) {
-                byte[] array = new byte[1024];
-                for (int j = 0; j < 1024; j++) {
-                    array[j] = 1;
+                // produce a lot of bytes
+                for (int i = 0; i < 1024; i++) {
+                    byte[] array = new byte[1024];
+                    for (int j = 0; j < 1024; j++) {
+                        array[j] = 1;
+                    }
+                    ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array)));
                 }
-                ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array)));
+
+                ctx.write(new DefaultLastHttpContent()).addListener(new ChannelFutureListener() {
+
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        logger.info("end flush");
+                        ctx.close();
+                        logger.info("closed");
+                    }
+                });
             }
-
-            ctx.write(new DefaultLastHttpContent());
-
-            logger.info("begin flush");
-            ctx.flush().addListener(new ChannelFutureListener() {
-
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    logger.info("end flush");
-                    ctx.close();
-                    logger.info("closed");
-                }
-            });
         }
+
+        msgs.releaseAllAndRecycle();
 
     }
 

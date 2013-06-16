@@ -1,8 +1,10 @@
 package com.xx_dev.apn.proxy;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToByteCodec;
+import io.netty.channel.MessageList;
+import io.netty.handler.codec.ByteToMessageCodec;
 import org.apache.log4j.Logger;
 
 import javax.crypto.Cipher;
@@ -10,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.security.Key;
 
-public class ApnProxyTripleDesHandler extends ByteToByteCodec {
+public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
 
     private static final Logger logger = Logger
             .getLogger(ApnProxyTripleDesHandler.class);
@@ -61,7 +63,9 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, ByteBuf out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageList<Object> out) throws Exception {
+        ByteBuf outBuf = Unpooled.buffer();
+
         if (logger.isDebugEnabled()) {
             logger.debug("3DES decode state: " + decodeState);
         }
@@ -94,7 +98,8 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
                 byte[] data = new byte[encryptDataLength];
                 in.readBytes(data, 0, encryptDataLength);
                 byte[] raw = c1.doFinal(data);
-                out.writeBytes(raw);
+                outBuf.writeBytes(raw);
+                out.add(outBuf);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("3DES decode data complete: " + raw.length);
@@ -106,7 +111,9 @@ public class ApnProxyTripleDesHandler extends ByteToByteCodec {
             encryptDataLength = 0;
         }
 
+
     }
+
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

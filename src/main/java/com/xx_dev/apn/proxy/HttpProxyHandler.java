@@ -1,18 +1,20 @@
 package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.utils.HttpContentCopyUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
 import org.apache.log4j.Logger;
 
-public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpObject> {
+public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(HttpProxyHandler.class);
 
@@ -39,31 +41,33 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
     }
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final HttpObject msg)
+    public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs)
             throws Exception {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Recive From: " + remoteAddr + ", " + msg.getClass().getName());
+        MessageList<HttpObject> _msgs = msgs.cast();
+
+        for(HttpObject msg : _msgs) {
+            HttpObject ho = msg;
+            if (logger.isDebugEnabled()) {
+                logger.debug("Recive From: " + remoteAddr + ", " + ho.getClass().getName());
+            }
+
+            if (ho instanceof HttpResponse) {
+                HttpResponse httpResponse = (HttpResponse) ho;
+                httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
+            }
+
+            if (ho instanceof HttpContent) {
+                ho = ((HttpContent) ho).copy();
+            }
+
+            if(uaChannel.isActive()) {
+                uaChannel.write(ho);
+            }
         }
 
-        HttpObject ho = msg;
-
-        if (ho instanceof HttpResponse) {
-            HttpResponse httpResponse = (HttpResponse) ho;
-            httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-            httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
-        }
-
-        if (ho instanceof HttpContent) {
-            //((HttpContent) ho).retain();
-            ho = HttpContentCopyUtil.copy((HttpContent) msg);
-        }
-
-        if(uaChannel.isActive()) {
-            uaChannel.write(ho);
-            uaChannel.flush();
-        }
-
+        msgs.releaseAllAndRecycle();
 
     }
 
@@ -73,7 +77,7 @@ public class HttpProxyHandler extends ChannelInboundMessageHandlerAdapter<HttpOb
             logger.info("Remote channel: " + remoteAddr + " inactive");
         }
 
-        uaChannel.flush().addListener(new ChannelFutureListener() {
+        uaChannel.write(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);

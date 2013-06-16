@@ -5,7 +5,8 @@ import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
  * @author xmx
  * @version $Id: ApnProxyPreHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
  */
-public class ApnProxyPreHandler extends ChannelInboundMessageHandlerAdapter<Object> {
+public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(ApnProxyPreHandler.class);
 
@@ -32,47 +33,44 @@ public class ApnProxyPreHandler extends ChannelInboundMessageHandlerAdapter<Obje
     private boolean isPacMode = false;
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, final Object msg) throws Exception {
+    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
 
-        if (msg instanceof HttpRequest) {
-            HttpRequest httpRequest = (HttpRequest) msg;
-            String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            String originalHost = HostNamePortUtil.getHostName(hostHeader);
+        for (final Object msg : msgs) {
+            if (msg instanceof HttpRequest) {
+                HttpRequest httpRequest = (HttpRequest) msg;
+                String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+                String originalHost = HostNamePortUtil.getHostName(hostHeader);
 
-            if (httpRestLogger.isInfoEnabled()) {
-                httpRestLogger.info(ctx.channel().remoteAddress() + " "
-                        + httpRequest.getMethod().name() + " " + httpRequest.getUri()
-                        + " " + httpRequest.getProtocolVersion().text() + ", "
-                        + hostHeader + ", "
-                        + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
-            }
+                if (httpRestLogger.isInfoEnabled()) {
+                    httpRestLogger.info(ctx.channel().remoteAddress() + " "
+                            + httpRequest.getMethod().name() + " " + httpRequest.getUri()
+                            + " " + httpRequest.getProtocolVersion().text() + ", "
+                            + hostHeader + ", "
+                            + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
+                }
 
-            if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
-                //
-                isPacMode = true;
-                ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
-                // send error response
-                FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                        HttpResponseStatus.OK, pacResponseContent);
-                HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
+                if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
+                    //
+                    isPacMode = true;
+                    ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
+                    // send error response
+                    FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                            HttpResponseStatus.OK, pacResponseContent);
+                    HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
 
-                ctx.write(pacResponseMsg);
-                return;
+                    ctx.write(pacResponseMsg);
+                    return;
+                } else {
+                    isPacMode = false;
+                }
             } else {
-                isPacMode = false;
-            }
-        } else {
-            if (isPacMode) {
-                return;
+                if (isPacMode) {
+                    return;
+                }
             }
         }
 
-        if(msg instanceof HttpContent) {
-            ((HttpContent) msg).retain();
-        }
-
-        ctx.nextInboundMessageBuffer().add(msg);
-        ctx.fireInboundBufferUpdated();
+        ctx.fireMessageReceived(msgs);
 
     }
 
