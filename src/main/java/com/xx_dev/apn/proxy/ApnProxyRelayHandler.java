@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
  * @author xmx
  * @version $Id: ApnProxyRelayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
  */
-public final class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
+public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(ApnProxyRelayHandler.class);
 
