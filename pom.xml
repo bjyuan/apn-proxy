@@ -3,7 +3,7 @@
 
     <groupId>com.xx-dev</groupId>
     <artifactId>apn-proxy</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>apn-proxy</name>
@@ -13,7 +13,7 @@
         <url>https://github.com/netty/netty</url>
         <connection>scm:git:git://github.com/xmxsuperstar/apn-proxy.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:xmxsuperstar/apn-proxy.git</developerConnection>
-        <tag>apn-proxy-1.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
