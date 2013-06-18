@@ -3,7 +3,7 @@
 
     <groupId>com.xx-dev</groupId>
     <artifactId>apn-proxy</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>apn-proxy</name>
