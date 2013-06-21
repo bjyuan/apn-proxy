@@ -44,13 +44,6 @@ public class ApnProxyServerLauncher {
 
     public static void main(String[] args) {
 
-        Properties sysProperties = System.getProperties();
-        for (Map.Entry<Object, Object> entry : sysProperties.entrySet()) {
-            if (logger.isInfoEnabled()) {
-                logger.info(entry.getKey() + " = " + entry.getValue());
-            }
-        }
-
         int bossThreadCount = ApnProxyXmlConfig.getConfig().getBossThreadCount();
         int workerThreadCount = ApnProxyXmlConfig.getConfig().getWorkerThreadCount();
         int port = ApnProxyXmlConfig.getConfig().getPort();

@@ -5,7 +5,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.logging.ByteLoggingHandler;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.timeout.IdleStateHandler;
 
@@ -44,7 +44,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
                     ApnProxyXmlConfig.getConfig().getTripleDesKey()));
         }
 
-        pipeline.addLast("log", new ByteLoggingHandler("BYTE_LOGGER", LogLevel.INFO));
+        pipeline.addLast("log", new LoggingHandler("LOGGER", LogLevel.INFO));
 
         pipeline.addLast("codec", new HttpServerCodec());
 
