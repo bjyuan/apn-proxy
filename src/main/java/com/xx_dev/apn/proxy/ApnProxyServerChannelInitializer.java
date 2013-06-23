@@ -44,7 +44,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
                     ApnProxyXmlConfig.getConfig().getTripleDesKey()));
         }
 
-        pipeline.addLast("log", new LoggingHandler("LOGGER", LogLevel.INFO));
+        pipeline.addLast("log", new LoggingHandler("BYTE_LOGGER", LogLevel.INFO));
 
         pipeline.addLast("codec", new HttpServerCodec());
 
