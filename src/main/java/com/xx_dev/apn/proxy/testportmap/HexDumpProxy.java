@@ -20,8 +20,25 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.log4j.xml.DOMConfigurator;
+
+import javax.xml.parsers.FactoryConfigurationError;
+import java.io.File;
+import java.net.MalformedURLException;
 
 public class HexDumpProxy {
+
+    static {
+        File log4jConfigFile = new File("conf/log4j.xml");
+        if (log4jConfigFile.exists()) {
+            try {
+                DOMConfigurator.configure(log4jConfigFile.toURI().toURL());
+            } catch (MalformedURLException e) {
+            } catch (FactoryConfigurationError e) {
+            }
+        }
+
+    }
 
     private final int localPort;
     private final String remoteHost;
@@ -56,17 +73,11 @@ public class HexDumpProxy {
 
     public static void main(String[] args) throws Exception {
         // Validate command line options.
-        if (args.length != 3) {
-            System.err.println(
-                    "Usage: " + HexDumpProxy.class.getSimpleName() +
-                    " <local port> <remote host> <remote port>");
-            return;
-        }
-
         // Parse command line options.
-        int localPort = Integer.parseInt(args[0]);
-        String remoteHost = args[1];
-        int remotePort = Integer.parseInt(args[2]);
+        // test http://dl.google.com/android/adt/adt-bundle-windows-x86-20130522.zip
+        int localPort = 5990;
+        String remoteHost = "173.194.72.91";
+        int remotePort = 80;
 
         new HexDumpProxy(localPort, remoteHost, remotePort).run();
     }
