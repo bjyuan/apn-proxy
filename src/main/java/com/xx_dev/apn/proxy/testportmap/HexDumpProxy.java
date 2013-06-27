@@ -76,7 +76,7 @@ public class HexDumpProxy {
         // Parse command line options.
         // test http://dl.google.com/android/adt/adt-bundle-windows-x86-20130522.zip
         int localPort = 5990;
-        String remoteHost = "173.194.72.91";
+        String remoteHost = "61.164.153.166";
         int remotePort = 80;
 
         new HexDumpProxy(localPort, remoteHost, remotePort).run();
