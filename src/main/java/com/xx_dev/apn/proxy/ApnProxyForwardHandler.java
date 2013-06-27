@@ -77,7 +77,15 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                     if (logger.isInfoEnabled()) {
                         logger.info("Use old remote channel for: " + remoteAddr);
                     }
-                    remoteChannel.write(constructRequestForProxy((HttpRequest) msg));
+                    remoteChannel.write(constructRequestForProxy((HttpRequest) msg)).addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            future.channel().read();
+                            if (logger.isInfoEnabled()) {
+                                logger.info("Remote channel: " + remoteAddr + " read after write request on old remote channel");
+                            }
+                        }
+                    });
                 } else {
                     RemoteChannelInactiveCallback cb = new RemoteChannelInactiveCallback() {
                         @Override
@@ -105,6 +113,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                             .channel(NioSocketChannel.class)
                             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                             .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                            .option(ChannelOption.AUTO_READ, false)
                             .handler(
                                     new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
 
@@ -123,11 +132,26 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
                             if (future.isSuccess()) {
+                                MessageList<Object> msgs = MessageList.newInstance();
+                                msgs.add(constructRequestForProxy((HttpRequest) msg));
+
                                 future.channel().write(constructRequestForProxy((HttpRequest) msg));
                                 for (HttpContent hc : httpContentBuffer) {
-                                    future.channel().write(hc);
+                                    msgs.add(hc);
                                 }
                                 httpContentBuffer.clear();
+
+                                future.channel().write(msgs).addListener(new ChannelFutureListener() {
+                                    @Override
+                                    public void operationComplete(ChannelFuture future) throws Exception {
+                                        future.channel().read();
+                                        if (logger.isInfoEnabled()) {
+                                            logger.info("Remote channel: " + remoteAddr + " read after write request on connect");
+                                        }
+                                    }
+                                });
+
+
                             } else {
                                 String errorMsg = "remote connect to " + remoteAddr + " fail";
                                 logger.error(errorMsg);
@@ -162,6 +186,10 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
 
                 if (remoteChannel != null && remoteChannel.isActive()) {
                     remoteChannel.write(_hc);
+                    remoteChannel.read();
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Remote channel: " + remoteAddr + " read after write request on connected");
+                    }
                 } else {
                     httpContentBuffer.add(_hc);
                 }

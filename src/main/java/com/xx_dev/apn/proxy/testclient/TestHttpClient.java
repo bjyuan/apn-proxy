@@ -12,19 +12,17 @@
  */
 package com.xx_dev.apn.proxy.testclient;
 
-import com.xx_dev.apn.proxy.ApnProxySSLContextFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.ssl.SslHandler;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import javax.net.ssl.SSLEngine;
 import javax.xml.parsers.FactoryConfigurationError;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -63,7 +61,7 @@ public class TestHttpClient {
         Bootstrap b = new Bootstrap();
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         try {
-            b.group(eventLoopGroup).channel(NioSocketChannel.class)
+            b.group(eventLoopGroup).channel(NioSocketChannel.class).option(ChannelOption.AUTO_READ, false)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel channel) throws Exception {
@@ -90,7 +88,7 @@ public class TestHttpClient {
         Scanner in = new Scanner(System.in);
         in.nextLine();
 
-        new TestHttpClient("d.msp.hk", 80).run();
+        new TestHttpClient("img4.cache.netease.com", 80).run();
         // new TestHttpClient("localhost", 8888).run();
     }
 }

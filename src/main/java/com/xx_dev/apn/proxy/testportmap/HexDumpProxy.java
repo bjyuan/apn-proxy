@@ -53,7 +53,7 @@ public class HexDumpProxy {
     public void run() throws Exception {
         System.err.println(
                 "Proxying *:" + localPort + " to " +
-                remoteHost + ':' + remotePort + " ...");
+                        remoteHost + ':' + remotePort + " ...");
 
         // Configure the bootstrap.
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -61,10 +61,10 @@ public class HexDumpProxy {
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
-             .channel(NioServerSocketChannel.class)
-             .childHandler(new HexDumpProxyInitializer(remoteHost, remotePort))
-             .childOption(ChannelOption.AUTO_READ, false)
-             .bind(localPort).sync().channel().closeFuture().sync();
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new HexDumpProxyInitializer(remoteHost, remotePort))
+                    .childOption(ChannelOption.AUTO_READ, false)
+                    .bind(localPort).sync().channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();

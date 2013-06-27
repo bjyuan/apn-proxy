@@ -15,7 +15,11 @@ package com.xx_dev.apn.proxy.testclient;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.MessageList;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpVersion;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,25 +35,27 @@ public class TestHttpClientHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) {
         logger.info("client channel active");
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                "/download/a.zip");
-        request.headers().add("HOST" ,"d.msp.hk");
+                "/photo/0025/2013-04-26/s_8TCLN6TM0APS0025.jpg");
+        request.headers().add("HOST", "img4.cache.netease.com");
         ctx.write(request);
+        ctx.read();
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
         logger.info(msgs);
-        for(Object msg : msgs) {
-            if(msg instanceof HttpResponse) {
+        for (Object msg : msgs) {
+            if (msg instanceof HttpResponse) {
                 logger.info(((HttpResponse) msg).toString());
             }
 
             if (msg instanceof HttpContent) {
-                logger.info(msg.toString() + ((HttpContent)msg).content().readableBytes());
+                logger.info(msg.toString() + ((HttpContent) msg).content().readableBytes());
             }
 
         }
         msgs.releaseAllAndRecycle();
+        ctx.read();
     }
 
     @Override

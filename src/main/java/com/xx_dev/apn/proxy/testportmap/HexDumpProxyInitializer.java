@@ -17,8 +17,6 @@ package com.xx_dev.apn.proxy.testportmap;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 
 public class HexDumpProxyInitializer extends ChannelInitializer<SocketChannel> {
 

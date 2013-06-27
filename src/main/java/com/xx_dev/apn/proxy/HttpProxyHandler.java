@@ -37,13 +37,25 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         if (logger.isInfoEnabled()) {
             logger.info("Remote channel: " + remoteAddr + " active");
         }
+//        ctx.read();
+//        if (logger.isInfoEnabled()) {
+//            logger.info("Remote channel: " + remoteAddr + " read after active");
+//        }
     }
 
     @Override
+    public void channelReadSuspended(final ChannelHandlerContext ctx) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Remote channel: " + remoteAddr + " channelReadSuspended");
+        }
+    }
+
+
     public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs)
             throws Exception {
 
         MessageList<HttpObject> _msgs = msgs.cast();
+        MessageList<Object> uaMsgs = MessageList.newInstance();
 
         for (HttpObject msg : _msgs) {
             HttpObject ho = msg;
@@ -61,9 +73,24 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                 ho = ((HttpContent) ho).copy();
             }
 
-            if (uaChannel.isActive()) {
-                uaChannel.write(ho);
-            }
+            uaMsgs.add(ho);
+
+        }
+
+        if (uaChannel.isActive()) {
+            uaChannel.write(uaMsgs).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (future.isSuccess()) {
+                        ctx.read();
+                        if (logger.isInfoEnabled()) {
+                            logger.info("Remote channel: " + remoteAddr + " read after recive");
+                        }
+                    } else {
+                        ctx.close();
+                    }
+                }
+            });
         }
 
         msgs.releaseAllAndRecycle();

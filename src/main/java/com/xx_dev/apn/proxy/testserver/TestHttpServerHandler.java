@@ -13,9 +13,18 @@
 package com.xx_dev.apn.proxy.testserver;
 
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.handler.codec.http.*;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.MessageList;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.log4j.Logger;
 
 /**
@@ -44,7 +53,7 @@ public class TestHttpServerHandler extends ChannelInboundHandlerAdapter {
                         array[j] = 1;
                     }
                     mode++;
-                    ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array))).addListener( new ChannelFutureListener() {
+                    ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array))).addListener(new ChannelFutureListener() {
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
                             mode--;

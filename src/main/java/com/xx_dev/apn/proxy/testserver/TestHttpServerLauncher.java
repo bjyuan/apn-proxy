@@ -1,6 +1,5 @@
 package com.xx_dev.apn.proxy.testserver;
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
