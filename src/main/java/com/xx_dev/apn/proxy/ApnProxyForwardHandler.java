@@ -185,11 +185,15 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                 HttpContent _hc = hc.copy();
 
                 if (remoteChannel != null && remoteChannel.isActive()) {
-                    remoteChannel.write(_hc);
-                    remoteChannel.read();
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Remote channel: " + remoteAddr + " read after write request on connected");
-                    }
+                    remoteChannel.write(_hc).addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            future.channel().read();
+                            if (logger.isInfoEnabled()) {
+                                logger.info("Remote channel: " + remoteAddr + " read after write http content");
+                            }
+                        }
+                    });
                 } else {
                     httpContentBuffer.add(_hc);
                 }
