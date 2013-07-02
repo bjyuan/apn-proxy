@@ -57,6 +57,9 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         final Channel uaChannel = ctx.channel();
 
         for (final Object msg : msgs) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(msg);
+            }
             if (msg instanceof HttpRequest) {
                 HttpRequest httpRequest = (HttpRequest) msg;
 
@@ -77,7 +80,8 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                     if (logger.isInfoEnabled()) {
                         logger.info("Use old remote channel for: " + remoteAddr);
                     }
-                    remoteChannel.write(constructRequestForProxy((HttpRequest) msg)).addListener(new ChannelFutureListener() {
+                    HttpRequest request = constructRequestForProxy((HttpRequest) msg);
+                    remoteChannel.write(request).addListener(new ChannelFutureListener() {
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
                             future.channel().read();
@@ -135,7 +139,6 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                                 MessageList<Object> msgs = MessageList.newInstance();
                                 msgs.add(constructRequestForProxy((HttpRequest) msg));
 
-                                future.channel().write(constructRequestForProxy((HttpRequest) msg));
                                 for (HttpContent hc : httpContentBuffer) {
                                     msgs.add(hc);
                                 }
