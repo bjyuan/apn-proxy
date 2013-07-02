@@ -65,7 +65,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.0.0.CR8-SNAPSHOT</version>
+            <version>4.0.0.CR8</version>
         </dependency>
 
         <!-- apache-commons -->
