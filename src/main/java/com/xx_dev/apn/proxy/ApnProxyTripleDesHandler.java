@@ -71,6 +71,7 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
         }
         if (decodeState == DECODE_STATE_INIT) {
             if (in.readableBytes() < 4) {
+                ctx.read();
                 return;
             }
             encryptDataLength = in.readInt();
@@ -85,6 +86,7 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
                         + encryptDataLength);
             }
             if (in.readableBytes() < encryptDataLength) {
+                ctx.read();
                 return;
             }
             decodeState = DECODE_STATE_CAN_DECRPT;
