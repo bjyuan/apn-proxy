@@ -3,6 +3,7 @@ package com.xx_dev.apn.proxy;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.MessageList;
 import io.netty.handler.codec.ByteToMessageCodec;
 import org.apache.log4j.Logger;
@@ -71,7 +72,9 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
         }
         if (decodeState == DECODE_STATE_INIT) {
             if (in.readableBytes() < 4) {
-                ctx.read();
+                if(!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+                    ctx.read();
+                }
                 return;
             }
             encryptDataLength = in.readInt();
@@ -86,7 +89,9 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
                         + encryptDataLength);
             }
             if (in.readableBytes() < encryptDataLength) {
-                ctx.read();
+                if(!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+                    ctx.read();
+                }
                 return;
             }
             decodeState = DECODE_STATE_CAN_DECRPT;
