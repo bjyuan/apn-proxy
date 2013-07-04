@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.MessageList;
 import org.apache.log4j.Logger;
 
@@ -31,6 +32,10 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
         if (logger.isInfoEnabled()) {
             logger.info(tag + " channel active");
         }
+
+        if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+            ctx.read();
+        }
     }
 
     @Override
@@ -39,7 +44,9 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
             relayChannel.write(msgs);
         }
 
-        // TODO shold relese msgs?
+        if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+            ctx.read();
+        }
     }
 
     @Override
