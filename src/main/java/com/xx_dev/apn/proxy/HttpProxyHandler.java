@@ -70,7 +70,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         }
 
         if (uaChannel.isActive()) {
-           uaChannel.write(uaMsgs).addListener(new ChannelFutureListener() {
+            uaChannel.write(uaMsgs).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {

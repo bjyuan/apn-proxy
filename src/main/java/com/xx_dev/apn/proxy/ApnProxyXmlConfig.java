@@ -162,7 +162,7 @@ public class ApnProxyXmlConfig {
                         .fromString(_remoteListenType);
                 apnProxyRemoteRule.setRemoteListenType(remoteListenType);
 
-                if(remoteListenType == ApnProxyListenType.TRIPLE_DES) {
+                if (remoteListenType == ApnProxyListenType.TRIPLE_DES) {
                     Elements remoteTripleDesKeyElements = ruleElement
                             .getChildElements("remote-3des-key");
                     if (remoteListenTypeElements.size() > 1) {
