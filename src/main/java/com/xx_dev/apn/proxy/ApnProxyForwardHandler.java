@@ -185,10 +185,10 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                 HttpContent hc = ((HttpContent) msg);
                 //hc.retain();
 
-                HttpContent _hc = hc.copy();
+                //HttpContent _hc = hc.copy();
 
                 if (remoteChannel != null && remoteChannel.isActive()) {
-                    remoteChannel.write(_hc).addListener(new ChannelFutureListener() {
+                    remoteChannel.write(hc).addListener(new ChannelFutureListener() {
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
                             future.channel().read();
@@ -198,7 +198,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                         }
                     });
                 } else {
-                    httpContentBuffer.add(_hc);
+                    httpContentBuffer.add(hc);
                 }
             }
         }

@@ -61,9 +61,9 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                 httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
             }
 
-            if (ho instanceof HttpContent) {
-                ho = ((HttpContent) ho).copy();
-            }
+//            if (ho instanceof HttpContent) {
+//                ho = ((HttpContent) ho).copy();
+//            }
 
             uaMsgs.add(ho);
 
@@ -85,7 +85,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             });
         }
 
-        msgs.releaseAllAndRecycle();
+        //msgs.releaseAllAndRecycle();
 
     }
 
