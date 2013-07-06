@@ -50,6 +50,8 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             });
+        } else {
+            msgs.releaseAllAndRecycle();
         }
 
 

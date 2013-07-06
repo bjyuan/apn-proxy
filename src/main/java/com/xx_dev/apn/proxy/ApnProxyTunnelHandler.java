@@ -57,6 +57,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
                 bootstrap.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
                         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                         .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                        .option(ChannelOption.AUTO_READ, false)
                         .handler(new ApnProxyTunnelChannelInitializer(apnProxyRemote, uaChannel));
 
                 // set local address

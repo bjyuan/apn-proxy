@@ -83,9 +83,9 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             });
+        } else {
+            uaMsgs.releaseAllAndRecycle();
         }
-
-        //msgs.releaseAllAndRecycle();
 
     }
 
