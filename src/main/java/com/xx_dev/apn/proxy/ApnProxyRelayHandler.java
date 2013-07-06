@@ -2,6 +2,7 @@ package com.xx_dev.apn.proxy;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -39,14 +40,19 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
+    public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
         if (relayChannel.isActive()) {
-            relayChannel.write(msgs);
+            relayChannel.write(msgs).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+                        ctx.read();
+                    }
+                }
+            });
         }
 
-        if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
-            ctx.read();
-        }
+
     }
 
     @Override
