@@ -31,16 +31,20 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
 
         ChannelPipeline pipeline = channel.pipeline();
 
-        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
+        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
             // SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
             // engine.setUseClientMode(true);
             //
             // pipeline.addLast("ssl", new SslHandler(engine));
+        }
 
+        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
             // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
                     apnProxyRemote.getRemoteTripleDesKey()));
+        }
 
+        if(apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SIMPLE) {
             //            pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
             //                new ApnProxySimpleEncryptHandler());
         }
