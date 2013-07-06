@@ -203,7 +203,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
             }
         }
 
-        msgs.releaseAllAndRecycle();
+        //msgs.releaseAllAndRecycle();
 
     }
 
