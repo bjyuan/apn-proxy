@@ -3,8 +3,8 @@ package com.xx_dev.apn.proxy;
 import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
+import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -15,16 +15,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.MessageList;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.util.CharsetUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -158,17 +155,8 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                             } else {
                                 String errorMsg = "remote connect to " + remoteAddr + " fail";
                                 logger.error(errorMsg);
-                                ByteBuf errorResponseContent = Unpooled.copiedBuffer(
-                                        "The remote server" + remoteAddr + " can not connect",
-                                        CharsetUtil.UTF_8);
                                 // send error response
-                                FullHttpMessage errorResponseMsg = new DefaultFullHttpResponse(
-                                        HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                                        errorResponseContent);
-                                errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_ENCODING,
-                                        CharsetUtil.UTF_8.name());
-                                errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_LENGTH,
-                                        errorResponseContent.readableBytes());
+                                HttpMessage errorResponseMsg = HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.INTERNAL_SERVER_ERROR, errorMsg);
                                 uaChannel.write(errorResponseMsg);
                                 httpContentBuffer.clear();
 

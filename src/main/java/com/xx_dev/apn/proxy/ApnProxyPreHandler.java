@@ -2,6 +2,7 @@ package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
+import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,19 +24,27 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = Logger.getLogger(ApnProxyPreHandler.class);
-
     public static final String HANDLER_NAME = "apnproxy.pre";
+
+    private static final Logger logger = Logger.getLogger(ApnProxyPreHandler.class);
 
     private static Logger httpRestLogger = Logger.getLogger("HTTP_REST_LOGGER");
 
-    private boolean isPacMode = false;
+    private static String[] forbiddenIps = new String[]{"10.", "172.16.", "172.17.", "172.18.",
+            "172.19.", "172.20.", "172.21.", "172.22.", "172.23.", "172.24.", "172.25.",
+            "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.", "172.32.",
+            "192.168."};
+
+
+    private boolean notNext = false;
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
 
         for (final Object msg : msgs) {
             if (msg instanceof HttpRequest) {
+                notNext = false;
+
                 HttpRequest httpRequest = (HttpRequest) msg;
                 String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
                 String originalHost = HostNamePortUtil.getHostName(hostHeader);
@@ -48,9 +57,26 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                             + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
                 }
 
+                if (StringUtils.equals(originalHost, "127.0.0.1")
+                        || StringUtils.equals(originalHost, "localhost")) {
+                    notNext = true;
+                    String errorMsg = "Forbidden";
+                    ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
+                    return;
+                }
+
+                for (String forbiddenIp : forbiddenIps) {
+                    if (StringUtils.startsWith(originalHost, forbiddenIp)) {
+                        notNext = true;
+                        String errorMsg = "Forbidden";
+                        ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
+                        return;
+                    }
+                }
+
                 if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
                     //
-                    isPacMode = true;
+                    notNext = true;
                     ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
                     // send error response
                     FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
@@ -60,13 +86,16 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                     ctx.write(pacResponseMsg);
                     return;
                 } else {
-                    isPacMode = false;
+                    notNext = false;
                 }
             } else {
-                if (isPacMode) {
-                    return;
-                }
+                // do nothing
             }
+        }
+
+        if (notNext) {
+            msgs.releaseAllAndRecycle();
+            return;
         }
 
         ctx.fireMessageReceived(msgs);
