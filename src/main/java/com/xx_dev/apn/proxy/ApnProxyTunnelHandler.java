@@ -1,6 +1,7 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemoteChooser;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;

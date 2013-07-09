@@ -1,8 +1,9 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyTripleDesRemote;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -39,9 +40,9 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
         }
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
-            // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
+            ApnProxyTripleDesRemote tripleDesRemote = (ApnProxyTripleDesRemote) apnProxyRemote;
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                    apnProxyRemote.getRemoteTripleDesKey()));
+                    tripleDesRemote.getRemoteTripleDesKey()));
         }
 
         if(apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SIMPLE) {
