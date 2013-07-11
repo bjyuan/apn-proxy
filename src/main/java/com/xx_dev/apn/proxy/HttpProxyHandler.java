@@ -7,7 +7,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.MessageList;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
@@ -61,16 +60,16 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                 httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
             }
 
-            if (ho instanceof HttpContent) {
-                ho = ((HttpContent) ho).copy();
-            }
+//            if (ho instanceof HttpContent) {
+//                ho = ((HttpContent) ho).copy();
+//            }
 
             uaMsgs.add(ho);
 
         }
 
         if (uaChannel.isActive()) {
-           uaChannel.write(uaMsgs).addListener(new ChannelFutureListener() {
+            uaChannel.write(uaMsgs).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
@@ -83,9 +82,9 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             });
+        } else {
+            uaMsgs.releaseAllAndRecycle();
         }
-
-        msgs.releaseAllAndRecycle();
 
     }
 

@@ -57,6 +57,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
                 bootstrap.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
                         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                         .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                        .option(ChannelOption.AUTO_READ, false)
                         .handler(new ApnProxyTunnelChannelInitializer(apnProxyRemote, uaChannel));
 
                 // set local address
@@ -91,7 +92,14 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
                                         future1.channel().write(
                                                 Unpooled.copiedBuffer(
                                                         constructConnectRequestForProxy(httpRequest),
-                                                        CharsetUtil.UTF_8));
+                                                        CharsetUtil.UTF_8)).addListener(new ChannelFutureListener() {
+                                            @Override
+                                            public void operationComplete(ChannelFuture future2) throws Exception {
+                                                if (!future2.channel().config().getOption(ChannelOption.AUTO_READ)) {
+                                                    future2.channel().read();
+                                                }
+                                            }
+                                        });
 
                                     } else {
                                         HttpResponse proxyConnectSuccessResponse = new DefaultFullHttpResponse(

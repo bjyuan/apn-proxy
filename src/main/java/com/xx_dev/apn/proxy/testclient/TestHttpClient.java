@@ -67,7 +67,7 @@ public class TestHttpClient {
             f.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    if(logger.isInfoEnabled()) {
+                    if (logger.isInfoEnabled()) {
                         logger.info("connect complete");
                     }
                     future.channel().read();

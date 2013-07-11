@@ -6,7 +6,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
@@ -46,7 +45,7 @@ public class TestHttpClientHandler extends ChannelInboundHandlerAdapter {
                 logger.info(msg.toString() + ((HttpContent) msg).content().readableBytes());
             }
 
-            if(msg instanceof LastHttpContent) {
+            if (msg instanceof LastHttpContent) {
                 DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
                         "/");
                 request.headers().add("HOST", "www.baidu.com");
