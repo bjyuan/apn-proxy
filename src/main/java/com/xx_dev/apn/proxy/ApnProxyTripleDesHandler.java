@@ -116,6 +116,9 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
             }
             decodeState = DECODE_STATE_INIT;
             encryptDataLength = 0;
+            if(!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+                ctx.read();
+            }
         }
 
 
