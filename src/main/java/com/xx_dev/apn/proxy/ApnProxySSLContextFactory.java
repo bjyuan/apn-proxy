@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -56,8 +57,8 @@ public class ApnProxySSLContextFactory {
         }
     }
 
-    public static SSLContext getSSLContextForRemoteAddress(String host, int port) {
-        return sslcontextMap.get(host + ":" + port);
+    public static SSLEngine getSSLEnginForRemoteAddress(String host, int port) {
+        return sslcontextMap.get(host + ":" + port).createSSLEngine(host, port);
     }
 
     public static SSLContext getServerSSLContext(){
