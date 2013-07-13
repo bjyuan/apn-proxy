@@ -172,6 +172,10 @@ public class ApnProxyXmlConfig {
                     apnProxyRemoteRule.setRemoteTripleDesKey(remoteTripleDesKey);
                 }
 
+                if (remoteListenType == ApnProxyListenType.SSL) {
+                    ApnProxySSLContextFactory.createSSLContext(remoteHost, remotePort);
+                }
+
                 // simple key; ssl trust store
 
                 Elements applyListElements = ruleElement.getChildElements("apply-list");

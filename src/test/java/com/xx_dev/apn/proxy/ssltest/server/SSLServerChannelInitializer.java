@@ -19,7 +19,7 @@ public class SSLServerChannelInitializer extends ChannelInitializer<SocketChanne
     public void initChannel(SocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
 
-        SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
+        SSLEngine engine = ApnProxySSLContextFactory.getServerSSLContext().createSSLEngine();
         engine.setUseClientMode(false);
         engine.setNeedClientAuth(true);
         pipeline.addLast("ssl", new SslHandler(engine));

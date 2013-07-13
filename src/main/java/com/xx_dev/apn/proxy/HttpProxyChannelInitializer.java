@@ -3,12 +3,18 @@ package com.xx_dev.apn.proxy;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxySslRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyTripleDesRemote;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslHandler;
+
+import javax.net.ssl.SSLEngine;
 
 public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -32,11 +38,14 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
 
         ChannelPipeline pipeline = channel.pipeline();
 
+        pipeline.addLast("log", new LoggingHandler("1", LogLevel.INFO));
+
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
-            // SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
-            // engine.setUseClientMode(true);
-            //
-            // pipeline.addLast("ssl", new SslHandler(engine));
+            ApnProxySslRemote sslRemote = (ApnProxySslRemote) apnProxyRemote;
+            SSLEngine engine = ApnProxySSLContextFactory.getSSLContextForRemoteAddress(sslRemote.getRemoteHost(), sslRemote.getRemotePort()).createSSLEngine();
+            engine.setUseClientMode(true);
+
+            pipeline.addLast("ssl", new SslHandler(engine));
         }
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
@@ -45,7 +54,7 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
                     tripleDesRemote.getRemoteTripleDesKey()));
         }
 
-        if(apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SIMPLE) {
+        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SIMPLE) {
             //            pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
             //                new ApnProxySimpleEncryptHandler());
         }

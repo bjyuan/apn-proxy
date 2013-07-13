@@ -4,9 +4,15 @@ import org.apache.log4j.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 import java.io.FileInputStream;
 import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author xmx
@@ -16,12 +22,48 @@ public class ApnProxySSLContextFactory {
 
     private static final Logger logger = Logger.getLogger(ApnProxySSLContextFactory.class);
 
-    private static SSLContext sslcontext = null;
+    private static Map<String, SSLContext> sslcontextMap = new HashMap<String, SSLContext>();
 
-    static {
+    public static void createSSLContext(String host, int port) {
+        try {
+            SSLContext sslcontext = SSLContext.getInstance("TLS");
+            TrustManager tm = new X509TrustManager() {
+
+                @Override
+                public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                   if (logger.isDebugEnabled()) {
+                       logger.debug(x509Certificates + ";" +s);
+                   }
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(x509Certificates + ";" +s);
+                    }
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+            };
+            sslcontext.init(null, new TrustManager[]{tm}, null);
+
+            sslcontextMap.put(host + ":" + port, sslcontext);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    public static SSLContext getSSLContextForRemoteAddress(String host, int port) {
+        return sslcontextMap.get(host + ":" + port);
+    }
+
+    public static SSLContext getServerSSLContext(){
 
         try {
-            sslcontext = SSLContext.getInstance("TLS");
+            SSLContext sslcontext = SSLContext.getInstance("TLS");
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
@@ -40,14 +82,15 @@ public class ApnProxySSLContextFactory {
             tmf.init(tks);
 
             sslcontext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+            return sslcontext;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
 
+        return null;
+
     }
 
-    public static SSLContext getSSLContext() {
-        return sslcontext;
-    }
 
 }

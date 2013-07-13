@@ -52,7 +52,7 @@ public class SSLClient {
                         public void initChannel(SocketChannel channel) throws Exception {
                             ChannelPipeline pipeline = channel.pipeline();
 
-                            SSLEngine engine = ApnProxySSLContextFactory.getSSLContext()
+                            SSLEngine engine = ApnProxySSLContextFactory.getSSLContextForRemoteAddress(host, port)
                                     .createSSLEngine();
 
                             engine.setUseClientMode(true);
