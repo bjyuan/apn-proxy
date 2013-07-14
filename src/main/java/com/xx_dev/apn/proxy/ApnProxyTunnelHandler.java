@@ -21,9 +21,11 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.util.Set;
 
@@ -92,7 +94,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
 
                                         future1.channel().write(
                                                 Unpooled.copiedBuffer(
-                                                        constructConnectRequestForProxy(httpRequest),
+                                                        constructConnectRequestForProxy(httpRequest, apnProxyRemote),
                                                         CharsetUtil.UTF_8)).addListener(new ChannelFutureListener() {
                                             @Override
                                             public void operationComplete(ChannelFuture future2) throws Exception {
@@ -140,7 +142,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    private String constructConnectRequestForProxy(HttpRequest httpRequest) {
+    private String constructConnectRequestForProxy(HttpRequest httpRequest, ApnProxyRemote apnProxyRemote) {
         String CRLF = "\r\n";
         String url = httpRequest.getUri();
         StringBuilder sb = new StringBuilder();
@@ -160,6 +162,15 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
             for (String headerValue : httpRequest.headers().getAll(headerName)) {
                 sb.append(headerName).append(": ").append(headerValue).append(CRLF);
             }
+        }
+
+        if (StringUtils.isNotBlank(apnProxyRemote.getProxyUserName()) && StringUtils.isNotBlank(apnProxyRemote.getProxyPassword())) {
+            String proxyAuthorization = apnProxyRemote.getProxyUserName() + ":" + apnProxyRemote.getProxyPassword();
+            try {
+                sb.append("Proxy-Authorization: Basic " + Base64.encodeBase64String(proxyAuthorization.getBytes("UTF-8"))).append(CRLF);
+            } catch (UnsupportedEncodingException e) {
+            }
+
         }
 
         sb.append(CRLF);

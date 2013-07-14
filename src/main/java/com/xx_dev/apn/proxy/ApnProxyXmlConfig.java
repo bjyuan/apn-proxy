@@ -152,6 +152,19 @@ public class ApnProxyXmlConfig {
 
                 apnProxyRemoteRule.setRemotePort(remotePort);
 
+                Elements proxyUserNameElements = ruleElement.getChildElements("proxy-username");
+                if (proxyUserNameElements.size() == 1) {
+                    String proxyUserName = proxyUserNameElements.get(0).getValue();
+                    apnProxyRemoteRule.setProxyUserName(proxyUserName);
+                }
+
+
+                Elements proxyPasswordElements = ruleElement.getChildElements("proxy-password");
+                if (proxyPasswordElements.size() == 1) {
+                    String proxyPassword = proxyPasswordElements.get(0).getValue();
+                    apnProxyRemoteRule.setProxyPassword(proxyPassword);
+                }
+
                 Elements remoteListenTypeElements = ruleElement
                         .getChildElements("remote-listen-type");
                 if (remoteListenTypeElements.size() != 1) {
@@ -329,6 +342,8 @@ public class ApnProxyXmlConfig {
     public class ApnProxyRemoteRule {
         private String remoteHost;
         private int remotePort;
+        private String proxyUserName;
+        private String proxyPassword;
         private ApnProxyListenType remoteListenType;
         private String remoteTripleDesKey;
         private List<String> originalHostList;
@@ -371,6 +386,22 @@ public class ApnProxyXmlConfig {
 
         public final void setOriginalHostList(List<String> originalHostList) {
             this.originalHostList = originalHostList;
+        }
+
+        public String getProxyUserName() {
+            return proxyUserName;
+        }
+
+        public void setProxyUserName(String proxyUserName) {
+            this.proxyUserName = proxyUserName;
+        }
+
+        public String getProxyPassword() {
+            return proxyPassword;
+        }
+
+        public void setProxyPassword(String proxyPassword) {
+            this.proxyPassword = proxyPassword;
         }
     }
 

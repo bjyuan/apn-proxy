@@ -2,11 +2,15 @@ package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxySslRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyTripleDesRemote;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.ssl.SslHandler;
+
+import javax.net.ssl.SSLEngine;
 
 /**
  * @author xmx
@@ -29,6 +33,14 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
     protected void initChannel(SocketChannel channel) throws Exception {
 
         ChannelPipeline pipeline = channel.pipeline();
+
+        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
+            ApnProxySslRemote sslRemote = (ApnProxySslRemote) apnProxyRemote;
+            SSLEngine engine = ApnProxySSLContextFactory.getSSLEnginForRemoteAddress(sslRemote.getRemoteHost(), sslRemote.getRemotePort());
+            engine.setUseClientMode(true);
+
+            pipeline.addLast("ssl", new SslHandler(engine));
+        }
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
             ApnProxyTripleDesRemote tripleDesRemote = (ApnProxyTripleDesRemote) apnProxyRemote;

@@ -26,8 +26,6 @@ public class ApnProxyRemoteChooser {
             if(remoteRule.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
                 ApnProxyTripleDesRemote apTriDesRemote = new ApnProxyTripleDesRemote();
                 apTriDesRemote.setAppleyRemoteRule(true);
-                apTriDesRemote.setRemoteHost(remoteRule.getRemoteHost());
-                apTriDesRemote.setRemotePort(remoteRule.getRemotePort());
                 apTriDesRemote.setRemoteListenType(ApnProxyListenType.TRIPLE_DES);
                 apTriDesRemote.setRemoteTripleDesKey(remoteRule.getRemoteTripleDesKey());
 
@@ -37,12 +35,15 @@ public class ApnProxyRemoteChooser {
             if(remoteRule.getRemoteListenType() == ApnProxyListenType.SSL) {
                 ApnProxySslRemote apSslRemote = new ApnProxySslRemote();
                 apSslRemote.setAppleyRemoteRule(true);
-                apSslRemote.setRemoteHost(remoteRule.getRemoteHost());
-                apSslRemote.setRemotePort(remoteRule.getRemotePort());
                 apSslRemote.setRemoteListenType(ApnProxyListenType.SSL);
 
                 apRemote = apSslRemote;
             }
+
+            apRemote.setRemoteHost(remoteRule.getRemoteHost());
+            apRemote.setRemotePort(remoteRule.getRemotePort());
+            apRemote.setProxyUserName(remoteRule.getProxyUserName());
+            apRemote.setProxyPassword(remoteRule.getProxyPassword());
         } else {
             apRemote = new ApnProxyPlainRemote();
             apRemote.setAppleyRemoteRule(false);

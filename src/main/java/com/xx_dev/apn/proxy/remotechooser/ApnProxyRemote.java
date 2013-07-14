@@ -7,6 +7,9 @@ public abstract class ApnProxyRemote {
     private String remoteHost;
     private int remotePort;
 
+    private String proxyUserName;
+    private String proxyPassword;
+
     private boolean isAppleyRemoteRule = false;
 
     private ApnProxyXmlConfig.ApnProxyListenType remoteListenType;
@@ -45,5 +48,21 @@ public abstract class ApnProxyRemote {
 
     public void setRemoteListenType(ApnProxyXmlConfig.ApnProxyListenType remoteListenType) {
         this.remoteListenType = remoteListenType;
+    }
+
+    public String getProxyUserName() {
+        return proxyUserName;
+    }
+
+    public void setProxyUserName(String proxyUserName) {
+        this.proxyUserName = proxyUserName;
+    }
+
+    public String getProxyPassword() {
+        return proxyPassword;
+    }
+
+    public void setProxyPassword(String proxyPassword) {
+        this.proxyPassword = proxyPassword;
     }
 }
