@@ -1,11 +1,13 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemoteChooser;
+import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
+import com.xx_dev.apn.proxy.utils.Base64;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -16,16 +18,21 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.MessageList;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.CharsetUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,25 +74,27 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                     return;
                 }
 
-                remoteAddr = httpRequest.headers().get(HttpHeaders.Names.HOST);
-                String remoteHost = HostNamePortUtil.getHostName(remoteAddr);
-                int remotePort = HostNamePortUtil.getPort(remoteAddr, 80);
-                remoteAddr = remoteHost + ":" + remotePort;
+                String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+                String originalRemoteAddr = HostNamePortUtil.getHostName(originalHostHeader)+ ":" + HostNamePortUtil.getPort(originalHostHeader, 80);
+
+                final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(originalRemoteAddr);
+                remoteAddr = apnProxyRemote.getRemote();
+
+                if (logger.isInfoEnabled()) {
+                    logger.info("FORWARD to: " + remoteAddr + " for: " + originalRemoteAddr);
+                }
 
                 Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
                 if (remoteChannel != null && remoteChannel.isActive()) {
                     if (logger.isInfoEnabled()) {
-                        logger.info("Use old remote channel for: " + remoteAddr);
+                        logger.info("Use old remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
                     }
-                    HttpRequest request = constructRequestForProxy((HttpRequest) msg);
+                    HttpRequest request = constructRequestForProxy((HttpRequest) msg, apnProxyRemote);
                     remoteChannel.write(request).addListener(new ChannelFutureListener() {
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
                             future.channel().read();
-                            if (logger.isInfoEnabled()) {
-                                logger.info("Remote channel: " + remoteAddr + " read after write request on old remote channel");
-                            }
                         }
                     });
                 } else {
@@ -102,12 +111,10 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
 
                     };
 
-                    ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(remoteAddr);
-
                     if (logger.isInfoEnabled()) {
-                        logger
-                                .info("FORWARD to: " + apnProxyRemote.getRemote() + " for: " + remoteAddr);
+                        logger.info("Create new remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
                     }
+
 
                     Bootstrap bootstrap = new Bootstrap();
                     bootstrap
@@ -135,7 +142,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                         public void operationComplete(ChannelFuture future) throws Exception {
                             if (future.isSuccess()) {
                                 MessageList<Object> msgs = MessageList.newInstance();
-                                msgs.add(constructRequestForProxy((HttpRequest) msg));
+                                msgs.add(constructRequestForProxy((HttpRequest) msg, apnProxyRemote));
 
                                 for (HttpContent hc : httpContentBuffer) {
                                     msgs.add(hc);
@@ -146,9 +153,6 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                                     @Override
                                     public void operationComplete(ChannelFuture future) throws Exception {
                                         future.channel().read();
-                                        if (logger.isInfoEnabled()) {
-                                            logger.info("Remote channel: " + remoteAddr + " read after write request on connect");
-                                        }
                                     }
                                 });
 
@@ -216,10 +220,13 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 
-    private HttpRequest constructRequestForProxy(HttpRequest httpRequest) {
+    private HttpRequest constructRequestForProxy(HttpRequest httpRequest, ApnProxyRemote apnProxyRemote) {
 
         String uri = httpRequest.getUri();
-        uri = this.getPartialUrl(uri);
+
+        if(!apnProxyRemote.isAppleyRemoteRule()) {
+            uri = this.getPartialUrl(uri);
+        }
 
         HttpRequest _httpRequest = new DefaultHttpRequest(httpRequest.getProtocolVersion(),
                 httpRequest.getMethod(), uri);
@@ -238,6 +245,15 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         }
 
         _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+
+        if (StringUtils.isNotBlank(apnProxyRemote.getProxyUserName()) && StringUtils.isNotBlank(apnProxyRemote.getProxyPassword())) {
+            String proxyAuthorization = apnProxyRemote.getProxyUserName() + ":" + apnProxyRemote.getProxyPassword();
+            try {
+                _httpRequest.headers().set("Proxy-Authorization", "Basic " + Base64.encodeBase64String(proxyAuthorization.getBytes("UTF-8")));
+            } catch (UnsupportedEncodingException e) {
+            }
+
+        }
 
         return _httpRequest;
     }
