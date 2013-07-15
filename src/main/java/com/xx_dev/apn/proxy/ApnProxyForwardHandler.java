@@ -1,10 +1,10 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyRemoteChooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
+import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemoteChooser;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -15,16 +15,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.MessageList;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.util.CharsetUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
