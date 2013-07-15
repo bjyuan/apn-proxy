@@ -38,9 +38,6 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             logger.info("Remote channel: " + remoteAddr + " active");
         }
         ctx.read();
-        if (logger.isInfoEnabled()) {
-            logger.info("Remote channel: " + remoteAddr + " read after active");
-        }
     }
 
     public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs)
@@ -75,9 +72,6 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
                         ctx.read();
-                        if (logger.isInfoEnabled()) {
-                            logger.info("Remote channel: " + remoteAddr + " read after recive");
-                        }
                     } else {
                         ctx.close();
                     }

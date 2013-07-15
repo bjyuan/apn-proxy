@@ -76,7 +76,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                 String originalRemoteAddr = HostNamePortUtil.getHostName(originalHostHeader)+ ":" + HostNamePortUtil.getPort(originalHostHeader, 80);
 
                 final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(originalRemoteAddr);
-                remoteAddr = apnProxyRemote.getRemote()+""+apnProxyRemote.getRemotePort();
+                remoteAddr = apnProxyRemote.getRemote();
 
                 if (logger.isInfoEnabled()) {
                     logger.info("FORWARD to: " + remoteAddr + " for: " + originalRemoteAddr);
