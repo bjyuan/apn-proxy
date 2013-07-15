@@ -1,5 +1,6 @@
-package com.xx_dev.apn.proxy;
+package com.xx_dev.apn.proxy.remotechooser;
 
+import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
@@ -18,17 +19,33 @@ public class ApnProxyRemoteChooser {
         String originalHost = HostNamePortUtil.getHostName(originalRemoteAddr);
         int originalPort = HostNamePortUtil.getPort(originalRemoteAddr, -1);
 
-        ApnProxyRemote apRemote = new ApnProxyRemote();
+        ApnProxyRemote apRemote = null;
 
         ApnProxyRemoteRule remoteRule = getApplyRemoteRule(originalHost);
         if (remoteRule != null) {
-            apRemote.setAppleyRemoteRule(true);
+            if(remoteRule.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
+                ApnProxyTripleDesRemote apTriDesRemote = new ApnProxyTripleDesRemote();
+                apTriDesRemote.setAppleyRemoteRule(true);
+                apTriDesRemote.setRemoteListenType(ApnProxyListenType.TRIPLE_DES);
+                apTriDesRemote.setRemoteTripleDesKey(remoteRule.getRemoteTripleDesKey());
+
+                apRemote = apTriDesRemote;
+            }
+
+            if(remoteRule.getRemoteListenType() == ApnProxyListenType.SSL) {
+                ApnProxySslRemote apSslRemote = new ApnProxySslRemote();
+                apSslRemote.setAppleyRemoteRule(true);
+                apSslRemote.setRemoteListenType(ApnProxyListenType.SSL);
+
+                apRemote = apSslRemote;
+            }
+
             apRemote.setRemoteHost(remoteRule.getRemoteHost());
             apRemote.setRemotePort(remoteRule.getRemotePort());
-
-            apRemote.setRemoteListenType(remoteRule.getRemoteListenType());
-            apRemote.setRemoteTripleDesKey(remoteRule.getRemoteTripleDesKey());
+            apRemote.setProxyUserName(remoteRule.getProxyUserName());
+            apRemote.setProxyPassword(remoteRule.getProxyPassword());
         } else {
+            apRemote = new ApnProxyPlainRemote();
             apRemote.setAppleyRemoteRule(false);
             apRemote.setRemoteHost(originalHost);
             apRemote.setRemotePort(originalPort);
@@ -54,62 +71,6 @@ public class ApnProxyRemoteChooser {
         }
 
         return null;
-    }
-
-    public static class ApnProxyRemote {
-
-        private String remoteHost;
-        private int remotePort;
-
-        private ApnProxyListenType remoteListenType;
-        private String remoteTripleDesKey;
-
-        private boolean isAppleyRemoteRule = false;
-
-        public final String getRemoteHost() {
-            return remoteHost;
-        }
-
-        public final void setRemoteHost(String remoteHost) {
-            this.remoteHost = remoteHost;
-        }
-
-        public final int getRemotePort() {
-            return remotePort;
-        }
-
-        public final void setRemotePort(int remotePort) {
-            this.remotePort = remotePort;
-        }
-
-        public final ApnProxyListenType getRemoteListenType() {
-            return remoteListenType;
-        }
-
-        public final void setRemoteListenType(ApnProxyListenType remoteListenType) {
-            this.remoteListenType = remoteListenType;
-        }
-
-        public final String getRemoteTripleDesKey() {
-            return remoteTripleDesKey;
-        }
-
-        public final void setRemoteTripleDesKey(String remoteTripleDesKey) {
-            this.remoteTripleDesKey = remoteTripleDesKey;
-        }
-
-        public final boolean isAppleyRemoteRule() {
-            return isAppleyRemoteRule;
-        }
-
-        public final void setAppleyRemoteRule(boolean isAppleyRemoteRule) {
-            this.isAppleyRemoteRule = isAppleyRemoteRule;
-        }
-
-        public final String getRemote() {
-            return this.remoteHost + ":" + this.remotePort;
-        }
-
     }
 
 }

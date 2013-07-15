@@ -41,6 +41,12 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
+        if (logger.isDebugEnabled()) {
+            for(Object msg : msgs) {
+                logger.debug(tag + " : " + msg);
+            }
+        }
+
         if (relayChannel.isActive()) {
             relayChannel.write(msgs).addListener(new ChannelFutureListener() {
                 @Override
