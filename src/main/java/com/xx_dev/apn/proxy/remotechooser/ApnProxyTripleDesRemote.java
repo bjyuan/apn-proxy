@@ -1,6 +1,6 @@
 package com.xx_dev.apn.proxy.remotechooser;
 
-public class ApnProxyTripleDesRemote extends ApnProxyRemote{
+public class ApnProxyTripleDesRemote extends ApnProxyRemote {
 
     private String remoteTripleDesKey;
 

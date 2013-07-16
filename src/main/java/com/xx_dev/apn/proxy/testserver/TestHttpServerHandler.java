@@ -15,22 +15,20 @@ package com.xx_dev.apn.proxy.testserver;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 /**
  * Handler implementation for the echo server.
  */
-@Sharable
 public class TestHttpServerHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(TestHttpServerHandler.class.getName());
@@ -38,45 +36,41 @@ public class TestHttpServerHandler extends ChannelInboundHandlerAdapter {
     private int mode = 0;
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
-        logger.info(msgs);
+    public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
+        logger.info(msg);
 
-        for (Object msg : msgs) {
-            if (msg instanceof LastHttpContent) {
-                ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+        if (msg instanceof LastHttpContent) {
+            ctx.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
-                // produce a lot of bytes
-                for (int i = 0; i < 1 * 100 * 1024; i++) {
-                    logger.info("mode=" + mode + ", i==" + i);
-                    byte[] array = new byte[1024];
-                    for (int j = 0; j < 1024; j++) {
-                        array[j] = 1;
-                    }
-                    mode++;
-                    ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array))).addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            mode--;
-                            logger.info("after write, mode=" + mode);
-                            logger.info("write finished!");
-                        }
-                    }); // 1k
+            // produce a lot of bytes
+            for (int i = 0; i < 1 * 100 * 1024; i++) {
+                logger.info("mode=" + mode + ", i==" + i);
+                byte[] array = new byte[1024];
+                for (int j = 0; j < 1024; j++) {
+                    array[j] = 1;
                 }
-
-                ctx.write(new DefaultLastHttpContent()).addListener(new ChannelFutureListener() {
-
+                mode++;
+                ctx.write(new DefaultHttpContent(Unpooled.copiedBuffer(array))).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
-                        logger.info("end flush");
-                        ctx.close();
-                        logger.info("closed");
+                        mode--;
+                        logger.info("after write, mode=" + mode);
+                        logger.info("write finished!");
                     }
-                });
+                }); // 1k
             }
+
+            ctx.write(new DefaultLastHttpContent()).addListener(new ChannelFutureListener() {
+
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    logger.info("end flush");
+                    ctx.close();
+                    logger.info("closed");
+                }
+            });
         }
-
-        msgs.releaseAllAndRecycle();
-
+        ReferenceCountUtil.release(msg);
     }
 
     @Override

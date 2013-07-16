@@ -7,7 +7,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.MessageList;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 /**
@@ -40,15 +40,13 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
+    public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
         if (logger.isDebugEnabled()) {
-            for(Object msg : msgs) {
-                logger.debug(tag + " : " + msg);
-            }
+            logger.debug(tag + " : " + msg);
         }
 
         if (relayChannel.isActive()) {
-            relayChannel.write(msgs).addListener(new ChannelFutureListener() {
+            relayChannel.write(msg).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
@@ -57,7 +55,7 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
                 }
             });
         } else {
-            msgs.releaseAllAndRecycle();
+            ReferenceCountUtil.release(msg);
         }
 
 

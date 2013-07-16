@@ -32,15 +32,15 @@ public class ApnProxySSLContextFactory {
 
                 @Override
                 public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-                   if (logger.isDebugEnabled()) {
-                       logger.debug(x509Certificates + ";" +s);
-                   }
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(x509Certificates + ";" + s);
+                    }
                 }
 
                 @Override
                 public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(x509Certificates + ";" +s);
+                        logger.debug(x509Certificates + ";" + s);
                     }
                 }
 
@@ -61,7 +61,7 @@ public class ApnProxySSLContextFactory {
         return sslcontextMap.get(host + ":" + port).createSSLEngine(host, port);
     }
 
-    public static SSLContext getServerSSLContext(){
+    public static SSLContext getServerSSLContext() {
 
         try {
             SSLContext sslcontext = SSLContext.getInstance("TLS");

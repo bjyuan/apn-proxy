@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.ByteToMessageCodec;
 import org.apache.log4j.Logger;
 
@@ -12,6 +11,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.security.Key;
+import java.util.List;
 
 public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
 
@@ -64,7 +64,7 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageList<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         ByteBuf outBuf = Unpooled.buffer();
 
         if (logger.isDebugEnabled()) {
@@ -72,7 +72,7 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
         }
         if (decodeState == DECODE_STATE_INIT) {
             if (in.readableBytes() < 4) {
-                if(!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+                if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
                     ctx.read();
                 }
                 return;
@@ -89,7 +89,7 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
                         + encryptDataLength);
             }
             if (in.readableBytes() < encryptDataLength) {
-                if(!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+                if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
                     ctx.read();
                 }
                 return;
@@ -116,7 +116,7 @@ public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
             }
             decodeState = DECODE_STATE_INIT;
             encryptDataLength = 0;
-            if(!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
+            if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
                 ctx.read();
             }
         }

@@ -1,4 +1,4 @@
 package com.xx_dev.apn.proxy.remotechooser;
 
-public class ApnProxySslRemote extends ApnProxyRemote{
+public class ApnProxySslRemote extends ApnProxyRemote {
 }

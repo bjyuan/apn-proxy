@@ -13,7 +13,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.MessageList;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -22,6 +21,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -40,106 +40,102 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
     public static final String HANDLER_NAME = "apnproxy.tunnel";
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
+    public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        for (final Object msg : msgs) {
-            if (msg instanceof HttpRequest) {
-                final HttpRequest httpRequest = (HttpRequest) msg;
+        if (msg instanceof HttpRequest) {
+            final HttpRequest httpRequest = (HttpRequest) msg;
 
-                String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-                String remoteHost = HostNamePortUtil.getHostName(hostHeader);
-                int remotePort = HostNamePortUtil.getPort(hostHeader, 443);
+            String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            String remoteHost = HostNamePortUtil.getHostName(hostHeader);
+            int remotePort = HostNamePortUtil.getPort(hostHeader, 443);
 
-                final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser
-                        .chooseRemoteAddr(remoteHost + ":" + remotePort);
+            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser
+                    .chooseRemoteAddr(remoteHost + ":" + remotePort);
 
-                Channel uaChannel = ctx.channel();
+            Channel uaChannel = ctx.channel();
 
-                // connect remote
-                Bootstrap bootstrap = new Bootstrap();
-                bootstrap.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
-                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                        .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
-                        .option(ChannelOption.AUTO_READ, false)
-                        .handler(new ApnProxyTunnelChannelInitializer(apnProxyRemote, uaChannel));
+            // connect remote
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(uaChannel.eventLoop()).channel(NioSocketChannel.class)
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+                    .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                    .option(ChannelOption.AUTO_READ, false)
+                    .handler(new ApnProxyTunnelChannelInitializer(apnProxyRemote, uaChannel));
 
-                // set local address
-                if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
-                        .getRemoteHost()))) {
-                    bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
-                            .choose(apnProxyRemote.getRemoteHost())), 0));
-                }
+            // set local address
+            if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
+                    .getRemoteHost()))) {
+                bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
+                        .choose(apnProxyRemote.getRemoteHost())), 0));
+            }
 
-                if (logger.isInfoEnabled()) {
-                    logger.info("TUNNEL to: " + apnProxyRemote.getRemote() + " for: " + remoteHost
-                            + ":" + remotePort);
-                }
+            if (logger.isInfoEnabled()) {
+                logger.info("TUNNEL to: " + apnProxyRemote.getRemote() + " for: " + remoteHost
+                        + ":" + remotePort);
+            }
 
-                bootstrap.connect(apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort())
-                        .addListener(new ChannelFutureListener() {
-                            @Override
-                            public void operationComplete(final ChannelFuture future1) throws Exception {
-                                if (future1.isSuccess()) {
-                                    // successfully connect to the original server
-                                    // send connect success msg to UA
+            bootstrap.connect(apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort())
+                    .addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(final ChannelFuture future1) throws Exception {
+                            if (future1.isSuccess()) {
+                                // successfully connect to the original server
+                                // send connect success msg to UA
 
-                                    if (apnProxyRemote.isAppleyRemoteRule()) {
-                                        ctx.pipeline().remove("codec");
-                                        ctx.pipeline().remove(ApnProxyPreHandler.HANDLER_NAME);
-                                        ctx.pipeline().remove(ApnProxyTunnelHandler.HANDLER_NAME);
+                                if (apnProxyRemote.isAppleyRemoteRule()) {
+                                    ctx.pipeline().remove("codec");
+                                    ctx.pipeline().remove(ApnProxyPreHandler.HANDLER_NAME);
+                                    ctx.pipeline().remove(ApnProxyTunnelHandler.HANDLER_NAME);
 
-                                        // add relay handler
-                                        ctx.pipeline().addLast(
-                                                new ApnProxyRelayHandler("UA --> Remote", future1.channel()));
+                                    // add relay handler
+                                    ctx.pipeline().addLast(
+                                            new ApnProxyRelayHandler("UA --> Remote", future1.channel()));
 
-                                        future1.channel().write(
-                                                Unpooled.copiedBuffer(
-                                                        constructConnectRequestForProxy(httpRequest, apnProxyRemote),
-                                                        CharsetUtil.UTF_8)).addListener(new ChannelFutureListener() {
-                                            @Override
-                                            public void operationComplete(ChannelFuture future2) throws Exception {
-                                                if (!future2.channel().config().getOption(ChannelOption.AUTO_READ)) {
-                                                    future2.channel().read();
-                                                }
+                                    future1.channel().write(
+                                            Unpooled.copiedBuffer(
+                                                    constructConnectRequestForProxy(httpRequest, apnProxyRemote),
+                                                    CharsetUtil.UTF_8)).addListener(new ChannelFutureListener() {
+                                        @Override
+                                        public void operationComplete(ChannelFuture future2) throws Exception {
+                                            if (!future2.channel().config().getOption(ChannelOption.AUTO_READ)) {
+                                                future2.channel().read();
                                             }
-                                        });
-
-                                    } else {
-                                        HttpResponse proxyConnectSuccessResponse = new DefaultFullHttpResponse(
-                                                HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
-                                                "Connection established"));
-                                        ctx.write(proxyConnectSuccessResponse).addListener(new ChannelFutureListener() {
-                                            @Override
-                                            public void operationComplete(ChannelFuture future2)
-                                                    throws Exception {
-                                                // remove handlers
-                                                ctx.pipeline().remove("codec");
-                                                ctx.pipeline().remove(ApnProxyPreHandler.HANDLER_NAME);
-                                                ctx.pipeline().remove(ApnProxyTunnelHandler.HANDLER_NAME);
-
-                                                // add relay handler
-                                                ctx.pipeline().addLast(
-                                                        new ApnProxyRelayHandler("UA --> "
-                                                                + apnProxyRemote.getRemote(),
-                                                                future1.channel()));
-                                            }
-
-                                        });
-                                    }
+                                        }
+                                    });
 
                                 } else {
-                                    if (ctx.channel().isActive()) {
-                                        ctx.channel().write(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-                                    }
+                                    HttpResponse proxyConnectSuccessResponse = new DefaultFullHttpResponse(
+                                            HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
+                                            "Connection established"));
+                                    ctx.write(proxyConnectSuccessResponse).addListener(new ChannelFutureListener() {
+                                        @Override
+                                        public void operationComplete(ChannelFuture future2)
+                                                throws Exception {
+                                            // remove handlers
+                                            ctx.pipeline().remove("codec");
+                                            ctx.pipeline().remove(ApnProxyPreHandler.HANDLER_NAME);
+                                            ctx.pipeline().remove(ApnProxyTunnelHandler.HANDLER_NAME);
+
+                                            // add relay handler
+                                            ctx.pipeline().addLast(
+                                                    new ApnProxyRelayHandler("UA --> "
+                                                            + apnProxyRemote.getRemote(),
+                                                            future1.channel()));
+                                        }
+
+                                    });
+                                }
+
+                            } else {
+                                if (ctx.channel().isActive()) {
+                                    ctx.channel().write(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
                                 }
                             }
-                        });
+                        }
+                    });
 
-            }
         }
-
-        msgs.releaseAllAndRecycle();
-
+        ReferenceCountUtil.release(msg);
     }
 
     private String constructConnectRequestForProxy(HttpRequest httpRequest, ApnProxyRemote apnProxyRemote) {

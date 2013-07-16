@@ -4,13 +4,13 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 public class TestHttpClientHandler extends ChannelInboundHandlerAdapter {
@@ -34,31 +34,29 @@ public class TestHttpClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
-        logger.info(msgs);
-        for (Object msg : msgs) {
-            if (msg instanceof HttpResponse) {
-                logger.info(((HttpResponse) msg).toString());
-            }
-
-            if (msg instanceof HttpContent) {
-                logger.info(msg.toString() + ((HttpContent) msg).content().readableBytes());
-            }
-
-            if (msg instanceof LastHttpContent) {
-                DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                        "/");
-                request.headers().add("HOST", "www.baidu.com");
-                ctx.write(request).addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture future) throws Exception {
-                        logger.info("request write complete");
-                        future.channel().read();
-                    }
-                });
-            }
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        logger.info(msg);
+        if (msg instanceof HttpResponse) {
+            logger.info(((HttpResponse) msg).toString());
         }
-        msgs.releaseAllAndRecycle();
+
+        if (msg instanceof HttpContent) {
+            logger.info(msg.toString() + ((HttpContent) msg).content().readableBytes());
+        }
+
+        if (msg instanceof LastHttpContent) {
+            DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                    "/");
+            request.headers().add("HOST", "www.baidu.com");
+            ctx.write(request).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    logger.info("request write complete");
+                    future.channel().read();
+                }
+            });
+        }
+        ReferenceCountUtil.release(msg);
         ctx.read();
     }
 

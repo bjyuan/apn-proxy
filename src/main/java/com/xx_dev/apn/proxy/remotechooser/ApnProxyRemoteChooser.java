@@ -23,7 +23,7 @@ public class ApnProxyRemoteChooser {
 
         ApnProxyRemoteRule remoteRule = getApplyRemoteRule(originalHost);
         if (remoteRule != null) {
-            if(remoteRule.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
+            if (remoteRule.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
                 ApnProxyTripleDesRemote apTriDesRemote = new ApnProxyTripleDesRemote();
                 apTriDesRemote.setAppleyRemoteRule(true);
                 apTriDesRemote.setRemoteListenType(ApnProxyListenType.TRIPLE_DES);
@@ -32,7 +32,7 @@ public class ApnProxyRemoteChooser {
                 apRemote = apTriDesRemote;
             }
 
-            if(remoteRule.getRemoteListenType() == ApnProxyListenType.SSL) {
+            if (remoteRule.getRemoteListenType() == ApnProxyListenType.SSL) {
                 ApnProxySslRemote apSslRemote = new ApnProxySslRemote();
                 apSslRemote.setAppleyRemoteRule(true);
                 apSslRemote.setRemoteListenType(ApnProxyListenType.SSL);

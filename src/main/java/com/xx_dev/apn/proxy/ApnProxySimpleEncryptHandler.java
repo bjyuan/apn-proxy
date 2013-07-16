@@ -3,8 +3,9 @@ package com.xx_dev.apn.proxy;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.ByteToMessageCodec;
+
+import java.util.List;
 
 public class ApnProxySimpleEncryptHandler extends ByteToMessageCodec<ByteBuf> {
 
@@ -21,7 +22,7 @@ public class ApnProxySimpleEncryptHandler extends ByteToMessageCodec<ByteBuf> {
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, MessageList<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         ByteBuf outBuf = Unpooled.buffer();
         for (int i = 0; i < in.readableBytes(); i++) {
             outBuf.writeByte(in.readByte() ^ key);

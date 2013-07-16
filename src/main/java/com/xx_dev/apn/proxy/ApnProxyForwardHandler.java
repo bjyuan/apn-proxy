@@ -1,13 +1,12 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemoteChooser;
-import com.xx_dev.apn.proxy.HttpProxyHandler.RemoteChannelInactiveCallback;
 import com.xx_dev.apn.proxy.utils.Base64;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -16,19 +15,14 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.MessageList;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.util.CharsetUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -57,146 +51,141 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
     private List<HttpContent> httpContentBuffer = new ArrayList<HttpContent>();
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, final Object msg) throws Exception {
 
         final Channel uaChannel = ctx.channel();
 
-        for (final Object msg : msgs) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(msg);
+        if (logger.isDebugEnabled()) {
+            logger.debug(msg);
+        }
+        if (msg instanceof HttpRequest) {
+            HttpRequest httpRequest = (HttpRequest) msg;
+
+            if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
+                ctx.pipeline().remove(ApnProxyForwardHandler.HANDLER_NAME);
+                ctx.fireChannelRead(msg);
+                return;
             }
-            if (msg instanceof HttpRequest) {
-                HttpRequest httpRequest = (HttpRequest) msg;
 
-                if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
-                    ctx.pipeline().remove(ApnProxyForwardHandler.HANDLER_NAME);
-                    ctx.fireMessageReceived(msgs);
-                    return;
+            String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            String originalRemoteAddr = HostNamePortUtil.getHostName(originalHostHeader) + ":" + HostNamePortUtil.getPort(originalHostHeader, 80);
+
+            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(originalRemoteAddr);
+            remoteAddr = apnProxyRemote.getRemote();
+
+            if (logger.isInfoEnabled()) {
+                logger.info("FORWARD to: " + remoteAddr + " for: " + originalRemoteAddr);
+            }
+
+            Channel remoteChannel = remoteChannelMap.get(remoteAddr);
+
+            if (remoteChannel != null && remoteChannel.isActive()) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Use old remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
                 }
+                HttpRequest request = constructRequestForProxy((HttpRequest) msg, apnProxyRemote);
+                remoteChannel.write(request).addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        future.channel().read();
+                    }
+                });
+            } else {
+                RemoteChannelInactiveCallback cb = new RemoteChannelInactiveCallback() {
+                    @Override
+                    public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
+                                                              String inactiveRemoteAddr)
+                            throws Exception {
+                        logger.warn("Remote channel: " + inactiveRemoteAddr
+                                + " inactive, and flush end");
+                        uaChannel.close();
+                        remoteChannelMap.remove(inactiveRemoteAddr);
+                    }
 
-                String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-                String originalRemoteAddr = HostNamePortUtil.getHostName(originalHostHeader)+ ":" + HostNamePortUtil.getPort(originalHostHeader, 80);
-
-                final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(originalRemoteAddr);
-                remoteAddr = apnProxyRemote.getRemote();
+                };
 
                 if (logger.isInfoEnabled()) {
-                    logger.info("FORWARD to: " + remoteAddr + " for: " + originalRemoteAddr);
+                    logger.info("Create new remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
                 }
 
-                Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
-                if (remoteChannel != null && remoteChannel.isActive()) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Use old remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
-                    }
-                    HttpRequest request = constructRequestForProxy((HttpRequest) msg, apnProxyRemote);
-                    remoteChannel.write(request).addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            future.channel().read();
-                        }
-                    });
-                } else {
-                    RemoteChannelInactiveCallback cb = new RemoteChannelInactiveCallback() {
-                        @Override
-                        public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
-                                                                  String inactiveRemoteAddr)
-                                throws Exception {
-                            logger.warn("Remote channel: " + inactiveRemoteAddr
-                                    + " inactive, and flush end");
-                            uaChannel.close();
-                            remoteChannelMap.remove(inactiveRemoteAddr);
-                        }
+                Bootstrap bootstrap = new Bootstrap();
+                bootstrap
+                        .group(uaChannel.eventLoop())
+                        .channel(NioSocketChannel.class)
+                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+                        .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                        .option(ChannelOption.AUTO_READ, false)
+                        .handler(
+                                new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
 
-                    };
+                // set local address
+                if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
+                        .getRemoteHost()))) {
+                    bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
+                            .choose(apnProxyRemote.getRemoteHost())), 0));
+                }
 
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Create new remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
-                    }
+                ChannelFuture remoteConnectFuture = bootstrap.connect(
+                        apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
+                remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());
 
+                remoteConnectFuture.addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        if (future.isSuccess()) {
+                            future.channel().write(constructRequestForProxy((HttpRequest) msg, apnProxyRemote));
 
-                    Bootstrap bootstrap = new Bootstrap();
-                    bootstrap
-                            .group(uaChannel.eventLoop())
-                            .channel(NioSocketChannel.class)
-                            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                            .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
-                            .option(ChannelOption.AUTO_READ, false)
-                            .handler(
-                                    new HttpProxyChannelInitializer(apnProxyRemote, uaChannel, remoteAddr, cb));
+                            for (HttpContent hc : httpContentBuffer) {
+                                future.channel().write(hc);
+                            }
+                            httpContentBuffer.clear();
 
-                    // set local address
-                    if (StringUtils.isNotBlank(ApnProxyLocalAddressChooser.choose(apnProxyRemote
-                            .getRemoteHost()))) {
-                        bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
-                                .choose(apnProxyRemote.getRemoteHost())), 0));
-                    }
-
-                    ChannelFuture remoteConnectFuture = bootstrap.connect(
-                            apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort());
-                    remoteChannelMap.put(remoteAddr, remoteConnectFuture.channel());
-
-                    remoteConnectFuture.addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            if (future.isSuccess()) {
-                                MessageList<Object> msgs = MessageList.newInstance();
-                                msgs.add(constructRequestForProxy((HttpRequest) msg, apnProxyRemote));
-
-                                for (HttpContent hc : httpContentBuffer) {
-                                    msgs.add(hc);
+                            future.channel().write(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
+                                @Override
+                                public void operationComplete(ChannelFuture future) throws Exception {
+                                    future.channel().read();
                                 }
-                                httpContentBuffer.clear();
-
-                                future.channel().write(msgs).addListener(new ChannelFutureListener() {
-                                    @Override
-                                    public void operationComplete(ChannelFuture future) throws Exception {
-                                        future.channel().read();
-                                    }
-                                });
+                            });
 
 
-                            } else {
-                                String errorMsg = "remote connect to " + remoteAddr + " fail";
-                                logger.error(errorMsg);
-                                // send error response
-                                HttpMessage errorResponseMsg = HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.INTERNAL_SERVER_ERROR, errorMsg);
-                                uaChannel.write(errorResponseMsg);
-                                httpContentBuffer.clear();
+                        } else {
+                            String errorMsg = "remote connect to " + remoteAddr + " fail";
+                            logger.error(errorMsg);
+                            // send error response
+                            HttpMessage errorResponseMsg = HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.INTERNAL_SERVER_ERROR, errorMsg);
+                            uaChannel.write(errorResponseMsg);
+                            httpContentBuffer.clear();
 
-                                future.channel().close();
-                            }
+                            future.channel().close();
                         }
-                    });
+                    }
+                });
 
-                }
+            }
 
+        } else {
+            Channel remoteChannel = remoteChannelMap.get(remoteAddr);
+
+            HttpContent hc = ((HttpContent) msg);
+            //hc.retain();
+
+            //HttpContent _hc = hc.copy();
+
+            if (remoteChannel != null && remoteChannel.isActive()) {
+                remoteChannel.write(hc).addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        future.channel().read();
+                        if (logger.isInfoEnabled()) {
+                            logger.info("Remote channel: " + remoteAddr + " read after write http content");
+                        }
+                    }
+                });
             } else {
-                Channel remoteChannel = remoteChannelMap.get(remoteAddr);
-
-                HttpContent hc = ((HttpContent) msg);
-                //hc.retain();
-
-                //HttpContent _hc = hc.copy();
-
-                if (remoteChannel != null && remoteChannel.isActive()) {
-                    remoteChannel.write(hc).addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            future.channel().read();
-                            if (logger.isInfoEnabled()) {
-                                logger.info("Remote channel: " + remoteAddr + " read after write http content");
-                            }
-                        }
-                    });
-                } else {
-                    httpContentBuffer.add(hc);
-                }
+                httpContentBuffer.add(hc);
             }
         }
-
-        //msgs.releaseAllAndRecycle();
 
     }
 
@@ -224,7 +213,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
 
         String uri = httpRequest.getUri();
 
-        if(!apnProxyRemote.isAppleyRemoteRule()) {
+        if (!apnProxyRemote.isAppleyRemoteRule()) {
             uri = this.getPartialUrl(uri);
         }
 

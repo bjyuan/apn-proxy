@@ -14,10 +14,10 @@ package com.xx_dev.apn.proxy.ssltest.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 /**
@@ -37,9 +37,9 @@ public class SSLClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
-        logger.info(msgs);
-        msgs.releaseAllAndRecycle();
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        logger.info(msg);
+        ReferenceCountUtil.release(msg);
     }
 
     @Override

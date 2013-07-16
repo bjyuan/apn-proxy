@@ -6,10 +6,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
@@ -39,34 +39,22 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         ctx.read();
     }
 
-    public void messageReceived(final ChannelHandlerContext ctx, MessageList<Object> msgs)
+    public void channelRead(final ChannelHandlerContext ctx, Object msg)
             throws Exception {
 
-        MessageList<HttpObject> _msgs = msgs.cast();
-        MessageList<Object> uaMsgs = MessageList.newInstance();
+        HttpObject ho = (HttpObject) msg;
+        if (logger.isDebugEnabled()) {
+            logger.debug("Recive From: " + remoteAddr + ", " + ho.getClass().getName());
+        }
 
-        for (HttpObject msg : _msgs) {
-            HttpObject ho = msg;
-            if (logger.isDebugEnabled()) {
-                logger.debug("Recive From: " + remoteAddr + ", " + ho.getClass().getName());
-            }
-
-            if (ho instanceof HttpResponse) {
-                HttpResponse httpResponse = (HttpResponse) ho;
-                httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
-            }
-
-//            if (ho instanceof HttpContent) {
-//                ho = ((HttpContent) ho).copy();
-//            }
-
-            uaMsgs.add(ho);
-
+        if (ho instanceof HttpResponse) {
+            HttpResponse httpResponse = (HttpResponse) ho;
+            httpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+            httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
         }
 
         if (uaChannel.isActive()) {
-            uaChannel.write(uaMsgs).addListener(new ChannelFutureListener() {
+            uaChannel.write(ho).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
@@ -77,7 +65,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                 }
             });
         } else {
-            uaMsgs.releaseAllAndRecycle();
+            ReferenceCountUtil.release(msg);
         }
 
     }

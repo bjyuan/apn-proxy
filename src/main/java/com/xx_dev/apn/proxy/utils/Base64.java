@@ -1,21 +1,20 @@
 package com.xx_dev.apn.proxy.utils;
 
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+
 /**
  * @author John Lee
- *
  */
 public class Base64 {
 
     /**
      * Holds thread context so classes can be thread-safe.
-     *
+     * <p/>
      * This class is not itself thread-safe; each thread must allocate its own
      * copy.
      *
@@ -101,7 +100,7 @@ public class Base64 {
 
     /**
      * MIME chunk size per RFC 2045 section 6.8.
-     *
+     * <p/>
      * <p>
      * The {@value} character limit does not count the trailing CRLF, but counts
      * all other characters, including any equal signs.
@@ -114,7 +113,7 @@ public class Base64 {
 
     /**
      * PEM chunk size per RFC 1421 section 4.3.2.4.
-     *
+     * <p/>
      * <p>
      * The {@value} character limit does not count the trailing CRLF, but counts
      * all other characters, including any equal signs.
@@ -133,7 +132,9 @@ public class Base64 {
      */
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
-    /** Mask used to extract 8 bits, used in decoding bytes */
+    /**
+     * Mask used to extract 8 bits, used in decoding bytes
+     */
     protected static final int MASK_8BITS = 0xff;
 
     /**
@@ -180,7 +181,7 @@ public class Base64 {
 
     /**
      * Chunk separator per RFC 2045 section 2.1.
-     *
+     * <p/>
      * <p>
      * N.B. The next major release may break compatibility and make this field
      * private.
@@ -189,34 +190,34 @@ public class Base64 {
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045 section
      *      2.1</a>
      */
-    static final byte[] CHUNK_SEPARATOR = { '\r', '\n' };
+    static final byte[] CHUNK_SEPARATOR = {'\r', '\n'};
 
     /**
      * This array is a lookup table that translates 6-bit positive integer index
      * values into their "Base64 Alphabet" equivalents as specified in Table 1
      * of RFC 2045.
-     *
+     * <p/>
      * Thanks to "commons" project in ws.apache.org for this code.
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/
      */
-    private static final byte[] STANDARD_ENCODE_TABLE = { 'A', 'B', 'C', 'D',
+    private static final byte[] STANDARD_ENCODE_TABLE = {'A', 'B', 'C', 'D',
             'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
             'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
             'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
             'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-            '4', '5', '6', '7', '8', '9', '+', '/' };
+            '4', '5', '6', '7', '8', '9', '+', '/'};
 
     /**
      * This is a copy of the STANDARD_ENCODE_TABLE above, but with + and /
      * changed to - and _ to make the encoded Base64 results more URL-SAFE. This
      * table is only used when the Base64's mode is set to URL-SAFE.
      */
-    private static final byte[] URL_SAFE_ENCODE_TABLE = { 'A', 'B', 'C', 'D',
+    private static final byte[] URL_SAFE_ENCODE_TABLE = {'A', 'B', 'C', 'D',
             'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
             'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
             'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
             'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-            '4', '5', '6', '7', '8', '9', '-', '_' };
+            '4', '5', '6', '7', '8', '9', '-', '_'};
 
     /**
      * This array is a lookup table that translates Unicode characters drawn
@@ -224,27 +225,29 @@ public class Base64 {
      * their 6-bit positive integer equivalents. Characters that are not in the
      * Base64 alphabet but fall within the bounds of the array are translated to
      * -1.
-     *
+     * <p/>
      * Note: '+' and '-' both decode to 62. '/' and '_' both decode to 63. This
      * means decoder seamlessly handles both URL_SAFE and STANDARD base64. (The
      * encoder, on the other hand, needs to know ahead of time what to emit).
-     *
+     * <p/>
      * Thanks to "commons" project in ws.apache.org for this code.
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/
      */
-    private static final byte[] DECODE_TABLE = { -1, -1, -1, -1, -1, -1, -1,
+    private static final byte[] DECODE_TABLE = {-1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, 62, -1, 62, -1, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
             -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
             12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1,
             -1, 63, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
-            40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
+            40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
 
     /**
      * Base64 uses 6-bit fields.
      */
-    /** Mask used to extract 6 bits, used when encoding */
+    /**
+     * Mask used to extract 6 bits, used when encoding
+     */
     private static final int MASK_6BITS = 0x3f;
 
     // The static final fields above are used for the original static byte[]
@@ -291,7 +294,7 @@ public class Base64 {
      * When encoding the line length is 0 (no chunking), and the encoding table
      * is STANDARD_ENCODE_TABLE.
      * </p>
-     *
+     * <p/>
      * <p>
      * When decoding all variants are supported.
      * </p>
@@ -307,14 +310,13 @@ public class Base64 {
      * When encoding the line length is 76, the line separator is CRLF, and the
      * encoding table is STANDARD_ENCODE_TABLE.
      * </p>
-     *
+     * <p/>
      * <p>
      * When decoding all variants are supported.
      * </p>
      *
-     * @param urlSafe
-     *            if {@code true}, URL-safe encoding is used. In most cases this
-     *            should be set to {@code false}.
+     * @param urlSafe if {@code true}, URL-safe encoding is used. In most cases this
+     *                should be set to {@code false}.
      * @since 1.4
      */
     public Base64(boolean urlSafe) {
@@ -336,11 +338,10 @@ public class Base64 {
      * When decoding all variants are supported.
      * </p>
      *
-     * @param lineLength
-     *            Each line of encoded data will be at most of the given length
-     *            (rounded down to nearest multiple of 4). If lineLength <= 0,
-     *            then the output will not be divided into lines (chunks).
-     *            Ignored when decoding.
+     * @param lineLength Each line of encoded data will be at most of the given length
+     *                   (rounded down to nearest multiple of 4). If lineLength <= 0,
+     *                   then the output will not be divided into lines (chunks).
+     *                   Ignored when decoding.
      * @since 1.4
      */
     public Base64(int lineLength) {
@@ -362,17 +363,14 @@ public class Base64 {
      * When decoding all variants are supported.
      * </p>
      *
-     * @param lineLength
-     *            Each line of encoded data will be at most of the given length
-     *            (rounded down to nearest multiple of 4). If lineLength <= 0,
-     *            then the output will not be divided into lines (chunks).
-     *            Ignored when decoding.
-     * @param lineSeparator
-     *            Each line of encoded data will end with this sequence of
-     *            bytes.
-     * @throws IllegalArgumentException
-     *             Thrown when the provided lineSeparator included some base64
-     *             characters.
+     * @param lineLength    Each line of encoded data will be at most of the given length
+     *                      (rounded down to nearest multiple of 4). If lineLength <= 0,
+     *                      then the output will not be divided into lines (chunks).
+     *                      Ignored when decoding.
+     * @param lineSeparator Each line of encoded data will end with this sequence of
+     *                      bytes.
+     * @throws IllegalArgumentException Thrown when the provided lineSeparator included some base64
+     *                                  characters.
      * @since 1.4
      */
     public Base64(int lineLength, byte[] lineSeparator) {
@@ -394,21 +392,17 @@ public class Base64 {
      * When decoding all variants are supported.
      * </p>
      *
-     * @param lineLength
-     *            Each line of encoded data will be at most of the given length
-     *            (rounded down to nearest multiple of 4). If lineLength <= 0,
-     *            then the output will not be divided into lines (chunks).
-     *            Ignored when decoding.
-     * @param lineSeparator
-     *            Each line of encoded data will end with this sequence of
-     *            bytes.
-     * @param urlSafe
-     *            Instead of emitting '+' and '/' we emit '-' and '_'
-     *            respectively. urlSafe is only applied to encode operations.
-     *            Decoding seamlessly handles both modes.
-     * @throws IllegalArgumentException
-     *             The provided lineSeparator included some base64 characters.
-     *             That's not going to work!
+     * @param lineLength    Each line of encoded data will be at most of the given length
+     *                      (rounded down to nearest multiple of 4). If lineLength <= 0,
+     *                      then the output will not be divided into lines (chunks).
+     *                      Ignored when decoding.
+     * @param lineSeparator Each line of encoded data will end with this sequence of
+     *                      bytes.
+     * @param urlSafe       Instead of emitting '+' and '/' we emit '-' and '_'
+     *                      respectively. urlSafe is only applied to encode operations.
+     *                      Decoding seamlessly handles both modes.
+     * @throws IllegalArgumentException The provided lineSeparator included some base64 characters.
+     *                                  That's not going to work!
      * @since 1.4
      */
     public Base64(int lineLength, byte[] lineSeparator, boolean urlSafe) {
@@ -456,8 +450,7 @@ public class Base64 {
     /**
      * Returns true if this object has buffered data for reading.
      *
-     * @param context
-     *            the context to be used
+     * @param context the context to be used
      * @return true if there is data still available for reading.
      */
     boolean hasData(Context context) { // package protected for access from I/O
@@ -468,8 +461,7 @@ public class Base64 {
     /**
      * Returns the amount of buffered data available for reading.
      *
-     * @param context
-     *            the context to be used
+     * @param context the context to be used
      * @return The amount of buffered data available for reading.
      */
     int available(Context context) { // package protected for access from I/O
@@ -489,8 +481,7 @@ public class Base64 {
     /**
      * Increases our buffer by the {@link #DEFAULT_BUFFER_RESIZE_FACTOR}.
      *
-     * @param context
-     *            the context to be used
+     * @param context the context to be used
      */
     private byte[] resizeBuffer(Context context) {
         if (context.buffer == null) {
@@ -509,10 +500,8 @@ public class Base64 {
     /**
      * Ensure that the buffer has room for <code>size</code> bytes
      *
-     * @param size
-     *            minimum spare space required
-     * @param context
-     *            the context to be used
+     * @param size    minimum spare space required
+     * @param context the context to be used
      */
     protected byte[] ensureBufferSize(int size, Context context) {
         if ((context.buffer == null)
@@ -526,18 +515,14 @@ public class Base64 {
      * Extracts buffered data into the provided byte[] array, starting at
      * position bPos, up to a maximum of bAvail bytes. Returns how many bytes
      * were actually extracted.
-     * <p>
+     * <p/>
      * Package protected for access from I/O streams.
      *
-     * @param b
-     *            byte[] array to extract the buffered data into.
-     * @param bPos
-     *            position in byte[] array to start extraction at.
-     * @param bAvail
-     *            amount of bytes we're allowed to extract. We may extract fewer
-     *            (if fewer are available).
-     * @param context
-     *            the context to be used
+     * @param b       byte[] array to extract the buffered data into.
+     * @param bPos    position in byte[] array to start extraction at.
+     * @param bAvail  amount of bytes we're allowed to extract. We may extract fewer
+     *                (if fewer are available).
+     * @param context the context to be used
      * @return The number of bytes successfully extracted into the provided
      *         byte[] array.
      */
@@ -559,8 +544,7 @@ public class Base64 {
      * Checks if a byte value is whitespace or not. Whitespace is taken to mean:
      * space, tab, CR, LF
      *
-     * @param byteToCheck
-     *            the byte to check
+     * @param byteToCheck the byte to check
      * @return true if byte is whitespace, false otherwise
      */
     protected static boolean isWhiteSpace(byte byteToCheck) {
@@ -580,12 +564,10 @@ public class Base64 {
      * order to satisfy the requirements of the Encoder interface, and will
      * throw an EncoderException if the supplied object is not of type byte[].
      *
-     * @param obj
-     *            Object to encode
+     * @param obj Object to encode
      * @return An object (of type byte[]) containing the Base-N encoded data
      *         which corresponds to the byte[] supplied.
-     * @throws EncoderException
-     *             if the parameter supplied is not of type byte[]
+     * @throws EncoderException if the parameter supplied is not of type byte[]
      */
     public Object encode(Object obj) throws Exception {
         if (!(obj instanceof byte[])) {
@@ -599,8 +581,7 @@ public class Base64 {
      * Encodes a byte[] containing binary data, into a String containing
      * characters in the Base-N alphabet. Uses UTF8 encoding.
      *
-     * @param pArray
-     *            a byte array containing binary data
+     * @param pArray a byte array containing binary data
      * @return A String containing only Base-N character data
      */
     public String encodeToString(byte[] pArray) {
@@ -611,8 +592,7 @@ public class Base64 {
      * Encodes a byte[] containing binary data, into a String containing
      * characters in the appropriate alphabet. Uses UTF8 encoding.
      *
-     * @param pArray
-     *            a byte array containing binary data
+     * @param pArray a byte array containing binary data
      * @return String containing only character data in the appropriate
      *         alphabet.
      */
@@ -626,12 +606,10 @@ public class Base64 {
      * throw a DecoderException if the supplied object is not of type byte[] or
      * String.
      *
-     * @param obj
-     *            Object to decode
+     * @param obj Object to decode
      * @return An object (of type byte[]) containing the binary data which
      *         corresponds to the byte[] or String supplied.
-     * @throws DecoderException
-     *             if the parameter supplied is not of type byte[]
+     * @throws DecoderException if the parameter supplied is not of type byte[]
      */
     public Object decode(Object obj) throws Exception {
         if (obj instanceof byte[]) {
@@ -647,8 +625,7 @@ public class Base64 {
     /**
      * Decodes a String containing characters in the Base-N alphabet.
      *
-     * @param pArray
-     *            A String containing Base-N character data
+     * @param pArray A String containing Base-N character data
      * @return a byte array containing binary data
      */
     public byte[] decode(String pArray) {
@@ -658,8 +635,7 @@ public class Base64 {
     /**
      * Decodes a byte[] containing characters in the Base-N alphabet.
      *
-     * @param pArray
-     *            A byte array containing Base-N character data
+     * @param pArray A byte array containing Base-N character data
      * @return a byte array containing binary data
      */
     public byte[] decode(byte[] pArray) {
@@ -678,8 +654,7 @@ public class Base64 {
      * Encodes a byte[] containing binary data, into a byte[] containing
      * characters in the alphabet.
      *
-     * @param pArray
-     *            a byte array containing binary data
+     * @param pArray a byte array containing binary data
      * @return A byte array containing only the basen alphabetic character data
      */
     public byte[] encode(byte[] pArray) {
@@ -699,11 +674,8 @@ public class Base64 {
      * within the alphabet. The method optionally treats whitespace and pad as
      * valid.
      *
-     * @param arrayOctet
-     *            byte array to test
-     * @param allowWSPad
-     *            if {@code true}, then whitespace and PAD are also allowed
-     *
+     * @param arrayOctet byte array to test
+     * @param allowWSPad if {@code true}, then whitespace and PAD are also allowed
      * @return {@code true} if all bytes are valid characters in the alphabet or
      *         if the byte array is empty; {@code false}, otherwise
      */
@@ -722,8 +694,7 @@ public class Base64 {
      * Tests a given String to see if it contains only valid characters within
      * the alphabet. The method treats whitespace and PAD as valid.
      *
-     * @param basen
-     *            String to test
+     * @param basen String to test
      * @return {@code true} if all characters in the String are valid characters
      *         in the alphabet or if the String is empty; {@code false},
      *         otherwise
@@ -736,11 +707,10 @@ public class Base64 {
     /**
      * Tests a given byte array to see if it contains any characters within the
      * alphabet or PAD.
-     *
+     * <p/>
      * Intended for use in checking line-ending arrays
      *
-     * @param arrayOctet
-     *            byte array to test
+     * @param arrayOctet byte array to test
      * @return {@code true} if any byte is a valid character in the alphabet or
      *         PAD; {@code false} otherwise
      */
@@ -759,9 +729,7 @@ public class Base64 {
     /**
      * Calculates the amount of space needed to encode the supplied array.
      *
-     * @param pArray
-     *            byte[] array which will later be encoded
-     *
+     * @param pArray byte[] array which will later be encoded
      * @return amount of space needed to encoded the supplied array. Returns a
      *         long since a max-len array will require > Integer.MAX_VALUE
      */
@@ -800,14 +768,10 @@ public class Base64 {
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/
      * </p>
      *
-     * @param in
-     *            byte[] array of binary data to base64 encode.
-     * @param inPos
-     *            Position to start reading data from.
-     * @param inAvail
-     *            Amount of bytes available from input for encoding.
-     * @param context
-     *            the context to be used
+     * @param in      byte[] array of binary data to base64 encode.
+     * @param inPos   Position to start reading data from.
+     * @param inAvail Amount of bytes available from input for encoding.
+     * @param context the context to be used
      */
     void encode(byte[] in, int inPos, int inAvail, Context context) {
         if (context.eof) {
@@ -917,14 +881,10 @@ public class Base64 {
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/
      * </p>
      *
-     * @param in
-     *            byte[] array of ascii data to base64 decode.
-     * @param inPos
-     *            Position to start reading data from.
-     * @param inAvail
-     *            Amount of bytes available from input for encoding.
-     * @param context
-     *            the context to be used
+     * @param in      byte[] array of ascii data to base64 decode.
+     * @param inPos   Position to start reading data from.
+     * @param inAvail Amount of bytes available from input for encoding.
+     * @param context the context to be used
      */
     void decode(byte[] in, int inPos, int inAvail, Context context) {
         if (context.eof) {
@@ -994,8 +954,7 @@ public class Base64 {
      * within the Base64 alphabet. Currently the method treats whitespace as
      * valid.
      *
-     * @param arrayOctet
-     *            byte array to test
+     * @param arrayOctet byte array to test
      * @return {@code true} if all bytes are valid characters in the Base64
      *         alphabet or if the byte array is empty; {@code false}, otherwise
      * @deprecated 1.5 Use {@link #isBase64(byte[])}, will be removed in 2.0.
@@ -1008,8 +967,7 @@ public class Base64 {
     /**
      * Returns whether or not the <code>octet</code> is in the base 64 alphabet.
      *
-     * @param octet
-     *            The value to test
+     * @param octet The value to test
      * @return {@code true} if the value is defined in the the base 64 alphabet,
      *         {@code false} otherwise.
      * @since 1.4
@@ -1023,8 +981,7 @@ public class Base64 {
      * Tests a given String to see if it contains only valid characters within
      * the Base64 alphabet. Currently the method treats whitespace as valid.
      *
-     * @param base64
-     *            String to test
+     * @param base64 String to test
      * @return {@code true} if all characters in the String are valid characters
      *         in the Base64 alphabet or if the String is empty; {@code false},
      *         otherwise
@@ -1039,8 +996,7 @@ public class Base64 {
      * within the Base64 alphabet. Currently the method treats whitespace as
      * valid.
      *
-     * @param arrayOctet
-     *            byte array to test
+     * @param arrayOctet byte array to test
      * @return {@code true} if all bytes are valid characters in the Base64
      *         alphabet or if the byte array is empty; {@code false}, otherwise
      * @since 1.5
@@ -1058,8 +1014,7 @@ public class Base64 {
      * Encodes binary data using the base64 algorithm but does not chunk the
      * output.
      *
-     * @param binaryData
-     *            binary data to encode
+     * @param binaryData binary data to encode
      * @return byte[] containing Base64 characters in their UTF-8
      *         representation.
      */
@@ -1070,12 +1025,11 @@ public class Base64 {
     /**
      * Encodes binary data using the base64 algorithm but does not chunk the
      * output.
-     *
+     * <p/>
      * NOTE: We changed the behaviour of this method from multi-line chunking
      * (commons-codec-1.4) to single-line non-chunking (commons-codec-1.5).
      *
-     * @param binaryData
-     *            binary data to encode
+     * @param binaryData binary data to encode
      * @return String containing Base64 characters.
      * @since 1.4 (NOTE: 1.4 chunked the output, whereas 1.5 does not).
      */
@@ -1088,8 +1042,7 @@ public class Base64 {
      * but does not chunk the output. The url-safe variation emits - and _
      * instead of + and / characters.
      *
-     * @param binaryData
-     *            binary data to encode
+     * @param binaryData binary data to encode
      * @return byte[] containing Base64 characters in their UTF-8
      *         representation.
      * @since 1.4
@@ -1103,8 +1056,7 @@ public class Base64 {
      * but does not chunk the output. The url-safe variation emits - and _
      * instead of + and / characters.
      *
-     * @param binaryData
-     *            binary data to encode
+     * @param binaryData binary data to encode
      * @return String containing Base64 characters
      * @since 1.4
      */
@@ -1132,8 +1084,7 @@ public class Base64 {
      * Encodes binary data using the base64 algorithm and chunks the encoded
      * output into 76 character blocks
      *
-     * @param binaryData
-     *            binary data to encode
+     * @param binaryData binary data to encode
      * @return Base64 characters chunked in 76 character blocks
      */
     public static byte[] encodeBase64Chunked(byte[] binaryData) {
@@ -1144,15 +1095,12 @@ public class Base64 {
      * Encodes binary data using the base64 algorithm, optionally chunking the
      * output into 76 character blocks.
      *
-     * @param binaryData
-     *            Array containing binary data to encode.
-     * @param isChunked
-     *            if {@code true} this encoder will chunk the base64 output into
-     *            76 character blocks
+     * @param binaryData Array containing binary data to encode.
+     * @param isChunked  if {@code true} this encoder will chunk the base64 output into
+     *                   76 character blocks
      * @return Base64-encoded data.
-     * @throws IllegalArgumentException
-     *             Thrown when the input array needs an output array bigger than
-     *             {@link Integer#MAX_VALUE}
+     * @throws IllegalArgumentException Thrown when the input array needs an output array bigger than
+     *                                  {@link Integer#MAX_VALUE}
      */
     public static byte[] encodeBase64(byte[] binaryData, boolean isChunked) {
         return encodeBase64(binaryData, isChunked, false);
@@ -1162,18 +1110,14 @@ public class Base64 {
      * Encodes binary data using the base64 algorithm, optionally chunking the
      * output into 76 character blocks.
      *
-     * @param binaryData
-     *            Array containing binary data to encode.
-     * @param isChunked
-     *            if {@code true} this encoder will chunk the base64 output into
-     *            76 character blocks
-     * @param urlSafe
-     *            if {@code true} this encoder will emit - and _ instead of the
-     *            usual + and / characters.
+     * @param binaryData Array containing binary data to encode.
+     * @param isChunked  if {@code true} this encoder will chunk the base64 output into
+     *                   76 character blocks
+     * @param urlSafe    if {@code true} this encoder will emit - and _ instead of the
+     *                   usual + and / characters.
      * @return Base64-encoded data.
-     * @throws IllegalArgumentException
-     *             Thrown when the input array needs an output array bigger than
-     *             {@link Integer#MAX_VALUE}
+     * @throws IllegalArgumentException Thrown when the input array needs an output array bigger than
+     *                                  {@link Integer#MAX_VALUE}
      * @since 1.4
      */
     public static byte[] encodeBase64(byte[] binaryData, boolean isChunked,
@@ -1185,20 +1129,15 @@ public class Base64 {
      * Encodes binary data using the base64 algorithm, optionally chunking the
      * output into 76 character blocks.
      *
-     * @param binaryData
-     *            Array containing binary data to encode.
-     * @param isChunked
-     *            if {@code true} this encoder will chunk the base64 output into
-     *            76 character blocks
-     * @param urlSafe
-     *            if {@code true} this encoder will emit - and _ instead of the
-     *            usual + and / characters.
-     * @param maxResultSize
-     *            The maximum result size to accept.
+     * @param binaryData    Array containing binary data to encode.
+     * @param isChunked     if {@code true} this encoder will chunk the base64 output into
+     *                      76 character blocks
+     * @param urlSafe       if {@code true} this encoder will emit - and _ instead of the
+     *                      usual + and / characters.
+     * @param maxResultSize The maximum result size to accept.
      * @return Base64-encoded data.
-     * @throws IllegalArgumentException
-     *             Thrown when the input array needs an output array bigger than
-     *             maxResultSize
+     * @throws IllegalArgumentException Thrown when the input array needs an output array bigger than
+     *                                  maxResultSize
      * @since 1.4
      */
     public static byte[] encodeBase64(byte[] binaryData, boolean isChunked,
@@ -1226,8 +1165,7 @@ public class Base64 {
     /**
      * Decodes a Base64 String into octets
      *
-     * @param base64String
-     *            String containing Base64 data
+     * @param base64String String containing Base64 data
      * @return Array containing decoded data.
      * @since 1.4
      */
@@ -1238,8 +1176,7 @@ public class Base64 {
     /**
      * Decodes Base64 data into octets
      *
-     * @param base64Data
-     *            Byte array containing Base64 data
+     * @param base64Data Byte array containing Base64 data
      * @return Array containing decoded data.
      */
     public static byte[] decodeBase64(byte[] base64Data) {
@@ -1249,12 +1186,12 @@ public class Base64 {
     // Implementation of the Encoder Interface
 
     // Implementation of integer encoding used for crypto
+
     /**
      * Decodes a byte64-encoded integer according to crypto standards such as
      * W3C's XML-Signature
      *
-     * @param pArray
-     *            a byte array containing base64 character data
+     * @param pArray a byte array containing base64 character data
      * @return A BigInteger
      * @since 1.4
      */
@@ -1266,11 +1203,9 @@ public class Base64 {
      * Encodes to a byte64-encoded integer according to crypto standards such as
      * W3C's XML-Signature
      *
-     * @param bigInt
-     *            a BigInteger
+     * @param bigInt a BigInteger
      * @return A byte array containing base64 character data
-     * @throws NullPointerException
-     *             if null is passed in
+     * @throws NullPointerException if null is passed in
      * @since 1.4
      */
     public static byte[] encodeInteger(BigInteger bigInt) {
@@ -1285,8 +1220,7 @@ public class Base64 {
      * Returns a byte-array representation of a <code>BigInteger</code> without
      * sign bit.
      *
-     * @param bigInt
-     *            <code>BigInteger</code> to be converted
+     * @param bigInt <code>BigInteger</code> to be converted
      * @return a byte array representation of the BigInteger parameter
      */
     static byte[] toIntegerBytes(BigInteger bigInt) {
@@ -1317,8 +1251,7 @@ public class Base64 {
     /**
      * Returns whether or not the <code>octet</code> is in the Base32 alphabet.
      *
-     * @param octet
-     *            The value to test
+     * @param octet The value to test
      * @return {@code true} if the value is defined in the the Base32 alphabet
      *         {@code false} otherwise.
      */

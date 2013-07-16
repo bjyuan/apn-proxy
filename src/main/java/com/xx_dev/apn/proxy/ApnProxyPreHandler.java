@@ -7,7 +7,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -15,6 +14,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -38,67 +38,63 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
     private boolean notNext = false;
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageList<Object> msgs) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        for (final Object msg : msgs) {
-            if (msg instanceof HttpRequest) {
-                notNext = false;
+        if (msg instanceof HttpRequest) {
+            notNext = false;
 
-                HttpRequest httpRequest = (HttpRequest) msg;
-                String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-                String originalHost = HostNamePortUtil.getHostName(hostHeader);
+            HttpRequest httpRequest = (HttpRequest) msg;
+            String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            String originalHost = HostNamePortUtil.getHostName(hostHeader);
 
-                if (httpRestLogger.isInfoEnabled()) {
-                    httpRestLogger.info(ctx.channel().remoteAddress() + " "
-                            + httpRequest.getMethod().name() + " " + httpRequest.getUri()
-                            + " " + httpRequest.getProtocolVersion().text() + ", "
-                            + hostHeader + ", "
-                            + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
-                }
+            if (httpRestLogger.isInfoEnabled()) {
+                httpRestLogger.info(ctx.channel().remoteAddress() + " "
+                        + httpRequest.getMethod().name() + " " + httpRequest.getUri()
+                        + " " + httpRequest.getProtocolVersion().text() + ", "
+                        + hostHeader + ", "
+                        + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
+            }
 
-                if (StringUtils.equals(originalHost, "127.0.0.1")
-                        || StringUtils.equals(originalHost, "localhost")) {
+            if (StringUtils.equals(originalHost, "127.0.0.1")
+                    || StringUtils.equals(originalHost, "localhost")) {
+                notNext = true;
+                String errorMsg = "Forbidden";
+                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
+                return;
+            }
+
+            for (String forbiddenIp : forbiddenIps) {
+                if (StringUtils.startsWith(originalHost, forbiddenIp)) {
                     notNext = true;
                     String errorMsg = "Forbidden";
                     ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
                     return;
                 }
-
-                for (String forbiddenIp : forbiddenIps) {
-                    if (StringUtils.startsWith(originalHost, forbiddenIp)) {
-                        notNext = true;
-                        String errorMsg = "Forbidden";
-                        ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
-                        return;
-                    }
-                }
-
-                if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
-                    //
-                    notNext = true;
-                    ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
-                    // send error response
-                    FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                            HttpResponseStatus.OK, pacResponseContent);
-                    HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
-
-                    ctx.write(pacResponseMsg);
-                    return;
-                } else {
-                    notNext = false;
-                }
-            } else {
-                // do nothing
             }
+
+            if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
+                //
+                notNext = true;
+                ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
+                // send error response
+                FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                        HttpResponseStatus.OK, pacResponseContent);
+                HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
+
+                ctx.write(pacResponseMsg);
+                return;
+            } else {
+                notNext = false;
+            }
+        } else {
+            // do nothing
         }
 
         if (notNext) {
-            msgs.releaseAllAndRecycle();
+            ReferenceCountUtil.release(msg);
             return;
         }
-
-        ctx.fireMessageReceived(msgs);
-
+        ctx.fireChannelRead(msg);
     }
 
     private String buildPac() {
