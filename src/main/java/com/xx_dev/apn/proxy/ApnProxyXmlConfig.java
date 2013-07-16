@@ -186,7 +186,7 @@ public class ApnProxyXmlConfig {
                 }
 
                 if (remoteListenType == ApnProxyListenType.SSL) {
-                    ApnProxySSLContextFactory.createSSLContext(remoteHost, remotePort);
+                    //ApnProxySSLContextFactory.createSSLContext(remoteHost, remotePort);
                 }
 
                 // simple key; ssl trust store

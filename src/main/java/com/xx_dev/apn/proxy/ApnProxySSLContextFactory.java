@@ -23,9 +23,8 @@ public class ApnProxySSLContextFactory {
 
     private static final Logger logger = Logger.getLogger(ApnProxySSLContextFactory.class);
 
-    private static Map<String, SSLContext> sslcontextMap = new HashMap<String, SSLContext>();
 
-    public static void createSSLContext(String host, int port) {
+    public static SSLEngine getSSLEnginForRemoteAddress(String host, int port) {
         try {
             SSLContext sslcontext = SSLContext.getInstance("TLS");
             TrustManager tm = new X509TrustManager() {
@@ -51,14 +50,12 @@ public class ApnProxySSLContextFactory {
             };
             sslcontext.init(null, new TrustManager[]{tm}, null);
 
-            sslcontextMap.put(host + ":" + port, sslcontext);
+            return sslcontext.createSSLEngine(host, port);
+
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-    }
-
-    public static SSLEngine getSSLEnginForRemoteAddress(String host, int port) {
-        return sslcontextMap.get(host + ":" + port).createSSLEngine(host, port);
+        return null;
     }
 
     public static SSLContext getServerSSLContext() {
