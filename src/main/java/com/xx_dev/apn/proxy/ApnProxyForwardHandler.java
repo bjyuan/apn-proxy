@@ -171,7 +171,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
             //HttpContent _hc = hc.copy();
 
             if (remoteChannel != null && remoteChannel.isActive()) {
-                remoteChannel.write(hc).addListener(new ChannelFutureListener() {
+                remoteChannel.writeAndFlush(hc).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         future.channel().read();
