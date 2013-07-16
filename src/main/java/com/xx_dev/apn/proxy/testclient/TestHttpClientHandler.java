@@ -9,7 +9,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
@@ -44,18 +43,6 @@ public class TestHttpClientHandler extends ChannelInboundHandlerAdapter {
             logger.info(msg.toString() + ((HttpContent) msg).content().readableBytes());
         }
 
-        if (msg instanceof LastHttpContent) {
-            DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                    "/");
-            request.headers().add("HOST", "www.baidu.com");
-            ctx.write(request).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    logger.info("request write complete");
-                    future.channel().read();
-                }
-            });
-        }
         ReferenceCountUtil.release(msg);
         ctx.read();
     }

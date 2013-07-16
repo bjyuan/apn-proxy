@@ -10,6 +10,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
@@ -35,6 +37,8 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
     public void initChannel(SocketChannel channel) throws Exception {
 
         ChannelPipeline pipeline = channel.pipeline();
+
+        pipeline.addLast("log", new LoggingHandler("log", LogLevel.INFO));
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
             ApnProxySslRemote sslRemote = (ApnProxySslRemote) apnProxyRemote;

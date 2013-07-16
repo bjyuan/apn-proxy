@@ -147,8 +147,6 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                                     future.channel().read();
                                 }
                             });
-
-
                         } else {
                             String errorMsg = "remote connect to " + remoteAddr + " fail";
                             logger.error(errorMsg);
