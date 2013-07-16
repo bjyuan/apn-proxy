@@ -137,7 +137,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                             future.channel().write(constructRequestForProxy((HttpRequest) msg, apnProxyRemote));
 
                             for (HttpContent hc : httpContentBuffer) {
-                                future.channel().write(hc);
+                                future.channel().writeAndFlush(hc);
                             }
                             httpContentBuffer.clear();
 
@@ -192,7 +192,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         logger.warn("UA channel: " + " inactive");
         for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
             final Channel remoteChannel = entry.getValue();
-            remoteChannel.write(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
+            remoteChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     remoteChannel.close();

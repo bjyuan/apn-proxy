@@ -38,6 +38,8 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
 
         ChannelPipeline pipeline = channel.pipeline();
 
+        //pipeline.addLast("log1", new LoggingHandler("ee", LogLevel.INFO));
+
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
             ApnProxySslRemote sslRemote = (ApnProxySslRemote) apnProxyRemote;
             SSLEngine engine = ApnProxySSLContextFactory.getSSLEnginForRemoteAddress(sslRemote.getRemoteHost(), sslRemote.getRemotePort());
@@ -56,6 +58,8 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
             //            pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
             //                new ApnProxySimpleEncryptHandler());
         }
+
+        //pipeline.addLast("log2", new LoggingHandler("pp", LogLevel.INFO));
 
         channel.pipeline().addLast("codec", new HttpClientCodec());
         // pipeline.addLast("decoder", new HttpResponseDecoder());
