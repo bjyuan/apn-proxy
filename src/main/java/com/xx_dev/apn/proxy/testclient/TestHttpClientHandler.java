@@ -22,7 +22,7 @@ public class TestHttpClientHandler extends ChannelInboundHandlerAdapter {
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
                 "/");
         request.headers().add("HOST", "www.baidu.com");
-        ctx.write(request).addListener(new ChannelFutureListener() {
+        ctx.writeAndFlush(request).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 logger.info("request write complete");

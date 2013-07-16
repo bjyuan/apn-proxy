@@ -84,7 +84,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                     logger.info("Use old remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
                 }
                 HttpRequest request = constructRequestForProxy((HttpRequest) msg, apnProxyRemote);
-                remoteChannel.write(request).addListener(new ChannelFutureListener() {
+                remoteChannel.writeAndFlush(request).addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         future.channel().read();
@@ -141,7 +141,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                             }
                             httpContentBuffer.clear();
 
-                            future.channel().write(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
+                            future.channel().writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
                                 @Override
                                 public void operationComplete(ChannelFuture future) throws Exception {
                                     future.channel().read();
@@ -152,7 +152,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                             logger.error(errorMsg);
                             // send error response
                             HttpMessage errorResponseMsg = HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.INTERNAL_SERVER_ERROR, errorMsg);
-                            uaChannel.write(errorResponseMsg);
+                            uaChannel.writeAndFlush(errorResponseMsg);
                             httpContentBuffer.clear();
 
                             future.channel().close();

@@ -54,7 +54,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         }
 
         if (uaChannel.isActive()) {
-            uaChannel.write(ho).addListener(new ChannelFutureListener() {
+            uaChannel.writeAndFlush(ho).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
@@ -76,7 +76,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             logger.info("Remote channel: " + remoteAddr + " inactive");
         }
 
-        uaChannel.write(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
+        uaChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 remoteChannelInactiveCallback.remoteChannelInactiveCallback(ctx, remoteAddr);

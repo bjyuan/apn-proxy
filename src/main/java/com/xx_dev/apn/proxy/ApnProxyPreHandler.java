@@ -60,6 +60,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 notNext = true;
                 String errorMsg = "Forbidden";
                 ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
+                ctx.flush();
                 return;
             }
 
@@ -68,6 +69,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                     notNext = true;
                     String errorMsg = "Forbidden";
                     ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
+                    ctx.flush();
                     return;
                 }
             }
@@ -82,6 +84,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
 
                 ctx.write(pacResponseMsg);
+                ctx.flush();
                 return;
             } else {
                 notNext = false;

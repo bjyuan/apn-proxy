@@ -91,7 +91,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
                                     ctx.pipeline().addLast(
                                             new ApnProxyRelayHandler("UA --> Remote", future1.channel()));
 
-                                    future1.channel().write(
+                                    future1.channel().writeAndFlush(
                                             Unpooled.copiedBuffer(
                                                     constructConnectRequestForProxy(httpRequest, apnProxyRemote),
                                                     CharsetUtil.UTF_8)).addListener(new ChannelFutureListener() {
@@ -107,7 +107,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
                                     HttpResponse proxyConnectSuccessResponse = new DefaultFullHttpResponse(
                                             HttpVersion.HTTP_1_1, new HttpResponseStatus(200,
                                             "Connection established"));
-                                    ctx.write(proxyConnectSuccessResponse).addListener(new ChannelFutureListener() {
+                                    ctx.writeAndFlush(proxyConnectSuccessResponse).addListener(new ChannelFutureListener() {
                                         @Override
                                         public void operationComplete(ChannelFuture future2)
                                                 throws Exception {
@@ -128,7 +128,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
 
                             } else {
                                 if (ctx.channel().isActive()) {
-                                    ctx.channel().write(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+                                    ctx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
                                 }
                             }
                         }
