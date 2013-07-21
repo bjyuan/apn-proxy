@@ -5,13 +5,9 @@ import org.apache.log4j.Logger;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import java.io.FileInputStream;
 import java.security.KeyStore;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 /**
  * @author xmx
@@ -25,28 +21,13 @@ public class ApnProxySSLContextFactory {
     public static SSLEngine getSSLEnginForRemoteAddress(String host, int port) {
         try {
             SSLContext sslcontext = SSLContext.getInstance("TLS");
-            TrustManager tm = new X509TrustManager() {
 
-                @Override
-                public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(x509Certificates + ";" + s);
-                    }
-                }
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+            KeyStore tks = KeyStore.getInstance("JKS");
+            tks.load(new FileInputStream(ApnProxyXmlConfig.getConfig().getTrustStorePath()), ApnProxyXmlConfig.getConfig().getTrustStorePassword().toCharArray());
+            tmf.init(tks);
 
-                @Override
-                public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(x509Certificates + ";" + s);
-                    }
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-            };
-            sslcontext.init(null, new TrustManager[]{tm}, null);
+            sslcontext.init(null, tmf.getTrustManagers(), null);
 
             return sslcontext.createSSLEngine(host, port);
 

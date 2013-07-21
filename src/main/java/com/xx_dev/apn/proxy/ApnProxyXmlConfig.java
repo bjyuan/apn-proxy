@@ -30,6 +30,10 @@ public class ApnProxyXmlConfig {
 
     private String keyStroePassword;
 
+    private String trustStorePath;
+
+    private String trustStorePassword;
+
     private int port;
 
     private int bossThreadCount;
@@ -80,6 +84,19 @@ public class ApnProxyXmlConfig {
                     .getChildElements("password");
             if (keyStorePasswordElements.size() == 1) {
                 this.keyStroePassword = keyStorePasswordElements.get(0).getValue();
+            }
+        }
+
+        Elements trustStoreElements = rootElement.getChildElements("trust-store");
+        if (trustStoreElements.size() == 1) {
+            Elements trustStorePathElements = trustStoreElements.get(0).getChildElements("path");
+            if (trustStorePathElements.size() == 1) {
+                this.trustStorePath = trustStorePathElements.get(0).getValue();
+            }
+            Elements trustStorePasswordElements = trustStoreElements.get(0)
+                    .getChildElements("password");
+            if (trustStorePasswordElements.size() == 1) {
+                this.trustStorePassword = trustStorePasswordElements.get(0).getValue();
             }
         }
 
@@ -335,9 +352,26 @@ public class ApnProxyXmlConfig {
         this.localIpRuleList = localIpRuleList;
     }
 
+    public String getTrustStorePath() {
+        return trustStorePath;
+    }
+
+    public void setTrustStorePath(String trustStorePath) {
+        this.trustStorePath = trustStorePath;
+    }
+
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
+    public void setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+    }
+
     public static ApnProxyXmlConfig getConfig() {
         return config;
     }
+
 
     public class ApnProxyRemoteRule {
         private String remoteHost;
