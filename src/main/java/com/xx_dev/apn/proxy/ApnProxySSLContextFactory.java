@@ -72,7 +72,7 @@ public class ApnProxySSLContextFactory {
             sslEngine.setUseClientMode(false);
             sslEngine.setNeedClientAuth(false); //should config?
 
-            return sslcontext.createSSLEngine();
+            return sslEngine;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
