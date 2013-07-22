@@ -7,8 +7,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import javax.net.ssl.SSLEngine;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,24 +26,15 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
         pipeline.addLast("idlestate", new IdleStateHandler(0, 0, 3, TimeUnit.MINUTES));
         pipeline.addLast("idlehandler", new IdleHandler());
 
-        // if (ApnProxyConfig.getBoolConfig("apn.proxy.ssl_listen")) {
-        // SSLEngine engine = ApnProxySSLContextFactory.getSSLContext().createSSLEngine();
-        // engine.setUseClientMode(false);
-        // engine.setNeedClientAuth(true);
-        // pipeline.addLast("ssl", new SslHandler(engine));
-        //
-        // } else if (ApnProxyConfig.getBoolConfig("apn.proxy.3des_listen")) {
-        // pipeline.addLast("3des", new ApnProxyTripleDesHandler());
-        // } else if (ApnProxyConfig.getBoolConfig("apn.proxy.simple_encrypt_listen")) {
-        // pipeline.addLast("encrypt", new ApnProxySimpleEncryptHandler());
-        // }
-
         if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.SIMPLE) {
             pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
                     new ApnProxySimpleEncryptHandler());
         } else if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
                     ApnProxyXmlConfig.getConfig().getTripleDesKey()));
+        } else if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
+            SSLEngine engine = ApnProxySSLContextFactory.createServerSSLSSLEngine();
+            pipeline.addLast("apnproxy.encrypt", new SslHandler(engine));
         }
 
         pipeline.addLast("log", new LoggingHandler("BYTE_LOGGER", LogLevel.INFO));

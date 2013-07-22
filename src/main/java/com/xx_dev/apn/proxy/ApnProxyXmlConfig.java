@@ -30,6 +30,8 @@ public class ApnProxyXmlConfig {
 
     private String keyStroePassword;
 
+    private boolean useTrustStore = false;
+
     private String trustStorePath;
 
     private String trustStorePassword;
@@ -89,6 +91,7 @@ public class ApnProxyXmlConfig {
 
         Elements trustStoreElements = rootElement.getChildElements("trust-store");
         if (trustStoreElements.size() == 1) {
+            useTrustStore = true;
             Elements trustStorePathElements = trustStoreElements.get(0).getChildElements("path");
             if (trustStorePathElements.size() == 1) {
                 this.trustStorePath = trustStorePathElements.get(0).getValue();
@@ -264,108 +267,60 @@ public class ApnProxyXmlConfig {
 
     }
 
-    public final ApnProxyListenType getListenType() {
+    public ApnProxyListenType getListenType() {
         return listenType;
     }
 
-    public final void setListenType(ApnProxyListenType listenType) {
-        this.listenType = listenType;
-    }
-
-    public final String getTripleDesKey() {
+    public String getTripleDesKey() {
         return tripleDesKey;
     }
 
-    public final void setTripleDesKey(String tripleDesKey) {
-        this.tripleDesKey = tripleDesKey;
-    }
-
-    public final String getKeyStorePath() {
+    public String getKeyStorePath() {
         return keyStorePath;
     }
 
-    public final void setKeyStorePath(String keyStorePath) {
-        this.keyStorePath = keyStorePath;
-    }
-
-    public final String getKeyStroePassword() {
+    public String getKeyStroePassword() {
         return keyStroePassword;
     }
 
-    public final void setKeyStroePassword(String keyStroePassword) {
-        this.keyStroePassword = keyStroePassword;
-    }
-
-    public final int getPort() {
-        return port;
-    }
-
-    public final void setPort(int port) {
-        this.port = port;
-    }
-
-    public final int getBossThreadCount() {
-        return bossThreadCount;
-    }
-
-    public final void setBossThreadCount(int bossThreadCount) {
-        this.bossThreadCount = bossThreadCount;
-    }
-
-    public final int getWorkerThreadCount() {
-        return workerThreadCount;
-    }
-
-    public final void setWorkerThreadCount(int workerThreadCount) {
-        this.workerThreadCount = workerThreadCount;
-    }
-
-    public final String getPacHost() {
-        return pacHost;
-    }
-
-    public final void setPacHost(String pacHost) {
-        this.pacHost = pacHost;
-    }
-
-    public final boolean isUseIpV6() {
-        return useIpV6;
-    }
-
-    public final void setUseIpV6(boolean useIpV6) {
-        this.useIpV6 = useIpV6;
-    }
-
-    public final List<ApnProxyRemoteRule> getRemoteRuleList() {
-        return remoteRuleList;
-    }
-
-    public final void setRemoteRuleList(List<ApnProxyRemoteRule> remoteRuleList) {
-        this.remoteRuleList = remoteRuleList;
-    }
-
-    public final List<ApnProxyLocalIpRule> getLocalIpRuleList() {
-        return localIpRuleList;
-    }
-
-    public final void setLocalIpRuleList(List<ApnProxyLocalIpRule> localIpRuleList) {
-        this.localIpRuleList = localIpRuleList;
+    public boolean isUseTrustStore() {
+        return useTrustStore;
     }
 
     public String getTrustStorePath() {
         return trustStorePath;
     }
 
-    public void setTrustStorePath(String trustStorePath) {
-        this.trustStorePath = trustStorePath;
-    }
-
     public String getTrustStorePassword() {
         return trustStorePassword;
     }
 
-    public void setTrustStorePassword(String trustStorePassword) {
-        this.trustStorePassword = trustStorePassword;
+    public int getPort() {
+        return port;
+    }
+
+    public int getBossThreadCount() {
+        return bossThreadCount;
+    }
+
+    public int getWorkerThreadCount() {
+        return workerThreadCount;
+    }
+
+    public String getPacHost() {
+        return pacHost;
+    }
+
+    public boolean isUseIpV6() {
+        return useIpV6;
+    }
+
+    public List<ApnProxyRemoteRule> getRemoteRuleList() {
+        return remoteRuleList;
+    }
+
+    public List<ApnProxyLocalIpRule> getLocalIpRuleList() {
+        return localIpRuleList;
     }
 
     public static ApnProxyXmlConfig getConfig() {

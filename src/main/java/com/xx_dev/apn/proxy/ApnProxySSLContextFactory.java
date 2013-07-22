@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
 import java.security.KeyStore;
@@ -18,16 +19,20 @@ public class ApnProxySSLContextFactory {
     private static final Logger logger = Logger.getLogger(ApnProxySSLContextFactory.class);
 
 
-    public static SSLEngine getSSLEnginForRemoteAddress(String host, int port) {
+    public static SSLEngine createClientSSLEnginForRemoteAddress(String host, int port) {
         try {
             SSLContext sslcontext = SSLContext.getInstance("TLS");
+            TrustManager[] trustManagers = null;
+            if (ApnProxyXmlConfig.getConfig().isUseTrustStore()) {
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+                KeyStore tks = KeyStore.getInstance("JKS");
+                tks.load(new FileInputStream(ApnProxyXmlConfig.getConfig().getTrustStorePath()), ApnProxyXmlConfig.getConfig().getTrustStorePassword().toCharArray());
+                tmf.init(tks);
+                trustManagers = tmf.getTrustManagers();
+            }
 
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-            KeyStore tks = KeyStore.getInstance("JKS");
-            tks.load(new FileInputStream(ApnProxyXmlConfig.getConfig().getTrustStorePath()), ApnProxyXmlConfig.getConfig().getTrustStorePassword().toCharArray());
-            tmf.init(tks);
 
-            sslcontext.init(null, tmf.getTrustManagers(), null);
+            sslcontext.init(null, trustManagers, null);
 
             return sslcontext.createSSLEngine(host, port);
 
@@ -37,7 +42,7 @@ public class ApnProxySSLContextFactory {
         return null;
     }
 
-    public static SSLContext getServerSSLContext() {
+    public static SSLEngine createServerSSLSSLEngine() {
 
         try {
             SSLContext sslcontext = SSLContext.getInstance("TLS");
@@ -51,8 +56,11 @@ public class ApnProxySSLContextFactory {
             String keyStorePath = ApnProxyXmlConfig.getConfig().getKeyStorePath();
             String keyStorePassword = ApnProxyXmlConfig.getConfig().getKeyStroePassword();
 
+            String trustStorePath = ApnProxyXmlConfig.getConfig().getTrustStorePath();
+            String trustStorePassword = ApnProxyXmlConfig.getConfig().getKeyStroePassword();
+
             ks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
-            tks.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
+            tks.load(new FileInputStream(trustStorePath), trustStorePassword.toCharArray());
 
             String keyPassword = ApnProxyXmlConfig.getConfig().getKeyStroePassword();
             kmf.init(ks, keyPassword.toCharArray());
@@ -60,7 +68,11 @@ public class ApnProxySSLContextFactory {
 
             sslcontext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-            return sslcontext;
+            SSLEngine sslEngine = sslcontext.createSSLEngine();
+            sslEngine.setUseClientMode(false);
+            sslEngine.setNeedClientAuth(false); //should config?
+
+            return sslcontext.createSSLEngine();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
