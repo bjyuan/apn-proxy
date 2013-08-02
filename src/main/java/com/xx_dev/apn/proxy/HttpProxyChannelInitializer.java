@@ -57,6 +57,10 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
             //                new ApnProxySimpleEncryptHandler());
         }
 
+        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.PLAIN) {
+            // nothing to do
+        }
+
         //pipeline.addLast("log2", new LoggingHandler("pp", LogLevel.INFO));
 
         channel.pipeline().addLast("codec", new HttpClientCodec());

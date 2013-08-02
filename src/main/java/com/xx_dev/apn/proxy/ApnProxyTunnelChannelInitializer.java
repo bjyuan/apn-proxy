@@ -48,6 +48,10 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
                     tripleDesRemote.getRemoteTripleDesKey()));
         }
 
+        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.PLAIN) {
+            // nothing to do
+        }
+
         pipeline
                 .addLast(new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA", uaChannel));
 
