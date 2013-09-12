@@ -37,7 +37,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(ApnProxyTunnelHandler.class);
 
-    public static final String HANDLER_NAME = "apnproxy.tunnel";
+    private static final String HANDLER_NAME = "apnproxy.tunnel";
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -155,10 +155,13 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
             }
         }
 
-        if (StringUtils.isNotBlank(apnProxyRemote.getProxyUserName()) && StringUtils.isNotBlank(apnProxyRemote.getProxyPassword())) {
-            String proxyAuthorization = apnProxyRemote.getProxyUserName() + ":" + apnProxyRemote.getProxyPassword();
+        if (StringUtils.isNotBlank(apnProxyRemote.getProxyUserName())
+                && StringUtils.isNotBlank(apnProxyRemote.getProxyPassword())) {
+            String proxyAuthorization = apnProxyRemote.getProxyUserName() + ":"
+                    + apnProxyRemote.getProxyPassword();
             try {
-                sb.append("Proxy-Authorization: Basic " + Base64.encodeBase64String(proxyAuthorization.getBytes("UTF-8"))).append(CRLF);
+                sb.append("Proxy-Authorization: Basic "
+                        + Base64.encodeBase64String(proxyAuthorization.getBytes("UTF-8"))).append(CRLF);
             } catch (UnsupportedEncodingException e) {
             }
 

@@ -95,8 +95,10 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                     public void remoteChannelInactiveCallback(ChannelHandlerContext remoteChannelCtx,
                                                               String inactiveRemoteAddr)
                             throws Exception {
-                        logger.warn("Remote channel: " + inactiveRemoteAddr
-                                + " inactive, and flush end");
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Remote channel: " + inactiveRemoteAddr
+                                    + " inactive, and flush end");
+                        }
                         uaChannel.close();
                         remoteChannelMap.remove(inactiveRemoteAddr);
                     }
