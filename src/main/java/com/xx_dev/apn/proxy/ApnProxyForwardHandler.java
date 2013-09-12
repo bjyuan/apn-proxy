@@ -68,20 +68,19 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
             }
 
             String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            String originalRemoteAddr = HostNamePortUtil.getHostName(originalHostHeader) + ":" + HostNamePortUtil.getPort(originalHostHeader, 80);
+            String originalHost = HostNamePortUtil.getHostName(originalHostHeader);
+            int originalPort = HostNamePortUtil.getPort(originalHostHeader, 80);
 
-            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(originalRemoteAddr);
+
+            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(originalHost, originalPort);
             remoteAddr = apnProxyRemote.getRemote();
-
-            if (logger.isInfoEnabled()) {
-                logger.info("FORWARD to: " + remoteAddr + " for: " + originalRemoteAddr);
-            }
 
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
             if (remoteChannel != null && remoteChannel.isActive()) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Use old remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Use old remote channel to: " + remoteAddr + " for: "
+                            + originalHost + ":" + originalPort);
                 }
                 HttpRequest request = constructRequestForProxy((HttpRequest) msg, apnProxyRemote);
                 remoteChannel.writeAndFlush(request).addListener(new ChannelFutureListener() {
@@ -104,8 +103,9 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
 
                 };
 
-                if (logger.isInfoEnabled()) {
-                    logger.info("Create new remote channel to: " + remoteAddr + " for: " + originalRemoteAddr);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Create new remote channel to: " + remoteAddr + " for: "
+                            + originalHost + ":" + originalPort);
                 }
 
 
@@ -175,8 +175,8 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         future.channel().read();
-                        if (logger.isInfoEnabled()) {
-                            logger.info("Remote channel: " + remoteAddr + " read after write http content");
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Remote channel: " + remoteAddr + " read after write http content");
                         }
                     }
                 });

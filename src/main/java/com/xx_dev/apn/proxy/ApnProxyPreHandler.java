@@ -28,7 +28,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(ApnProxyPreHandler.class);
 
-    private static Logger httpRestLogger = Logger.getLogger("HTTP_REST_LOGGER");
+    private static final Logger httpRestLogger = Logger.getLogger("HTTP_REST_LOGGER");
 
     private static String[] forbiddenIps = new String[]{"10.", "172.16.", "172.17.", "172.18.",
             "172.19.", "172.20.", "172.21.", "172.22.", "172.23.", "172.24.", "172.25.",

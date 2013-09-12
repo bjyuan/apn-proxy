@@ -45,12 +45,12 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof HttpRequest) {
             final HttpRequest httpRequest = (HttpRequest) msg;
 
-            String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
-            String remoteHost = HostNamePortUtil.getHostName(hostHeader);
-            int remotePort = HostNamePortUtil.getPort(hostHeader, 443);
+            String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
+            String originalHost = HostNamePortUtil.getHostName(originalHostHeader);
+            int originalPort = HostNamePortUtil.getPort(originalHostHeader, 443);
 
             final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser
-                    .chooseRemoteAddr(remoteHost + ":" + remotePort);
+                    .chooseRemoteAddr(originalHost, originalPort);
 
             Channel uaChannel = ctx.channel();
 
@@ -67,11 +67,6 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
                     .getRemoteHost()))) {
                 bootstrap.localAddress(new InetSocketAddress((ApnProxyLocalAddressChooser
                         .choose(apnProxyRemote.getRemoteHost())), 0));
-            }
-
-            if (logger.isInfoEnabled()) {
-                logger.info("TUNNEL to: " + apnProxyRemote.getRemote() + " for: " + remoteHost
-                        + ":" + remotePort);
             }
 
             bootstrap.connect(apnProxyRemote.getRemoteHost(), apnProxyRemote.getRemotePort())

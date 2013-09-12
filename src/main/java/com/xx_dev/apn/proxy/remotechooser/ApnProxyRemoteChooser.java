@@ -3,7 +3,6 @@ package com.xx_dev.apn.proxy.remotechooser;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
-import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -15,10 +14,9 @@ public class ApnProxyRemoteChooser {
 
     private static final Logger logger = Logger.getLogger(ApnProxyRemoteChooser.class);
 
-    public static ApnProxyRemote chooseRemoteAddr(String originalRemoteAddr) {
-        String originalHost = HostNamePortUtil.getHostName(originalRemoteAddr);
-        int originalPort = HostNamePortUtil.getPort(originalRemoteAddr, -1);
+    private static final Logger remoteChooseLogger = Logger.getLogger("REMOTE_CHOOSE_LOGGER");
 
+    public static ApnProxyRemote chooseRemoteAddr(String originalHost, int originalPort) {
         ApnProxyRemote apRemote = null;
 
         ApnProxyRemoteRule remoteRule = getApplyRemoteRule(originalHost);
@@ -60,8 +58,8 @@ public class ApnProxyRemoteChooser {
             apRemote.setRemoteListenType(ApnProxyListenType.PLAIN);
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Remote info: original: " + originalRemoteAddr + ", remote: "
+        if (remoteChooseLogger.isInfoEnabled()) {
+            remoteChooseLogger.info("Original host: " + originalHost + "Original port: " + originalPort + ", Remote: "
                     + apRemote.getRemote());
         }
 

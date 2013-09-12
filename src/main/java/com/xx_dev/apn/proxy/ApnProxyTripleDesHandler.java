@@ -15,8 +15,7 @@ import java.util.List;
 
 public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
 
-    private static final Logger logger = Logger
-            .getLogger(ApnProxyTripleDesHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyTripleDesHandler.class);
 
     public static final String HANDLER_NAME = "apnproxy.encrypt";
 

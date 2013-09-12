@@ -25,6 +25,15 @@
         </layout>
     </appender>
 
+    <appender name="REMOTE_CHOOSE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="log/remote_choose.log"/>
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %5p -: %m%n"/>
+        </layout>
+    </appender>
+
     <appender name="BYTE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
         <param name="file" value="log/byte.log"/>
         <param name="append" value="true"/>
@@ -37,6 +46,11 @@
     <logger name="HTTP_REST_LOGGER" additivity="false">
         <level value="info"/>
         <appender-ref ref="HTTP_REST_APPENDER"/>
+    </logger>
+
+    <logger name="REMOTE_CHOOSE_LOGGER" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="REMOTE_CHOOSE_APPENDER"/>
     </logger>
 
     <logger name="BYTE_LOGGER" additivity="false">

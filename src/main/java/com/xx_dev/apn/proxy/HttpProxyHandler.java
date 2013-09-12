@@ -33,8 +33,8 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info("Remote channel: " + remoteAddr + " active");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Remote channel: " + remoteAddr + " active");
         }
         ctx.read();
     }
