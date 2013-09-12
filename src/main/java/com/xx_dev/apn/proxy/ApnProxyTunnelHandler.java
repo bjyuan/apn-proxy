@@ -37,7 +37,7 @@ public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(ApnProxyTunnelHandler.class);
 
-    private static final String HANDLER_NAME = "apnproxy.tunnel";
+    public static final String HANDLER_NAME = "apnproxy.tunnel";
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
