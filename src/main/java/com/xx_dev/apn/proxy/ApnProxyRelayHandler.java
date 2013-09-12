@@ -30,8 +30,8 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info(tag + " channel active");
+        if (logger.isDebugEnabled()) {
+            logger.debug(tag + " channel active");
         }
 
         if (!ctx.channel().config().getOption(ChannelOption.AUTO_READ)) {
@@ -63,8 +63,8 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info(tag + " channel inactive");
+        if (logger.isDebugEnabled()) {
+            logger.debug(tag + " channel inactive");
         }
         if (relayChannel != null && relayChannel.isActive()) {
             relayChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);

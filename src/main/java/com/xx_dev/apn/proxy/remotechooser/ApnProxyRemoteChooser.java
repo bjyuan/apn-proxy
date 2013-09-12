@@ -59,8 +59,8 @@ public class ApnProxyRemoteChooser {
         }
 
         if (remoteChooseLogger.isInfoEnabled()) {
-            remoteChooseLogger.info("Original host: " + originalHost + "Original port: " + originalPort + ", Remote: "
-                    + apRemote.getRemote());
+            remoteChooseLogger.info("Original host: " + originalHost + ", Original port: " + originalPort + ", Remote: "
+                    + apRemote.getRemote() + ", Remote type: " + apRemote.getRemoteListenType());
         }
 
         return apRemote;
