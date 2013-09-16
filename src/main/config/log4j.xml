@@ -69,7 +69,7 @@
 
     <logger name="PRE_BYTE_LOGGER" additivity="false">
         <level value="warn"/>
-        <appender-ref ref="BYTE_APPENDER"/>
+        <appender-ref ref="PRE_BYTE_LOGGER"/>
     </logger>
 
     <logger name="com.xx_dev.apn.proxy" additivity="false">
