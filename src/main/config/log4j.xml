@@ -43,6 +43,15 @@
         </layout>
     </appender>
 
+    <appender name="PRE_BYTE_LOGGER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="log/pre_byte.log"/>
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %5p -: %m%n"/>
+        </layout>
+    </appender>
+
     <logger name="HTTP_REST_LOGGER" additivity="false">
         <level value="info"/>
         <appender-ref ref="HTTP_REST_APPENDER"/>
@@ -54,6 +63,11 @@
     </logger>
 
     <logger name="BYTE_LOGGER" additivity="false">
+        <level value="warn"/>
+        <appender-ref ref="BYTE_APPENDER"/>
+    </logger>
+
+    <logger name="PRE_BYTE_LOGGER" additivity="false">
         <level value="warn"/>
         <appender-ref ref="BYTE_APPENDER"/>
     </logger>
