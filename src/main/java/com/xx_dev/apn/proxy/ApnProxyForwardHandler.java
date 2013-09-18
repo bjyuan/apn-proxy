@@ -191,7 +191,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("UA channel: " + " inactive");
         }
         for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
