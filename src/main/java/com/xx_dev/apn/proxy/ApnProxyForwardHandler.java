@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -163,7 +164,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                 });
 
             }
-
+            ReferenceCountUtil.release(msg);
         } else {
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
@@ -191,7 +192,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("UA channel: " + " inactive");
         }
         for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
