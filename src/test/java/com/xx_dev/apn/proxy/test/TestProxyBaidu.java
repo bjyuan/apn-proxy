@@ -46,7 +46,7 @@ public class TestProxyBaidu {
                     .handler(new TestHttpClientChannelInitializer());
 
             // Make the connection attempt.
-            Channel ch = b.connect("127.0.0.1", 5890).sync().channel();
+            Channel ch = b.connect("127.0.0.1", 8700).sync().channel();
 
             // Prepare the HTTP request.
             HttpRequest request = new DefaultHttpRequest(
