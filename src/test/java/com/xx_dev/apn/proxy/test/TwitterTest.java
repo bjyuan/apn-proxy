@@ -1,13 +1,19 @@
 package com.xx_dev.apn.proxy.test;
 
+import org.junit.Before;
+
 /**
  * User: xmx
  * Date: 13-10-10
  * Time: PM3:58
  */
-public class Test {
+public class TwitterTest {
 
-    @org.junit.Test
+    @Before
+    public void setUp() {
+
+    }
+
     public void test() {
 
     }
