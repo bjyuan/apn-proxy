@@ -32,6 +32,7 @@ public abstract class TestProxyBase {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
+                logger.info("Start apnproxy server for junit test");
                 ApnProxyServerLauncher.main(null);
             }
         });
