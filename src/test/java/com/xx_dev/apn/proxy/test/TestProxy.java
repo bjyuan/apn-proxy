@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
+import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,9 +24,9 @@ import org.junit.Test;
  * Time: 上午12:07
  * To change this template use File | Settings | File Templates.
  */
-public abstract class TestProxyBase {
+public class TestProxy {
 
-    private static final Logger logger = Logger.getLogger(TestProxyBase.class);
+    private static final Logger logger = Logger.getLogger(TestProxy.class);
 
     @BeforeClass
     public static void setUpServer() {
@@ -38,10 +39,14 @@ public abstract class TestProxyBase {
         });
 
         t.start();
+
+        try {
+            Thread.sleep(5000L);
+        } catch (InterruptedException e) {
+        }
     }
 
-    @Test
-    public void test() {
+    public void test(String host) {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
@@ -54,8 +59,8 @@ public abstract class TestProxyBase {
 
             // Prepare the HTTP request.
             HttpRequest request = new DefaultHttpRequest(
-                    HttpVersion.HTTP_1_1, HttpMethod.GET, "http://"+getTestHost()+"/");
-            request.headers().set(HttpHeaders.Names.HOST, getTestHost());
+                    HttpVersion.HTTP_1_1, HttpMethod.GET, "http://"+host+"/");
+            request.headers().set(HttpHeaders.Names.HOST, host);
             request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
             //request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
 
@@ -65,6 +70,9 @@ public abstract class TestProxyBase {
 
             // Wait for the server to close the connection.
             ch.closeFuture().sync();
+
+            Assert.assertEquals(200, TestResultHolder.httpStatusCode());
+
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         } finally {
@@ -73,5 +81,14 @@ public abstract class TestProxyBase {
         }
     }
 
-    protected abstract String getTestHost();
+    @Test
+    public void testBaidu() {
+        test("www.baidu.com");
+    }
+
+    @Test
+    public void testYoutube() {
+        test("www.youtube.com");
+    }
+
 }

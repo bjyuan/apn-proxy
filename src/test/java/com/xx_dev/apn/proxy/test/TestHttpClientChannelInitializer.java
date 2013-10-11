@@ -21,7 +21,7 @@ public class TestHttpClientChannelInitializer extends ChannelInitializer<SocketC
         // Create a default pipeline implementation.
         ChannelPipeline p = ch.pipeline();
 
-        p.addLast("log", new LoggingHandler(LogLevel.INFO));
+        //p.addLast("log", new LoggingHandler(LogLevel.INFO));
 
         p.addLast("codec", new HttpClientCodec());
 
