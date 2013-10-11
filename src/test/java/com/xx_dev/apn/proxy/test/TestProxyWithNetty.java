@@ -1,7 +1,5 @@
 package com.xx_dev.apn.proxy.test;
 
-import com.xx_dev.apn.proxy.ApnProxyServer;
-import com.xx_dev.apn.proxy.ApnProxyServerLauncher;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -15,11 +13,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
 
 /**
  * Created with IntelliJ IDEA.

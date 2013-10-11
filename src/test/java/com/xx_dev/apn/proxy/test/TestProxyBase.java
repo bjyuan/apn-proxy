@@ -7,7 +7,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
 /**

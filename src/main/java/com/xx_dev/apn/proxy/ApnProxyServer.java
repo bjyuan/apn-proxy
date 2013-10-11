@@ -19,7 +19,7 @@ public class ApnProxyServer {
 
     private static final Logger logger = Logger.getLogger(ApnProxyServer.class);
 
-    private EventLoopGroup bossGroup ;
+    private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
     public void start() {

@@ -57,13 +57,13 @@ public class ApnProxyXmlConfig {
     private List<ApnProxyLocalIpRule> localIpRuleList = new ArrayList<ApnProxyLocalIpRule>();
 
     public ApnProxyXmlConfig(File configFile) throws FileNotFoundException {
-        if(configFile.exists() && configFile.isFile()) {
+        if (configFile.exists() && configFile.isFile()) {
             this.configFileInputStream = new FileInputStream(configFile);
         }
     }
 
     public ApnProxyXmlConfig(InputStream configFileInputStream) throws FileNotFoundException {
-            this.configFileInputStream = configFileInputStream;
+        this.configFileInputStream = configFileInputStream;
     }
 
     public void init() {

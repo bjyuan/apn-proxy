@@ -5,28 +5,16 @@ import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
 import junit.framework.Assert;
 import org.apache.http.Consts;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
@@ -39,7 +27,7 @@ import java.io.IOException;
  * Time: 下午4:17
  * To change this template use File | Settings | File Templates.
  */
-public class TestProxyWithHttpClient extends TestProxyBase{
+public class TestProxyWithHttpClient extends TestProxyBase {
 
     private static final Logger logger = Logger.getLogger(TestProxyWithHttpClient.class);
 
@@ -58,7 +46,7 @@ public class TestProxyWithHttpClient extends TestProxyBase{
                 .setCharset(Consts.UTF_8)
                 .build();
 
-        PoolingHttpClientConnectionManager  cm = new PoolingHttpClientConnectionManager();
+        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
         cm.setMaxTotal(2000);
         cm.setDefaultMaxPerRoute(40);
         cm.setDefaultConnectionConfig(connectionConfig);
