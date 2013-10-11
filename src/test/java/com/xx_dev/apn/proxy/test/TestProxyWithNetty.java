@@ -1,5 +1,6 @@
 package com.xx_dev.apn.proxy.test;
 
+import com.xx_dev.apn.proxy.ApnProxyServer;
 import com.xx_dev.apn.proxy.ApnProxyServerLauncher;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
 import io.netty.bootstrap.Bootstrap;
@@ -14,8 +15,11 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.File;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,13 +32,19 @@ public class TestProxyWithNetty {
 
     private static final Logger logger = Logger.getLogger(TestProxyWithNetty.class);
 
+    private static ApnProxyServer server;
+
     @BeforeClass
     public static void setUpServer() {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 logger.info("Start apnproxy server for junit test");
-                ApnProxyServerLauncher.main(null);
+                ApnProxyXmlConfig config = new ApnProxyXmlConfig(new File("conf/config.xml"));
+                config.init();
+
+                server = new ApnProxyServer();
+                server.start();
             }
         });
 
@@ -101,6 +111,12 @@ public class TestProxyWithNetty {
     public void testGithub() {
         test("www.github.com", "/");
         Assert.assertEquals(301, TestResultHolder.httpStatusCode());
+    }
+
+    @AfterClass
+    public static void shutDownServer() {
+        logger.info("Shutdown apnproxy server after junit test");
+        server.shutdown();
     }
 
 

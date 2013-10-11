@@ -31,42 +31,18 @@ public class ApnProxyServerLauncher {
             }
         }
 
-        ApnProxyXmlConfig config = new ApnProxyXmlConfig();
-        config.init();
-
-        if (config.isUseIpV6()) {
-            System.setProperty("java.net.preferIPv6Addresses", "true");
-        }
-
     }
 
     public static void main(String[] args) {
 
-        int bossThreadCount = ApnProxyXmlConfig.getConfig().getBossThreadCount();
-        int workerThreadCount = ApnProxyXmlConfig.getConfig().getWorkerThreadCount();
-        int port = ApnProxyXmlConfig.getConfig().getPort();
-
-        if (logger.isInfoEnabled()) {
-            logger.info("ApnProxy Server Listen on: " + port);
+        ApnProxyXmlConfig config = new ApnProxyXmlConfig(new File("conf/config.xml"));
+        config.init();
+        if (config.isUseIpV6()) {
+            System.setProperty("java.net.preferIPv6Addresses", "true");
         }
 
-        ServerBootstrap serverBootStrap = new ServerBootstrap();
-        serverBootStrap.childOption(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT);
-
-        EventLoopGroup bossGroup = new NioEventLoopGroup(bossThreadCount);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(workerThreadCount);
-
-        try {
-            serverBootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                    .localAddress(port).childHandler(new ApnProxyServerChannelInitializer());
-            serverBootStrap.bind().sync().channel().closeFuture().sync();
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        } finally {
-            logger.error("showdown the server");
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
+        ApnProxyServer server = new ApnProxyServer();
+        server.start();
 
     }
 }

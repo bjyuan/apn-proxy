@@ -8,6 +8,7 @@ import nu.xom.ParsingException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,8 @@ public class ApnProxyXmlConfig {
     private static final Logger logger = Logger.getLogger(ApnProxyXmlConfig.class);
 
     private static ApnProxyXmlConfig config;
+
+    private File configFile;
 
     private ApnProxyListenType listenType;
 
@@ -50,11 +53,15 @@ public class ApnProxyXmlConfig {
 
     private List<ApnProxyLocalIpRule> localIpRuleList = new ArrayList<ApnProxyLocalIpRule>();
 
+    public ApnProxyXmlConfig(File configFile) {
+        this.configFile = configFile;
+    }
+
     public void init() {
         Document doc = null;
         try {
             Builder parser = new Builder();
-            doc = parser.build("conf/config.xml");
+            doc = parser.build(configFile);
         } catch (ParsingException ex) {
             logger.error(ex.getMessage(), ex);
         } catch (IOException ex) {
