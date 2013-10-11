@@ -28,33 +28,9 @@ import java.io.File;
  * Time: 上午12:07
  * To change this template use File | Settings | File Templates.
  */
-public class TestProxyWithNetty {
+public class TestProxyWithNetty extends TestProxyBase {
 
     private static final Logger logger = Logger.getLogger(TestProxyWithNetty.class);
-
-    private static ApnProxyServer server;
-
-    @BeforeClass
-    public static void setUpServer() {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                logger.info("Start apnproxy server for junit test");
-                ApnProxyXmlConfig config = new ApnProxyXmlConfig(new File("conf/config.xml"));
-                config.init();
-
-                server = new ApnProxyServer();
-                server.start();
-            }
-        });
-
-        t.start();
-
-        try {
-            Thread.sleep(2000L);
-        } catch (InterruptedException e) {
-        }
-    }
 
     public void test(String host, String path) {
         EventLoopGroup group = new NioEventLoopGroup();
@@ -111,12 +87,6 @@ public class TestProxyWithNetty {
     public void testGithub() {
         test("www.github.com", "/");
         Assert.assertEquals(301, TestResultHolder.httpStatusCode());
-    }
-
-    @AfterClass
-    public static void shutDownServer() {
-        logger.info("Shutdown apnproxy server after junit test");
-        server.shutdown();
     }
 
 
