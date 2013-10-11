@@ -1,9 +1,5 @@
 package com.xx_dev.apn.proxy.utils;
 
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.EncoderException;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
@@ -567,7 +563,7 @@ public class Base64 {
      * @param obj Object to encode
      * @return An object (of type byte[]) containing the Base-N encoded data
      *         which corresponds to the byte[] supplied.
-     * @throws EncoderException if the parameter supplied is not of type byte[]
+     * @throws Exception if the parameter supplied is not of type byte[]
      */
     public Object encode(Object obj) throws Exception {
         if (!(obj instanceof byte[])) {
@@ -609,7 +605,7 @@ public class Base64 {
      * @param obj Object to decode
      * @return An object (of type byte[]) containing the binary data which
      *         corresponds to the byte[] or String supplied.
-     * @throws DecoderException if the parameter supplied is not of type byte[]
+     * @throws Exception if the parameter supplied is not of type byte[]
      */
     public Object decode(Object obj) throws Exception {
         if (obj instanceof byte[]) {

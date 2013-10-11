@@ -59,7 +59,7 @@ public class TestProxyWithNetty {
 
             // Prepare the HTTP request.
             HttpRequest request = new DefaultHttpRequest(
-                    HttpVersion.HTTP_1_1, HttpMethod.GET, "http://"+host+path);
+                    HttpVersion.HTTP_1_1, HttpMethod.GET, "http://" + host + path);
             request.headers().set(HttpHeaders.Names.HOST, host);
             request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
             //request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);

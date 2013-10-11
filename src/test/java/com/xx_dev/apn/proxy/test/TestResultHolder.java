@@ -1,6 +1,5 @@
 package com.xx_dev.apn.proxy.test;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -20,7 +19,7 @@ public class TestResultHolder {
     }
 
     public static synchronized int httpStatusCode() {
-        int code = (Integer)map.get("apnproxy.test.statusCode");
+        int code = (Integer) map.get("apnproxy.test.statusCode");
         map.remove("apnproxy.test.statusCode", code);
         return code;
     }
