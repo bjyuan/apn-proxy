@@ -7,6 +7,10 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslHandler;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 
 
 /**
@@ -21,7 +25,18 @@ public class TestHttpClientChannelInitializer extends ChannelInitializer<SocketC
         // Create a default pipeline implementation.
         ChannelPipeline p = ch.pipeline();
 
-        //p.addLast("log", new LoggingHandler(LogLevel.INFO));
+        p.addLast("log", new LoggingHandler(LogLevel.INFO));
+
+//        if (ssl) {
+//            SSLContext sslcontext = SSLContext.getInstance("TLS");
+//
+//            sslcontext.init(null, null, null);
+//
+//            SSLEngine engine = sslcontext.createSSLEngine();
+//            engine.setUseClientMode(true);
+//
+//            p.addLast("ssl", new SslHandler(engine));
+//        }
 
         p.addLast("codec", new HttpClientCodec());
 

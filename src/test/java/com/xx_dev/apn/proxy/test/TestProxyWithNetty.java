@@ -24,9 +24,9 @@ import org.junit.Test;
  * Time: 上午12:07
  * To change this template use File | Settings | File Templates.
  */
-public class TestProxy {
+public class TestProxyWithNetty {
 
-    private static final Logger logger = Logger.getLogger(TestProxy.class);
+    private static final Logger logger = Logger.getLogger(TestProxyWithNetty.class);
 
     @BeforeClass
     public static void setUpServer() {
@@ -41,12 +41,12 @@ public class TestProxy {
         t.start();
 
         try {
-            Thread.sleep(5000L);
+            Thread.sleep(2000L);
         } catch (InterruptedException e) {
         }
     }
 
-    public void test(String host) {
+    public void test(String host, String path) {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
@@ -59,7 +59,7 @@ public class TestProxy {
 
             // Prepare the HTTP request.
             HttpRequest request = new DefaultHttpRequest(
-                    HttpVersion.HTTP_1_1, HttpMethod.GET, "http://"+host+"/");
+                    HttpVersion.HTTP_1_1, HttpMethod.GET, "http://"+host+path);
             request.headers().set(HttpHeaders.Names.HOST, host);
             request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
             //request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
@@ -71,8 +71,6 @@ public class TestProxy {
             // Wait for the server to close the connection.
             ch.closeFuture().sync();
 
-            Assert.assertEquals(200, TestResultHolder.httpStatusCode());
-
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         } finally {
@@ -83,12 +81,27 @@ public class TestProxy {
 
     @Test
     public void testBaidu() {
-        test("www.baidu.com");
+        test("www.baidu.com", "/");
+        Assert.assertEquals(200, TestResultHolder.httpStatusCode());
     }
 
     @Test
     public void testYoutube() {
-        test("www.youtube.com");
+        test("www.youtube.com", "/a.html");
+        Assert.assertEquals(404, TestResultHolder.httpStatusCode());
     }
+
+    @Test
+    public void testFake() {
+        test("www.nosuchhost.com", "/a.html");
+        Assert.assertEquals(500, TestResultHolder.httpStatusCode());
+    }
+
+    @Test
+    public void testGithub() {
+        test("www.github.com", "/");
+        Assert.assertEquals(301, TestResultHolder.httpStatusCode());
+    }
+
 
 }
