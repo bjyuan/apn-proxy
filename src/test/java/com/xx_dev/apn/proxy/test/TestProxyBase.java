@@ -4,9 +4,11 @@ import com.xx_dev.apn.proxy.ApnProxyServer;
 import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,7 +28,12 @@ public class TestProxyBase {
             @Override
             public void run() {
                 logger.info("Start apnproxy server for junit test");
-                ApnProxyXmlConfig config = new ApnProxyXmlConfig(new File("conf/config.xml"));
+                ApnProxyXmlConfig config = null;
+                try {
+                    config = new ApnProxyXmlConfig(TestProxyBase.class.getResourceAsStream("/plain-proxy-config.xml"));
+                } catch (FileNotFoundException e) {
+                    Assert.fail("Can not find plain-proxy-config.xml");
+                }
                 config.init();
 
                 server = new ApnProxyServer();

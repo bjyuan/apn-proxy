@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<apn-proxy>
+
+    <!-- By default, config apn-proxy listen in plain mode act as a normal http proxy server -->
+    <listen-type>plain</listen-type>
+
+    <port>8700</port>
+    <thread-count>
+        <boss>50</boss>
+        <worker>200</worker>
+    </thread-count>
+
+    <pac-host>localhost</pac-host>
+
+    <!-- remote rules for proxy chain -->
+    <!--
+    <remote-rules>
+        <rule>
+            <remote-listen-type>3des</remote-listen-type>
+            <remote-3des-key></remote-3des-key>
+            <remote-host></remote-host>
+            <remote-port></remote-port>
+            <apply-list>
+                <original-host>google.com</original-host>
+                <original-host>twitter.com</original-host>
+                <original-host>facebook.com</original-host>
+            </apply-list>
+        </rule>
+        <rule>
+            <remote-listen-type>simple</remote-listen-type>
+            <remote-simple-key></remote-simple-key>
+            <remote-host></remote-host>
+            <remote-port></remote-port>
+            <apply-list>
+                <original-host>blogspot.com</original-host>
+                <original-host>godaddy.com</original-host>
+                <original-host>blogger.com</original-host>
+                <original-host>t.co</original-host>
+            </apply-list>
+        </rule>
+        <rule>
+            <remote-listen-type>ssl</remote-listen-type>
+            <remote-trust-store></remote-trust-store>
+            <remote-trust-store-key></remote-trust-store-key>
+            <remote-host></remote-host>
+            <remote-port></remote-port>
+            <apply-list>
+                <original-host>bit.ly</original-host>
+                <original-host>imdb.com</original-host>
+                <original-host>dropbox.com</original-host>
+                <original-host>gstatic.com</original-host>
+                <original-host>googleusercontent.com</original-host>
+                <original-host>j.mp</original-host>
+                <original-host>businessweek.com</original-host>
+                <original-host>yahooapis.com</original-host>
+                <original-host>wordpress.com</original-host>
+                <original-host>ow.ly</original-host>
+                <original-host>dongtaiwang.com</original-host>
+                <original-host>epochtimes.com</original-host>
+                <original-host>t66y.com</original-host>
+                <original-host>feedburner.com</original-host>
+                <original-host>ip6.me</original-host>
+                <original-host>bt.shu6.edu.cn</original-host>
+                <original-host>twimg.com</original-host>
+                <original-host>twitpic.com</original-host>
+                <original-host>stackoverflow.com</original-host>
+                <original-host>inoreader.com</original-host>
+                <original-host>flickr.com</original-host>
+                <original-host>apple.com</original-host>
+                <original-host>mozilla.net</original-host>
+            </apply-list>
+        </rule>
+    </remote-rules>
+    -->
+
+    <use-ipv6>false</use-ipv6>
+
+    <!-- config the local ip when access the original host -->
+    <!--
+    <local-ip-rules>
+        <rule>
+            <local-ip></local-ip>
+            <apply-list>
+                <original-host>google.com</original-host>
+                <original-host>youtube.com</original-host>
+            </apply-list>
+        </rule>
+        <rule>
+            <local-ip></local-ip>
+            <apply-list>
+                <original-host>youtube.com</original-host>
+                <original-host>ip6.me</original-host>
+                <original-host>bt.shu6.edu.cn</original-host>
+            </apply-list>
+        </rule>
+    </local-ip-rules>
+    -->
+</apn-proxy>

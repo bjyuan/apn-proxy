@@ -9,7 +9,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +24,9 @@ public class ApnProxyXmlConfig {
 
     private static final Logger logger = Logger.getLogger(ApnProxyXmlConfig.class);
 
-    private static ApnProxyXmlConfig config;
+    private InputStream configFileInputStream;
 
-    private File configFile;
+    private static ApnProxyXmlConfig config;
 
     private ApnProxyListenType listenType;
 
@@ -53,15 +56,21 @@ public class ApnProxyXmlConfig {
 
     private List<ApnProxyLocalIpRule> localIpRuleList = new ArrayList<ApnProxyLocalIpRule>();
 
-    public ApnProxyXmlConfig(File configFile) {
-        this.configFile = configFile;
+    public ApnProxyXmlConfig(File configFile) throws FileNotFoundException {
+        if(configFile.exists() && configFile.isFile()) {
+            this.configFileInputStream = new FileInputStream(configFile);
+        }
+    }
+
+    public ApnProxyXmlConfig(InputStream configFileInputStream) throws FileNotFoundException {
+            this.configFileInputStream = configFileInputStream;
     }
 
     public void init() {
         Document doc = null;
         try {
             Builder parser = new Builder();
-            doc = parser.build(configFile);
+            doc = parser.build(configFileInputStream);
         } catch (ParsingException ex) {
             logger.error(ex.getMessage(), ex);
         } catch (IOException ex) {
