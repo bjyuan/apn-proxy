@@ -11,3 +11,4 @@ log/
 conf/
 build.sh
 .idea/
+out/
