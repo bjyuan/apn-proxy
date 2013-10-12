@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -163,7 +164,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                 });
 
             }
-
+            ReferenceCountUtil.release(msg);
         } else {
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
 
