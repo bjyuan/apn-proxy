@@ -3,7 +3,7 @@
 <log4j:configuration>
     <appender name="CONSOLE_APPENDER" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %t %c %5p -: %m%n"/>
+            <param name="ConversionPattern" value="[%p] %d %t %c - : %m%n"/>
         </layout>
     </appender>
 
