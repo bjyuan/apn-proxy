@@ -5,6 +5,7 @@
     <id>release</id>
     <formats>
         <format>dir</format>
+        <format>zip</format>
     </formats>
 
     <dependencySets>
