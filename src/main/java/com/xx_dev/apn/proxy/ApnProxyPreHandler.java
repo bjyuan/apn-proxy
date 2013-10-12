@@ -35,18 +35,22 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
             "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.", "192.168."};
 
 
-    private boolean notNext = false;
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (preCheck(ctx, msg)) {
+            ctx.fireChannelRead(msg);
+        } else {
+            ReferenceCountUtil.release(msg);
+        }
+    }
 
+    private boolean preCheck(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof HttpRequest) {
-            notNext = false;
-
             HttpRequest httpRequest = (HttpRequest) msg;
             String hostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
             String originalHost = HostNamePortUtil.getHostName(hostHeader);
 
+            // http rest log
             if (httpRestLogger.isInfoEnabled()) {
                 httpRestLogger.info(ctx.channel().remoteAddress() + " "
                         + httpRequest.getMethod().name() + " " + httpRequest.getUri()
@@ -55,49 +59,50 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                         + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
             }
 
+            // forbid request to proxy server local
             if (StringUtils.equals(originalHost, "127.0.0.1")
                     || StringUtils.equals(originalHost, "localhost")) {
-                notNext = true;
                 String errorMsg = "Forbidden";
                 ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
                 ctx.flush();
-                return;
+                return false;
             }
 
+            // forbid request to proxy server internal network
             for (String forbiddenIp : forbiddenIps) {
                 if (StringUtils.startsWith(originalHost, forbiddenIp)) {
-                    notNext = true;
                     String errorMsg = "Forbidden";
                     ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
                     ctx.flush();
-                    return;
+                    return false;
                 }
             }
 
+            // forbid reqeust to non http port
+            int originalPort = HostNamePortUtil.getPort(hostHeader, -1);
+            if (originalPort != -1 && originalPort != 80
+                    && originalPort != 443 && originalPort != 8080
+                    && originalPort != 8443) {
+                String errorMsg = "Forbidden";
+                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
+                ctx.flush();
+                return false;
+            }
+
+            // pac request
             if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
-                //
-                notNext = true;
                 ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
-                // send error response
                 FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK, pacResponseContent);
                 HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
 
                 ctx.write(pacResponseMsg);
                 ctx.flush();
-                return;
-            } else {
-                notNext = false;
+                return false;
             }
-        } else {
-            // do nothing
         }
 
-        if (notNext) {
-            ReferenceCountUtil.release(msg);
-            return;
-        }
-        ctx.fireChannelRead(msg);
+        return true;
     }
 
     private String buildPac() {
