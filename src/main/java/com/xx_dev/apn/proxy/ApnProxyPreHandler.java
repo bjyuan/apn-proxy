@@ -78,17 +78,6 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 }
             }
 
-            // forbid reqeust to non http port
-            int originalPort = HostNamePortUtil.getPort(hostHeader, -1);
-            if (originalPort != -1 && originalPort != 80
-                    && originalPort != 443 && originalPort != 8080
-                    && originalPort != 8443) {
-                String errorMsg = "Forbidden";
-                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
-                ctx.flush();
-                return false;
-            }
-
             // pac request
             if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
                 ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
@@ -100,6 +89,18 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 ctx.flush();
                 return false;
             }
+
+            // forbid reqeust to non http port
+            int originalPort = HostNamePortUtil.getPort(hostHeader, -1);
+            if (originalPort != -1 && originalPort != 80
+                    && originalPort != 443 && originalPort != 8080
+                    && originalPort != 8443) {
+                String errorMsg = "Forbidden";
+                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
+                ctx.flush();
+                return false;
+            }
+            
         }
 
         return true;
