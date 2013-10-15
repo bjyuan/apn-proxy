@@ -16,8 +16,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.xx_dev.apn.proxy.config.ApnProxyConfig.*;
-
 /**
  * Created with IntelliJ IDEA.
  * User: mingxing.xumx
@@ -249,7 +247,7 @@ public class ApnProxyXmlConfigReader {
 
     public static void read(File xmlConfigFile) throws FileNotFoundException {
         if (xmlConfigFile.exists() && xmlConfigFile.isFile()) {
-               read(new FileInputStream(xmlConfigFile));
+            read(new FileInputStream(xmlConfigFile));
         }
     }
 

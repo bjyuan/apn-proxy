@@ -101,7 +101,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 ctx.flush();
                 return false;
             }
-            
+
         }
 
         return true;

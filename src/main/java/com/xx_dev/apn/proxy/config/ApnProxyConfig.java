@@ -1,7 +1,5 @@
 package com.xx_dev.apn.proxy.config;
 
-import com.xx_dev.apn.proxy.ApnProxyConfigException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;

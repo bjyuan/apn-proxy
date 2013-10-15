@@ -1,14 +1,10 @@
 package com.xx_dev.apn.proxy.test;
 
 import com.xx_dev.apn.proxy.ApnProxyServer;
-import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import com.xx_dev.apn.proxy.config.ApnProxyXmlConfigReader;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
-
-import java.io.FileNotFoundException;
 
 /**
  * Created with IntelliJ IDEA.
