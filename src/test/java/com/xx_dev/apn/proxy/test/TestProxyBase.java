@@ -1,10 +1,14 @@
 package com.xx_dev.apn.proxy.test;
 
 import com.xx_dev.apn.proxy.ApnProxyServer;
+import com.xx_dev.apn.proxy.config.ApnProxyPropertiesReader;
 import com.xx_dev.apn.proxy.config.ApnProxyXmlConfigReader;
+import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +29,11 @@ public class TestProxyBase {
             public void run() {
                 logger.info("Start apnproxy server for junit test");
                 ApnProxyXmlConfigReader.read(TestProxyBase.class.getResourceAsStream("/plain-proxy-config.xml"));
+                try {
+                    ApnProxyPropertiesReader.read(TestProxyBase.class.getResourceAsStream("/config.properties"));
+                } catch (IOException e) {
+                    Assert.fail();
+                }
                 server = new ApnProxyServer();
                 server.start();
             }

@@ -13,7 +13,7 @@ public class ApnProxyConfig {
 
     private static final Logger logger = Logger.getLogger(ApnProxyConfig.class);
 
-    private static ApnProxyConfig config;
+    private static ApnProxyConfig config = new ApnProxyConfig();
 
     private ApnProxyListenType listenType;
 
@@ -42,6 +42,9 @@ public class ApnProxyConfig {
     private List<ApnProxyRemoteRule> remoteRuleList = new ArrayList<ApnProxyRemoteRule>();
 
     private List<ApnProxyLocalIpRule> localIpRuleList = new ArrayList<ApnProxyLocalIpRule>();
+
+    private ApnProxyConfig() {
+    }
 
     public final ApnProxyListenType getListenType() {
         return listenType;
@@ -157,10 +160,6 @@ public class ApnProxyConfig {
 
     public final static ApnProxyConfig getConfig() {
         return config;
-    }
-
-    final static void setConfig(ApnProxyConfig config) {
-        ApnProxyConfig.config = config;
     }
 
 }

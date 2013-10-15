@@ -60,15 +60,6 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                         + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
             }
 
-            // forbid request to proxy server local
-            if (StringUtils.equals(originalHost, "127.0.0.1")
-                    || StringUtils.equals(originalHost, "localhost")) {
-                String errorMsg = "Forbidden";
-                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
-                ctx.flush();
-                return false;
-            }
-
             // forbid request to proxy server internal network
             for (String forbiddenIp : forbiddenIps) {
                 if (StringUtils.startsWith(originalHost, forbiddenIp)) {
@@ -87,6 +78,15 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
 
                 ctx.write(pacResponseMsg);
+                ctx.flush();
+                return false;
+            }
+
+            // forbid request to proxy server local
+            if (StringUtils.equals(originalHost, "127.0.0.1")
+                    || StringUtils.equals(originalHost, "localhost")) {
+                String errorMsg = "Forbidden";
+                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
                 ctx.flush();
                 return false;
             }

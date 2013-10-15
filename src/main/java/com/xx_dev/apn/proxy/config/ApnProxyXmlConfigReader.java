@@ -28,7 +28,6 @@ public class ApnProxyXmlConfigReader {
     private static final Logger logger = Logger.getLogger(ApnProxyXmlConfigReader.class);
 
     public static void read(InputStream xmlConfigFileInputStream) {
-        ApnProxyConfig config = new ApnProxyConfig();
         Document doc = null;
         try {
             Builder parser = new Builder();
@@ -46,45 +45,45 @@ public class ApnProxyXmlConfigReader {
         Elements listenTypeElements = rootElement.getChildElements("listen-type");
         if (listenTypeElements.size() == 1) {
             String _listenType = listenTypeElements.get(0).getValue();
-            config.setListenType(ApnProxyListenType.fromString(_listenType));
+            ApnProxyConfig.getConfig().setListenType(ApnProxyListenType.fromString(_listenType));
         }
 
         Elements tripleDesKeyElements = rootElement.getChildElements("triple-des-key");
         if (tripleDesKeyElements.size() == 1) {
-            config.setTripleDesKey(tripleDesKeyElements.get(0).getValue());
+            ApnProxyConfig.getConfig().setTripleDesKey(tripleDesKeyElements.get(0).getValue());
         }
 
         Elements keyStoreElements = rootElement.getChildElements("key-store");
         if (keyStoreElements.size() == 1) {
             Elements keyStorePathElements = keyStoreElements.get(0).getChildElements("path");
             if (keyStorePathElements.size() == 1) {
-                config.setKeyStorePath(keyStorePathElements.get(0).getValue());
+                ApnProxyConfig.getConfig().setKeyStorePath(keyStorePathElements.get(0).getValue());
             }
             Elements keyStorePasswordElements = keyStoreElements.get(0)
                     .getChildElements("password");
             if (keyStorePasswordElements.size() == 1) {
-                config.setKeyStroePassword(keyStorePasswordElements.get(0).getValue());
+                ApnProxyConfig.getConfig().setKeyStroePassword(keyStorePasswordElements.get(0).getValue());
             }
         }
 
         Elements trustStoreElements = rootElement.getChildElements("trust-store");
         if (trustStoreElements.size() == 1) {
-            config.setUseTrustStore(true);
+            ApnProxyConfig.getConfig().setUseTrustStore(true);
             Elements trustStorePathElements = trustStoreElements.get(0).getChildElements("path");
             if (trustStorePathElements.size() == 1) {
-                config.setTrustStorePath(trustStorePathElements.get(0).getValue());
+                ApnProxyConfig.getConfig().setTrustStorePath(trustStorePathElements.get(0).getValue());
             }
             Elements trustStorePasswordElements = trustStoreElements.get(0)
                     .getChildElements("password");
             if (trustStorePasswordElements.size() == 1) {
-                config.setTrustStorePassword(trustStorePasswordElements.get(0).getValue());
+                ApnProxyConfig.getConfig().setTrustStorePassword(trustStorePasswordElements.get(0).getValue());
             }
         }
 
         Elements portElements = rootElement.getChildElements("port");
         if (portElements.size() == 1) {
             try {
-                config.setPort(Integer.parseInt(portElements.get(0).getValue()));
+                ApnProxyConfig.getConfig().setPort(Integer.parseInt(portElements.get(0).getValue()));
             } catch (NumberFormatException nfe) {
                 throw new ApnProxyConfigException("Invalid format for: port", nfe);
             }
@@ -95,7 +94,7 @@ public class ApnProxyXmlConfigReader {
             Elements bossElements = threadCountElements.get(0).getChildElements("boss");
             if (bossElements.size() == 1) {
                 try {
-                    config.setBossThreadCount(Integer.parseInt(bossElements.get(0).getValue()));
+                    ApnProxyConfig.getConfig().setBossThreadCount(Integer.parseInt(bossElements.get(0).getValue()));
                 } catch (NumberFormatException nfe) {
                     throw new ApnProxyConfigException("Invalid format for: boss", nfe);
                 }
@@ -103,7 +102,7 @@ public class ApnProxyXmlConfigReader {
             Elements workerElements = threadCountElements.get(0).getChildElements("worker");
             if (workerElements.size() == 1) {
                 try {
-                    config.setWorkerThreadCount(Integer.parseInt(workerElements.get(0).getValue()));
+                    ApnProxyConfig.getConfig().setWorkerThreadCount(Integer.parseInt(workerElements.get(0).getValue()));
                 } catch (NumberFormatException nfe) {
                     throw new ApnProxyConfigException("Invalid format for: worker", nfe);
                 }
@@ -112,12 +111,12 @@ public class ApnProxyXmlConfigReader {
 
         Elements pacHostElements = rootElement.getChildElements("pac-host");
         if (pacHostElements.size() == 1) {
-            config.setPacHost(pacHostElements.get(0).getValue());
+            ApnProxyConfig.getConfig().setPacHost(pacHostElements.get(0).getValue());
         }
 
         Elements useIpv6Elements = rootElement.getChildElements("use-ipv6");
         if (useIpv6Elements.size() == 1) {
-            config.setUseIpV6(Boolean.parseBoolean(useIpv6Elements.get(0).getValue()));
+            ApnProxyConfig.getConfig().setUseIpV6(Boolean.parseBoolean(useIpv6Elements.get(0).getValue()));
         }
 
         Elements remoteRulesElements = rootElement.getChildElements("remote-rules");
@@ -202,7 +201,7 @@ public class ApnProxyXmlConfigReader {
                     apnProxyRemoteRule.setOriginalHostList(originalHostList);
                 }
 
-                config.addRemoteRule(apnProxyRemoteRule);
+                ApnProxyConfig.getConfig().addRemoteRule(apnProxyRemoteRule);
             }
         }
 
@@ -236,12 +235,10 @@ public class ApnProxyXmlConfigReader {
                     apnProxyLocalIpRule.setOriginalHostList(originalHostList);
                 }
 
-                config.addLocalIpRuleList(apnProxyLocalIpRule);
+                ApnProxyConfig.getConfig().addLocalIpRuleList(apnProxyLocalIpRule);
             }
 
         }
-
-        ApnProxyConfig.setConfig(config);
 
     }
 
