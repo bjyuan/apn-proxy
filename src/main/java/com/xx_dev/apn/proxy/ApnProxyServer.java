@@ -1,5 +1,6 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
@@ -23,9 +24,9 @@ public class ApnProxyServer {
     private EventLoopGroup workerGroup;
 
     public void start() {
-        int bossThreadCount = ApnProxyXmlConfig.getConfig().getBossThreadCount();
-        int workerThreadCount = ApnProxyXmlConfig.getConfig().getWorkerThreadCount();
-        int port = ApnProxyXmlConfig.getConfig().getPort();
+        int bossThreadCount = ApnProxyConfig.getConfig().getBossThreadCount();
+        int workerThreadCount = ApnProxyConfig.getConfig().getWorkerThreadCount();
+        int port = ApnProxyConfig.getConfig().getPort();
 
         if (logger.isInfoEnabled()) {
             logger.info("ApnProxy Server Listen on: " + port);

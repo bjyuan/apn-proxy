@@ -1,6 +1,7 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyRemoteRule;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
 import io.netty.buffer.ByteBuf;
@@ -79,7 +80,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
             }
 
             // pac request
-            if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
+            if (StringUtils.equals(originalHost, ApnProxyConfig.getConfig().getPacHost())) {
                 ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
                 FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK, pacResponseContent);
@@ -110,10 +111,10 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
 
         StringBuilder sb = new StringBuilder();
         sb.append("function FindProxyForURL(url, host){var PROXY = \"PROXY ")
-                .append(ApnProxyXmlConfig.getConfig().getPacHost()).append(":")
-                .append(ApnProxyXmlConfig.getConfig().getPort()).append("\";var DEFAULT = \"DIRECT\";");
+                .append(ApnProxyConfig.getConfig().getPacHost()).append(":")
+                .append(ApnProxyConfig.getConfig().getPort()).append("\";var DEFAULT = \"DIRECT\";");
 
-        for (ApnProxyRemoteRule remoteRule : ApnProxyXmlConfig.getConfig().getRemoteRuleList()) {
+        for (ApnProxyRemoteRule remoteRule : ApnProxyConfig.getConfig().getRemoteRuleList()) {
             for (String originalHost : remoteRule.getOriginalHostList()) {
                 if (StringUtils.isNotBlank(originalHost)) {
                     sb.append("if(/^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?")

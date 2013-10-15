@@ -1,6 +1,6 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
+import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxySslRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyTripleDesRemote;

@@ -1,6 +1,6 @@
 package com.xx_dev.apn.proxy.test;
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -35,7 +35,7 @@ public class TestProxyWithNetty extends TestProxyBase {
                     .handler(new TestHttpClientChannelInitializer());
 
             // Make the connection attempt.
-            Channel ch = b.connect("127.0.0.1", ApnProxyXmlConfig.getConfig().getPort()).sync().channel();
+            Channel ch = b.connect("127.0.0.1", ApnProxyConfig.getConfig().getPort()).sync().channel();
 
             // Prepare the HTTP request.
             HttpRequest request = new DefaultHttpRequest(

@@ -1,7 +1,7 @@
 package com.xx_dev.apn.proxy.test;
 
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import junit.framework.Assert;
 import org.apache.http.Consts;
 import org.apache.http.HttpHost;
@@ -58,7 +58,7 @@ public class TestProxyWithHttpClient extends TestProxyBase {
                 .disableCookieManagement()
                 .build();
 
-        HttpHost proxy = new HttpHost("127.0.0.1", ApnProxyXmlConfig.getConfig().getPort());
+        HttpHost proxy = new HttpHost("127.0.0.1", ApnProxyConfig.getConfig().getPort());
 
         RequestConfig config = RequestConfig.custom().setProxy(proxy)
                 .setExpectContinueEnabled(true)

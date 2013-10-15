@@ -1,7 +1,8 @@
 package com.xx_dev.apn.proxy.test;
 
 import com.xx_dev.apn.proxy.ApnProxyServer;
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyXmlConfigReader;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -27,14 +28,7 @@ public class TestProxyBase {
             @Override
             public void run() {
                 logger.info("Start apnproxy server for junit test");
-                ApnProxyXmlConfig config = null;
-                try {
-                    config = new ApnProxyXmlConfig(TestProxyBase.class.getResourceAsStream("/plain-proxy-config.xml"));
-                } catch (FileNotFoundException e) {
-                    Assert.fail("Can not find plain-proxy-config.xml");
-                }
-                config.init();
-
+                ApnProxyXmlConfigReader.read(TestProxyBase.class.getResourceAsStream("/plain-proxy-config.xml"));
                 server = new ApnProxyServer();
                 server.start();
             }

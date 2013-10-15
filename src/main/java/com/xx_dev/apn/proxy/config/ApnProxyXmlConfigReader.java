@@ -1,11 +1,11 @@
-package com.xx_dev.apn.proxy;
+package com.xx_dev.apn.proxy.config;
 
+import com.xx_dev.apn.proxy.ApnProxyConfigException;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -16,61 +16,25 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.xx_dev.apn.proxy.config.ApnProxyConfig.*;
+
 /**
- * @author xmx
- * @version $Id: ApnProxyXmlConfig.java, v 0.1 2013-6-1 上午1:32:48 xjx Exp $
+ * Created with IntelliJ IDEA.
+ * User: mingxing.xumx
+ * Date: 13-10-15
+ * Time: 下午8:11
+ * To change this template use File | Settings | File Templates.
  */
-public class ApnProxyXmlConfig {
+public class ApnProxyXmlConfigReader {
 
-    private static final Logger logger = Logger.getLogger(ApnProxyXmlConfig.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyXmlConfigReader.class);
 
-    private InputStream configFileInputStream;
-
-    private static ApnProxyXmlConfig config;
-
-    private ApnProxyListenType listenType;
-
-    private String tripleDesKey;
-
-    private String keyStorePath;
-
-    private String keyStroePassword;
-
-    private boolean useTrustStore = false;
-
-    private String trustStorePath;
-
-    private String trustStorePassword;
-
-    private int port;
-
-    private int bossThreadCount;
-
-    private int workerThreadCount;
-
-    private String pacHost;
-
-    private boolean useIpV6;
-
-    private List<ApnProxyRemoteRule> remoteRuleList = new ArrayList<ApnProxyRemoteRule>();
-
-    private List<ApnProxyLocalIpRule> localIpRuleList = new ArrayList<ApnProxyLocalIpRule>();
-
-    public ApnProxyXmlConfig(File configFile) throws FileNotFoundException {
-        if (configFile.exists() && configFile.isFile()) {
-            this.configFileInputStream = new FileInputStream(configFile);
-        }
-    }
-
-    public ApnProxyXmlConfig(InputStream configFileInputStream) throws FileNotFoundException {
-        this.configFileInputStream = configFileInputStream;
-    }
-
-    public void init() {
+    public static void read(InputStream xmlConfigFileInputStream) {
+        ApnProxyConfig config = new ApnProxyConfig();
         Document doc = null;
         try {
             Builder parser = new Builder();
-            doc = parser.build(configFileInputStream);
+            doc = parser.build(xmlConfigFileInputStream);
         } catch (ParsingException ex) {
             logger.error(ex.getMessage(), ex);
         } catch (IOException ex) {
@@ -84,45 +48,45 @@ public class ApnProxyXmlConfig {
         Elements listenTypeElements = rootElement.getChildElements("listen-type");
         if (listenTypeElements.size() == 1) {
             String _listenType = listenTypeElements.get(0).getValue();
-            this.listenType = ApnProxyListenType.fromString(_listenType);
+            config.setListenType(ApnProxyListenType.fromString(_listenType));
         }
 
         Elements tripleDesKeyElements = rootElement.getChildElements("triple-des-key");
         if (tripleDesKeyElements.size() == 1) {
-            this.tripleDesKey = tripleDesKeyElements.get(0).getValue();
+            config.setTripleDesKey(tripleDesKeyElements.get(0).getValue());
         }
 
         Elements keyStoreElements = rootElement.getChildElements("key-store");
         if (keyStoreElements.size() == 1) {
             Elements keyStorePathElements = keyStoreElements.get(0).getChildElements("path");
             if (keyStorePathElements.size() == 1) {
-                this.keyStorePath = keyStorePathElements.get(0).getValue();
+                config.setKeyStorePath(keyStorePathElements.get(0).getValue());
             }
             Elements keyStorePasswordElements = keyStoreElements.get(0)
                     .getChildElements("password");
             if (keyStorePasswordElements.size() == 1) {
-                this.keyStroePassword = keyStorePasswordElements.get(0).getValue();
+                config.setKeyStroePassword(keyStorePasswordElements.get(0).getValue());
             }
         }
 
         Elements trustStoreElements = rootElement.getChildElements("trust-store");
         if (trustStoreElements.size() == 1) {
-            useTrustStore = true;
+            config.setUseTrustStore(true);
             Elements trustStorePathElements = trustStoreElements.get(0).getChildElements("path");
             if (trustStorePathElements.size() == 1) {
-                this.trustStorePath = trustStorePathElements.get(0).getValue();
+                config.setTrustStorePath(trustStorePathElements.get(0).getValue());
             }
             Elements trustStorePasswordElements = trustStoreElements.get(0)
                     .getChildElements("password");
             if (trustStorePasswordElements.size() == 1) {
-                this.trustStorePassword = trustStorePasswordElements.get(0).getValue();
+                config.setTrustStorePassword(trustStorePasswordElements.get(0).getValue());
             }
         }
 
         Elements portElements = rootElement.getChildElements("port");
         if (portElements.size() == 1) {
             try {
-                this.port = Integer.parseInt(portElements.get(0).getValue());
+                config.setPort(Integer.parseInt(portElements.get(0).getValue()));
             } catch (NumberFormatException nfe) {
                 throw new ApnProxyConfigException("Invalid format for: port", nfe);
             }
@@ -133,7 +97,7 @@ public class ApnProxyXmlConfig {
             Elements bossElements = threadCountElements.get(0).getChildElements("boss");
             if (bossElements.size() == 1) {
                 try {
-                    this.bossThreadCount = Integer.parseInt(bossElements.get(0).getValue());
+                    config.setBossThreadCount(Integer.parseInt(bossElements.get(0).getValue()));
                 } catch (NumberFormatException nfe) {
                     throw new ApnProxyConfigException("Invalid format for: boss", nfe);
                 }
@@ -141,7 +105,7 @@ public class ApnProxyXmlConfig {
             Elements workerElements = threadCountElements.get(0).getChildElements("worker");
             if (workerElements.size() == 1) {
                 try {
-                    this.workerThreadCount = Integer.parseInt(workerElements.get(0).getValue());
+                    config.setWorkerThreadCount(Integer.parseInt(workerElements.get(0).getValue()));
                 } catch (NumberFormatException nfe) {
                     throw new ApnProxyConfigException("Invalid format for: worker", nfe);
                 }
@@ -150,12 +114,12 @@ public class ApnProxyXmlConfig {
 
         Elements pacHostElements = rootElement.getChildElements("pac-host");
         if (pacHostElements.size() == 1) {
-            this.pacHost = pacHostElements.get(0).getValue();
+            config.setPacHost(pacHostElements.get(0).getValue());
         }
 
         Elements useIpv6Elements = rootElement.getChildElements("use-ipv6");
         if (useIpv6Elements.size() == 1) {
-            this.useIpV6 = Boolean.parseBoolean(useIpv6Elements.get(0).getValue());
+            config.setUseIpV6(Boolean.parseBoolean(useIpv6Elements.get(0).getValue()));
         }
 
         Elements remoteRulesElements = rootElement.getChildElements("remote-rules");
@@ -240,7 +204,7 @@ public class ApnProxyXmlConfig {
                     apnProxyRemoteRule.setOriginalHostList(originalHostList);
                 }
 
-                remoteRuleList.add(apnProxyRemoteRule);
+                config.addRemoteRule(apnProxyRemoteRule);
             }
         }
 
@@ -274,179 +238,18 @@ public class ApnProxyXmlConfig {
                     apnProxyLocalIpRule.setOriginalHostList(originalHostList);
                 }
 
-                localIpRuleList.add(apnProxyLocalIpRule);
+                config.addLocalIpRuleList(apnProxyLocalIpRule);
             }
 
         }
 
-        config = this;
+        ApnProxyConfig.setConfig(config);
 
     }
 
-    public ApnProxyListenType getListenType() {
-        return listenType;
-    }
-
-    public String getTripleDesKey() {
-        return tripleDesKey;
-    }
-
-    public String getKeyStorePath() {
-        return keyStorePath;
-    }
-
-    public String getKeyStroePassword() {
-        return keyStroePassword;
-    }
-
-    public boolean isUseTrustStore() {
-        return useTrustStore;
-    }
-
-    public String getTrustStorePath() {
-        return trustStorePath;
-    }
-
-    public String getTrustStorePassword() {
-        return trustStorePassword;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public int getBossThreadCount() {
-        return bossThreadCount;
-    }
-
-    public int getWorkerThreadCount() {
-        return workerThreadCount;
-    }
-
-    public String getPacHost() {
-        return pacHost;
-    }
-
-    public boolean isUseIpV6() {
-        return useIpV6;
-    }
-
-    public List<ApnProxyRemoteRule> getRemoteRuleList() {
-        return remoteRuleList;
-    }
-
-    public List<ApnProxyLocalIpRule> getLocalIpRuleList() {
-        return localIpRuleList;
-    }
-
-    public static ApnProxyXmlConfig getConfig() {
-        return config;
-    }
-
-
-    public class ApnProxyRemoteRule {
-        private String remoteHost;
-        private int remotePort;
-        private String proxyUserName;
-        private String proxyPassword;
-        private ApnProxyListenType remoteListenType;
-        private String remoteTripleDesKey;
-        private List<String> originalHostList;
-
-        public final String getRemoteHost() {
-            return remoteHost;
-        }
-
-        public final void setRemoteHost(String remoteHost) {
-            this.remoteHost = remoteHost;
-        }
-
-        public final int getRemotePort() {
-            return remotePort;
-        }
-
-        public final void setRemotePort(int remotePort) {
-            this.remotePort = remotePort;
-        }
-
-        public final ApnProxyListenType getRemoteListenType() {
-            return remoteListenType;
-        }
-
-        public final void setRemoteListenType(ApnProxyListenType remoteListenType) {
-            this.remoteListenType = remoteListenType;
-        }
-
-        public final String getRemoteTripleDesKey() {
-            return remoteTripleDesKey;
-        }
-
-        public final void setRemoteTripleDesKey(String remoteTripleDesKey) {
-            this.remoteTripleDesKey = remoteTripleDesKey;
-        }
-
-        public final List<String> getOriginalHostList() {
-            return originalHostList;
-        }
-
-        public final void setOriginalHostList(List<String> originalHostList) {
-            this.originalHostList = originalHostList;
-        }
-
-        public String getProxyUserName() {
-            return proxyUserName;
-        }
-
-        public void setProxyUserName(String proxyUserName) {
-            this.proxyUserName = proxyUserName;
-        }
-
-        public String getProxyPassword() {
-            return proxyPassword;
-        }
-
-        public void setProxyPassword(String proxyPassword) {
-            this.proxyPassword = proxyPassword;
-        }
-    }
-
-    public class ApnProxyLocalIpRule {
-        private String localIp;
-        private List<String> originalHostList;
-
-        public final String getLocalIp() {
-            return localIp;
-        }
-
-        public final void setLocalIp(String localIp) {
-            this.localIp = localIp;
-        }
-
-        public final List<String> getOriginalHostList() {
-            return originalHostList;
-        }
-
-        public final void setOriginalHostList(List<String> originalHostList) {
-            this.originalHostList = originalHostList;
-        }
-
-    }
-
-    public enum ApnProxyListenType {
-        SIMPLE, TRIPLE_DES, SSL, PLAIN;
-
-        public static ApnProxyListenType fromString(String _listenType) {
-            if (StringUtils.equals(_listenType, "simple")) {
-                return ApnProxyListenType.SIMPLE;
-            } else if (StringUtils.equals(_listenType, "3des")) {
-                return ApnProxyListenType.TRIPLE_DES;
-            } else if (StringUtils.equals(_listenType, "ssl")) {
-                return ApnProxyListenType.SSL;
-            } else if (StringUtils.equals(_listenType, "plain")) {
-                return ApnProxyListenType.PLAIN;
-            } else {
-                throw new ApnProxyConfigException("Unknown listen type");
-            }
+    public static void read(File xmlConfigFile) throws FileNotFoundException {
+        if (xmlConfigFile.exists() && xmlConfigFile.isFile()) {
+               read(new FileInputStream(xmlConfigFile));
         }
     }
 
