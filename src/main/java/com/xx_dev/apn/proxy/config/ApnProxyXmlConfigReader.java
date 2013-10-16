@@ -109,11 +109,6 @@ public class ApnProxyXmlConfigReader {
             }
         }
 
-        Elements pacHostElements = rootElement.getChildElements("pac-host");
-        if (pacHostElements.size() == 1) {
-            ApnProxyConfig.getConfig().setPacHost(pacHostElements.get(0).getValue());
-        }
-
         Elements useIpv6Elements = rootElement.getChildElements("use-ipv6");
         if (useIpv6Elements.size() == 1) {
             ApnProxyConfig.getConfig().setUseIpV6(Boolean.parseBoolean(useIpv6Elements.get(0).getValue()));
