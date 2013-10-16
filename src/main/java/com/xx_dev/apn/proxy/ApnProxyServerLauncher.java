@@ -1,11 +1,15 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyPropertiesReader;
+import com.xx_dev.apn.proxy.config.ApnProxyXmlConfigReader;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 /**
@@ -30,15 +34,21 @@ public class ApnProxyServerLauncher {
 
     public static void main(String[] args) {
 
-        ApnProxyXmlConfig config = null;
         try {
-            config = new ApnProxyXmlConfig(new File("conf/config.xml"));
+            ApnProxyXmlConfigReader.read(new File("conf/config.xml"));
         } catch (FileNotFoundException e) {
             logger.error("The config file conf/config.xml not exists!");
             System.exit(1);
         }
-        config.init();
-        if (config.isUseIpV6()) {
+
+        try {
+            ApnProxyPropertiesReader.read(new File("conf/config.properties"));
+        } catch (IOException e) {
+            logger.error("Something wrong when reading conf/config.properties", e);
+            System.exit(1);
+        }
+
+        if (ApnProxyConfig.getConfig().isUseIpV6()) {
             System.setProperty("java.net.preferIPv6Addresses", "true");
         }
 

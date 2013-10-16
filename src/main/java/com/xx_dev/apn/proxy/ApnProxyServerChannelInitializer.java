@@ -1,6 +1,7 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -28,13 +29,13 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
 
         pipeline.addLast("datalog", new LoggingHandler("PRE_BYTE_LOGGER", LogLevel.DEBUG));
 
-        if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.SIMPLE) {
+        if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SIMPLE) {
             pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
                     new ApnProxySimpleEncryptHandler());
-        } else if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
+        } else if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                    ApnProxyXmlConfig.getConfig().getTripleDesKey()));
-        } else if (ApnProxyXmlConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
+                    ApnProxyConfig.getConfig().getTripleDesKey()));
+        } else if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
             SSLEngine engine = ApnProxySSLContextFactory.createServerSSLSSLEngine();
             pipeline.addLast("apnproxy.encrypt", new SslHandler(engine));
         }

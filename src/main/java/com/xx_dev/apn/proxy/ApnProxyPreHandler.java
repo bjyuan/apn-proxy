@@ -1,6 +1,7 @@
 package com.xx_dev.apn.proxy;
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyRemoteRule;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
 import io.netty.buffer.ByteBuf;
@@ -59,15 +60,6 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                         + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
             }
 
-            // forbid request to proxy server local
-            if (StringUtils.equals(originalHost, "127.0.0.1")
-                    || StringUtils.equals(originalHost, "localhost")) {
-                String errorMsg = "Forbidden";
-                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
-                ctx.flush();
-                return false;
-            }
-
             // forbid request to proxy server internal network
             for (String forbiddenIp : forbiddenIps) {
                 if (StringUtils.startsWith(originalHost, forbiddenIp)) {
@@ -79,13 +71,22 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
             }
 
             // pac request
-            if (StringUtils.equals(originalHost, ApnProxyXmlConfig.getConfig().getPacHost())) {
+            if (StringUtils.equals(originalHost, ApnProxyConfig.getConfig().getPacHost())) {
                 ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
                 FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK, pacResponseContent);
                 HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
 
                 ctx.write(pacResponseMsg);
+                ctx.flush();
+                return false;
+            }
+
+            // forbid request to proxy server local
+            if (StringUtils.equals(originalHost, "127.0.0.1")
+                    || StringUtils.equals(originalHost, "localhost")) {
+                String errorMsg = "Forbidden";
+                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN, errorMsg));
                 ctx.flush();
                 return false;
             }
@@ -100,7 +101,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 ctx.flush();
                 return false;
             }
-            
+
         }
 
         return true;
@@ -110,10 +111,10 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
 
         StringBuilder sb = new StringBuilder();
         sb.append("function FindProxyForURL(url, host){var PROXY = \"PROXY ")
-                .append(ApnProxyXmlConfig.getConfig().getPacHost()).append(":")
-                .append(ApnProxyXmlConfig.getConfig().getPort()).append("\";var DEFAULT = \"DIRECT\";");
+                .append(ApnProxyConfig.getConfig().getPacHost()).append(":")
+                .append(ApnProxyConfig.getConfig().getPort()).append("\";var DEFAULT = \"DIRECT\";");
 
-        for (ApnProxyRemoteRule remoteRule : ApnProxyXmlConfig.getConfig().getRemoteRuleList()) {
+        for (ApnProxyRemoteRule remoteRule : ApnProxyConfig.getConfig().getRemoteRuleList()) {
             for (String originalHost : remoteRule.getOriginalHostList()) {
                 if (StringUtils.isNotBlank(originalHost)) {
                     sb.append("if(/^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?")

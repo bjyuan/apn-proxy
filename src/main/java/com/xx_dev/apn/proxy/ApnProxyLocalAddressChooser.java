@@ -1,5 +1,7 @@
 package com.xx_dev.apn.proxy;
 
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyLocalIpRule;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -10,7 +12,7 @@ public class ApnProxyLocalAddressChooser {
 
     public static String choose(String hostName) {
 
-        for (ApnProxyXmlConfig.ApnProxyLocalIpRule localIpRule : ApnProxyXmlConfig.getConfig()
+        for (ApnProxyLocalIpRule localIpRule : ApnProxyConfig.getConfig()
                 .getLocalIpRuleList()) {
             for (String originalHost : localIpRule.getOriginalHostList()) {
                 if (StringUtils.equals(originalHost, hostName)

@@ -1,8 +1,8 @@
 package com.xx_dev.apn.proxy.remotechooser;
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyListenType;
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig.ApnProxyRemoteRule;
+import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyListenType;
+import com.xx_dev.apn.proxy.config.ApnProxyRemoteRule;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -67,7 +67,7 @@ public class ApnProxyRemoteChooser {
     }
 
     private static ApnProxyRemoteRule getApplyRemoteRule(String host) {
-        for (ApnProxyRemoteRule remoteRule : ApnProxyXmlConfig.getConfig().getRemoteRuleList()) {
+        for (ApnProxyRemoteRule remoteRule : ApnProxyConfig.getConfig().getRemoteRuleList()) {
             for (String originalHost : remoteRule.getOriginalHostList()) {
                 if (StringUtils.equals(originalHost, host)
                         || StringUtils.endsWith(host, "." + originalHost)) {

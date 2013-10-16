@@ -1,7 +1,7 @@
 package com.xx_dev.apn.proxy.remotechooser;
 
 
-import com.xx_dev.apn.proxy.ApnProxyXmlConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 
 public abstract class ApnProxyRemote {
     private String remoteHost;
@@ -12,7 +12,7 @@ public abstract class ApnProxyRemote {
 
     private boolean isAppleyRemoteRule = false;
 
-    private ApnProxyXmlConfig.ApnProxyListenType remoteListenType;
+    private ApnProxyListenType remoteListenType;
 
     public final String getRemoteHost() {
         return remoteHost;
@@ -42,11 +42,11 @@ public abstract class ApnProxyRemote {
         return this.remoteHost + ":" + this.remotePort;
     }
 
-    public ApnProxyXmlConfig.ApnProxyListenType getRemoteListenType() {
+    public ApnProxyListenType getRemoteListenType() {
         return remoteListenType;
     }
 
-    public void setRemoteListenType(ApnProxyXmlConfig.ApnProxyListenType remoteListenType) {
+    public void setRemoteListenType(ApnProxyListenType remoteListenType) {
         this.remoteListenType = remoteListenType;
     }
 
