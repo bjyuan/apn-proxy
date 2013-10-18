@@ -5,4 +5,5 @@ The apn proxy project aims to provide a total solution to access the open intern
 This project is based on [netty](git@github.com:netty/netty.git) project.
 
 CI: https://xmx.ci.cloudbees.com/job/APN_PROXY_MASTER/
+
 Latest package download: https://xmx.ci.cloudbees.com/job/APN_PROXY_MASTER/ws/out/

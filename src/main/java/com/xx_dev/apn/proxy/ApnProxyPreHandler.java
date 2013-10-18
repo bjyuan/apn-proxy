@@ -14,6 +14,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +35,8 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
     private static String[] forbiddenIps = new String[]{"10.", "172.16.", "172.17.", "172.18.",
             "172.19.", "172.20.", "172.21.", "172.22.", "172.23.", "172.24.", "172.25.",
             "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.", "192.168."};
+
+    private boolean isPacRequest = false;
 
 
     @Override
@@ -72,6 +75,8 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
 
             // pac request
             if (StringUtils.equals(originalHost, ApnProxyConfig.getConfig().getPacHost())) {
+                isPacRequest = true;
+
                 ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
                 FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK, pacResponseContent);
@@ -102,6 +107,14 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 return false;
             }
 
+        } else {
+            if (isPacRequest) {
+                if(msg instanceof LastHttpContent) {
+                    isPacRequest = false;
+                }
+
+                return false;
+            }
         }
 
         return true;
