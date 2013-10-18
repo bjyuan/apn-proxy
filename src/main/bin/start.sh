@@ -9,4 +9,4 @@ for jar in `ls lib/*.jar`
 do
 	jars="$jars:""$jar"
 done
-java $JAVA_OPTS -cp $jars com.xx_dev.apn.proxy.ApnProxyServerLauncher 1>/dev/null 2>&1
+java $JAVA_OPTS -cp $jars com.xx_dev.apn.proxy.ApnProxyServerLauncher 1>/dev/null 2>&1 &
