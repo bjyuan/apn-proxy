@@ -1,9 +1,7 @@
 #!/bin/bash
-if [ -f pid ]
-then
-	pid=`cat pid`
-	kill $pid
-fi
+pid=`ps aux | grep "com.xx_dev.apn.proxy.ApnProxyServerLauncher" | awk '{print $2}' | sort | head -1`
+kill $pid
+
 for jar in `ls lib/*.jar`
 do
 	jars="$jars:""$jar"
