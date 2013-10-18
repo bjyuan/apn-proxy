@@ -81,6 +81,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK, pacResponseContent);
                 HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
+                HttpHeaders.setHeader(pacResponseMsg, "X-APN-PROXY-PAC", "OK");
 
                 ctx.write(pacResponseMsg);
                 ctx.flush();

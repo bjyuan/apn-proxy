@@ -3,6 +3,7 @@ package com.xx_dev.apn.proxy.test;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import junit.framework.Assert;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpHost;
 import org.apache.http.client.ResponseHandler;
@@ -41,7 +42,16 @@ public class TestProxyWithHttpClient extends TestProxyBase {
         test("https://www.github.com", 200);
     }
 
-    private void test(String uri, int exceptCode) {
+    @Test
+    public void testPac() {
+        test("http://"+ApnProxyConfig.getConfig().getPacHost(), 200, "X-APN-PROXY-PAC", "OK");
+    }
+
+    private  void test(String uri, int exceptCode) {
+        test(uri, exceptCode, null, null);
+    }
+
+    private void test(String uri, int exceptCode, String exceptHeaderName, String exceptHeaderValue) {
         ConnectionConfig connectionConfig = ConnectionConfig.custom()
                 .setCharset(Consts.UTF_8)
                 .build();
@@ -74,6 +84,9 @@ public class TestProxyWithHttpClient extends TestProxyBase {
             CloseableHttpResponse httpResponse = httpClient.execute(request);
 
             Assert.assertEquals(exceptCode, httpResponse.getStatusLine().getStatusCode());
+            if(StringUtils.isNotBlank(exceptHeaderName) && StringUtils.isNotBlank(exceptHeaderValue)) {
+                Assert.assertEquals(exceptHeaderValue, httpResponse.getFirstHeader(exceptHeaderName).getValue());
+            }
 
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             String responseString = responseHandler.handleResponse(httpResponse);
