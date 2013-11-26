@@ -1,10 +1,11 @@
 package com.xx_dev.apn.proxy.remotechooser;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.config.ApnProxyRemoteRule;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 /**
  * @author xmx
@@ -12,7 +13,8 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxyRemoteChooser {
 
-    private static final Logger logger = Logger.getLogger(ApnProxyRemoteChooser.class);
+    @SuppressWarnings("unused")
+    private static final Logger logger             = Logger.getLogger(ApnProxyRemoteChooser.class);
 
     private static final Logger remoteChooseLogger = Logger.getLogger("REMOTE_CHOOSE_LOGGER");
 
@@ -59,8 +61,9 @@ public class ApnProxyRemoteChooser {
         }
 
         if (remoteChooseLogger.isInfoEnabled()) {
-            remoteChooseLogger.info("Original host: " + originalHost + ", Original port: " + originalPort + ", Remote: "
-                    + apRemote.getRemote() + ", Remote type: " + apRemote.getRemoteListenType());
+            remoteChooseLogger.info("Original host: " + originalHost + ", Original port: "
+                                    + originalPort + ", Remote: " + apRemote.getRemote()
+                                    + ", Remote type: " + apRemote.getRemoteListenType());
         }
 
         return apRemote;
@@ -70,7 +73,7 @@ public class ApnProxyRemoteChooser {
         for (ApnProxyRemoteRule remoteRule : ApnProxyConfig.getConfig().getRemoteRuleList()) {
             for (String originalHost : remoteRule.getOriginalHostList()) {
                 if (StringUtils.equals(originalHost, host)
-                        || StringUtils.endsWith(host, "." + originalHost)) {
+                    || StringUtils.endsWith(host, "." + originalHost)) {
                     return remoteRule;
                 }
             }

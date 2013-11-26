@@ -20,16 +20,14 @@ import io.netty.util.CharsetUtil;
 public class HttpErrorUtil {
 
     public static HttpMessage buildHttpErrorMessage(HttpResponseStatus status, String errorMsg) {
-        ByteBuf errorResponseContent = Unpooled.copiedBuffer(errorMsg,
-                CharsetUtil.UTF_8);
+        ByteBuf errorResponseContent = Unpooled.copiedBuffer(errorMsg, CharsetUtil.UTF_8);
         // send error response
-        FullHttpMessage errorResponseMsg = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1, status,
-                errorResponseContent);
-        errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_ENCODING,
-                CharsetUtil.UTF_8.name());
+        FullHttpMessage errorResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+            status, errorResponseContent);
+        errorResponseMsg.headers()
+            .add(HttpHeaders.Names.CONTENT_ENCODING, CharsetUtil.UTF_8.name());
         errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_LENGTH,
-                errorResponseContent.readableBytes());
+            errorResponseContent.readableBytes());
 
         return errorResponseMsg;
     }

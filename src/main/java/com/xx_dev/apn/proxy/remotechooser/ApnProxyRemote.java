@@ -1,16 +1,15 @@
 package com.xx_dev.apn.proxy.remotechooser;
 
-
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 
 public abstract class ApnProxyRemote {
-    private String remoteHost;
-    private int remotePort;
+    private String             remoteHost;
+    private int                remotePort;
 
-    private String proxyUserName;
-    private String proxyPassword;
+    private String             proxyUserName;
+    private String             proxyPassword;
 
-    private boolean isAppleyRemoteRule = false;
+    private boolean            isAppleyRemoteRule = false;
 
     private ApnProxyListenType remoteListenType;
 

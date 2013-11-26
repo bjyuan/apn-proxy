@@ -14,13 +14,13 @@ import org.apache.log4j.Logger;
 
 public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = Logger.getLogger(HttpProxyHandler.class);
+    private static final Logger           logger       = Logger.getLogger(HttpProxyHandler.class);
 
-    public static final String HANDLER_NAME = "apnproxy.proxy";
+    public static final String            HANDLER_NAME = "apnproxy.proxy";
 
-    private Channel uaChannel;
+    private Channel                       uaChannel;
 
-    private String remoteAddr;
+    private String                        remoteAddr;
 
     private RemoteChannelInactiveCallback remoteChannelInactiveCallback;
 
@@ -39,8 +39,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         ctx.read();
     }
 
-    public void channelRead(final ChannelHandlerContext ctx, Object msg)
-            throws Exception {
+    public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 
         HttpObject ho = (HttpObject) msg;
         if (logger.isDebugEnabled()) {

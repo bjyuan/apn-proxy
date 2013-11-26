@@ -23,29 +23,29 @@ public class Base64 {
          * Bitwise operations store and extract the encoding or decoding from
          * this variable.
          */
-        int ibitWorkArea;
+        int     ibitWorkArea;
 
         /**
          * Place holder for the bytes we're dealing with for our based logic.
          * Bitwise operations store and extract the encoding or decoding from
          * this variable.
          */
-        long lbitWorkArea;
+        long    lbitWorkArea;
 
         /**
          * Buffer for streaming.
          */
-        byte[] buffer;
+        byte[]  buffer;
 
         /**
          * Position where next character should be written in the buffer.
          */
-        int pos;
+        int     pos;
 
         /**
          * Position where next character should be read from the buffer.
          */
-        int readPos;
+        int     readPos;
 
         /**
          * Boolean flag to indicate the EOF has been reached. Once EOF has been
@@ -58,13 +58,13 @@ public class Base64 {
          * line. Only used when encoding. We use it to make sure each encoded
          * line never goes beyond lineLength (if lineLength > 0).
          */
-        int currentLinePos;
+        int     currentLinePos;
 
         /**
          * Writes to the buffer only occur after every 3/5 reads when encoding,
          * and every 4/8 reads when decoding. This variable helps track that.
          */
-        int modulus;
+        int     modulus;
 
         Context() {
         }
@@ -79,11 +79,9 @@ public class Base64 {
         @Override
         public String toString() {
             return String.format(
-                    "%s[buffer=%s, currentLinePos=%s, eof=%s, ibitWorkArea=%s, lbitWorkArea=%s, "
-                            + "modulus=%s, pos=%s, readPos=%s]", this
-                    .getClass().getSimpleName(), buffer,
-                    currentLinePos, eof, ibitWorkArea, lbitWorkArea, modulus,
-                    pos, readPos);
+                "%s[buffer=%s, currentLinePos=%s, eof=%s, ibitWorkArea=%s, lbitWorkArea=%s, "
+                        + "modulus=%s, pos=%s, readPos=%s]", this.getClass().getSimpleName(),
+                buffer, currentLinePos, eof, ibitWorkArea, lbitWorkArea, modulus, pos, readPos);
         }
     }
 
@@ -92,7 +90,7 @@ public class Base64 {
      *
      * @since 1.7
      */
-    static final int EOF = -1;
+    static final int            EOF                          = -1;
 
     /**
      * MIME chunk size per RFC 2045 section 6.8.
@@ -105,7 +103,7 @@ public class Base64 {
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045 section
      *      6.8</a>
      */
-    public static final int MIME_CHUNK_SIZE = 76;
+    public static final int     MIME_CHUNK_SIZE              = 76;
 
     /**
      * PEM chunk size per RFC 1421 section 4.3.2.4.
@@ -118,62 +116,62 @@ public class Base64 {
      * @see <a href="http://tools.ietf.org/html/rfc1421">RFC 1421 section
      *      4.3.2.4</a>
      */
-    public static final int PEM_CHUNK_SIZE = 64;
+    public static final int     PEM_CHUNK_SIZE               = 64;
 
-    private static final int DEFAULT_BUFFER_RESIZE_FACTOR = 2;
+    private static final int    DEFAULT_BUFFER_RESIZE_FACTOR = 2;
 
     /**
      * Defines the default buffer size - currently {@value} - must be large
      * enough for at least one encoded block+separator
      */
-    private static final int DEFAULT_BUFFER_SIZE = 8192;
+    private static final int    DEFAULT_BUFFER_SIZE          = 8192;
 
     /**
      * Mask used to extract 8 bits, used in decoding bytes
      */
-    protected static final int MASK_8BITS = 0xff;
+    protected static final int  MASK_8BITS                   = 0xff;
 
     /**
      * Byte used to pad output.
      */
-    protected static final byte PAD_DEFAULT = '='; // Allow static access to
+    protected static final byte PAD_DEFAULT                  = '=';           // Allow static access to
     // default
 
-    protected final byte PAD = PAD_DEFAULT; // instance variable just in case it
+    protected final byte        PAD                          = PAD_DEFAULT;   // instance variable just in case it
     // needs to vary later
 
     /**
      * Number of bytes in each full block of unencoded data, e.g. 4 for Base64
      * and 5 for Base32
      */
-    private final int unencodedBlockSize;
+    private final int           unencodedBlockSize;
 
     /**
      * Number of bytes in each full block of encoded data, e.g. 3 for Base64 and
      * 8 for Base32
      */
-    private final int encodedBlockSize;
+    private final int           encodedBlockSize;
 
     /**
      * Chunksize for encoding. Not used when decoding. A value of zero or less
      * implies no chunking of the encoded data. Rounded down to nearest multiple
      * of encodedBlockSize.
      */
-    protected final int lineLength;
+    protected final int         lineLength;
 
     /**
      * Size of chunk separator. Not used unless {@link #lineLength} > 0.
      */
-    private final int chunkSeparatorLength;
+    private final int           chunkSeparatorLength;
 
     /**
      * BASE32 characters are 6 bits in length. They are formed by taking a block
      * of 3 octets to form a 24-bit string, which is converted into 4 BASE64
      * characters.
      */
-    private static final int BITS_PER_ENCODED_BYTE = 6;
-    private static final int BYTES_PER_UNENCODED_BLOCK = 3;
-    private static final int BYTES_PER_ENCODED_BLOCK = 4;
+    private static final int    BITS_PER_ENCODED_BYTE        = 6;
+    private static final int    BYTES_PER_UNENCODED_BLOCK    = 3;
+    private static final int    BYTES_PER_ENCODED_BLOCK      = 4;
 
     /**
      * Chunk separator per RFC 2045 section 2.1.
@@ -186,7 +184,7 @@ public class Base64 {
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045 section
      *      2.1</a>
      */
-    static final byte[] CHUNK_SEPARATOR = {'\r', '\n'};
+    static final byte[]         CHUNK_SEPARATOR              = { '\r', '\n' };
 
     /**
      * This array is a lookup table that translates 6-bit positive integer index
@@ -196,24 +194,22 @@ public class Base64 {
      * Thanks to "commons" project in ws.apache.org for this code.
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/
      */
-    private static final byte[] STANDARD_ENCODE_TABLE = {'A', 'B', 'C', 'D',
-            'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-            'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-            'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-            '4', '5', '6', '7', '8', '9', '+', '/'};
+    private static final byte[] STANDARD_ENCODE_TABLE        = { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+            'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+            'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+            'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5',
+            '6', '7', '8', '9', '+', '/'                    };
 
     /**
      * This is a copy of the STANDARD_ENCODE_TABLE above, but with + and /
      * changed to - and _ to make the encoded Base64 results more URL-SAFE. This
      * table is only used when the Base64's mode is set to URL-SAFE.
      */
-    private static final byte[] URL_SAFE_ENCODE_TABLE = {'A', 'B', 'C', 'D',
-            'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-            'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-            'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3',
-            '4', '5', '6', '7', '8', '9', '-', '_'};
+    private static final byte[] URL_SAFE_ENCODE_TABLE        = { 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+            'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+            'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+            'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5',
+            '6', '7', '8', '9', '-', '_'                    };
 
     /**
      * This array is a lookup table that translates Unicode characters drawn
@@ -229,14 +225,13 @@ public class Base64 {
      * Thanks to "commons" project in ws.apache.org for this code.
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/
      */
-    private static final byte[] DECODE_TABLE = {-1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-            -1, -1, 62, -1, 62, -1, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
-            -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-            12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1,
-            -1, 63, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
-            40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
+    private static final byte[] DECODE_TABLE                 = { -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, 62, -1, 63, 52, 53, 54, 55,
+            56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, 63, -1, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
+            49, 50, 51                                      };
 
     /**
      * Base64 uses 6-bit fields.
@@ -244,7 +239,7 @@ public class Base64 {
     /**
      * Mask used to extract 6 bits, used when encoding
      */
-    private static final int MASK_6BITS = 0x3f;
+    private static final int    MASK_6BITS                   = 0x3f;
 
     // The static final fields above are used for the original static byte[]
     // methods on Base64.
@@ -258,30 +253,30 @@ public class Base64 {
      * URL_SAFE streams, but the encodeTable must be a member variable so we can
      * switch between the two modes.
      */
-    private final byte[] encodeTable;
+    private final byte[]        encodeTable;
 
     // Only one decode table currently; keep for consistency with Base32 code
-    private final byte[] decodeTable = DECODE_TABLE;
+    private final byte[]        decodeTable                  = DECODE_TABLE;
 
     /**
      * Line separator for encoding. Not used when decoding. Only used if
      * lineLength > 0.
      */
-    private final byte[] lineSeparator;
+    private final byte[]        lineSeparator;
 
     /**
      * Convenience variable to help us determine when our buffer is going to run
      * out of room and needs resizing.
      * <code>decodeSize = 3 + lineSeparator.length;</code>
      */
-    private final int decodeSize;
+    private final int           decodeSize;
 
     /**
      * Convenience variable to help us determine when our buffer is going to run
      * out of room and needs resizing.
      * <code>encodeSize = 4 + lineSeparator.length;</code>
      */
-    private final int encodeSize;
+    private final int           encodeSize;
 
     /**
      * Creates a Base64 codec used for decoding (all modes) and encoding in
@@ -406,11 +401,9 @@ public class Base64 {
         this.unencodedBlockSize = BYTES_PER_UNENCODED_BLOCK;
         this.encodedBlockSize = BYTES_PER_ENCODED_BLOCK;
 
-        int chunkSeparatorLength = lineSeparator == null ? 0
-                : lineSeparator.length;
+        int chunkSeparatorLength = lineSeparator == null ? 0 : lineSeparator.length;
         final boolean useChunking = lineLength > 0 && chunkSeparatorLength > 0;
-        this.lineLength = useChunking ? (lineLength / encodedBlockSize)
-                * encodedBlockSize : 0;
+        this.lineLength = useChunking ? (lineLength / encodedBlockSize) * encodedBlockSize : 0;
         this.chunkSeparatorLength = chunkSeparatorLength;
 
         // TODO could be simplified if there is no requirement to reject invalid
@@ -420,16 +413,13 @@ public class Base64 {
             if (containsAlphabetOrPad(lineSeparator)) {
                 String sep = newStringUtf8(lineSeparator);
                 throw new IllegalArgumentException(
-                        "lineSeparator must not contain base64 characters: ["
-                                + sep + "]");
+                    "lineSeparator must not contain base64 characters: [" + sep + "]");
             }
             if (lineLength > 0) { // null line-sep forces no chunking rather
                 // than throwing IAE
-                this.encodeSize = BYTES_PER_ENCODED_BLOCK
-                        + lineSeparator.length;
+                this.encodeSize = BYTES_PER_ENCODED_BLOCK + lineSeparator.length;
                 this.lineSeparator = new byte[lineSeparator.length];
-                System.arraycopy(lineSeparator, 0, this.lineSeparator, 0,
-                        lineSeparator.length);
+                System.arraycopy(lineSeparator, 0, this.lineSeparator, 0, lineSeparator.length);
             } else {
                 this.encodeSize = BYTES_PER_ENCODED_BLOCK;
                 this.lineSeparator = null;
@@ -439,8 +429,7 @@ public class Base64 {
             this.lineSeparator = null;
         }
         this.decodeSize = this.encodeSize - 1;
-        this.encodeTable = urlSafe ? URL_SAFE_ENCODE_TABLE
-                : STANDARD_ENCODE_TABLE;
+        this.encodeTable = urlSafe ? URL_SAFE_ENCODE_TABLE : STANDARD_ENCODE_TABLE;
     }
 
     /**
@@ -485,8 +474,7 @@ public class Base64 {
             context.pos = 0;
             context.readPos = 0;
         } else {
-            byte[] b = new byte[context.buffer.length
-                    * DEFAULT_BUFFER_RESIZE_FACTOR];
+            byte[] b = new byte[context.buffer.length * DEFAULT_BUFFER_RESIZE_FACTOR];
             System.arraycopy(context.buffer, 0, b, 0, context.buffer.length);
             context.buffer = b;
         }
@@ -500,8 +488,7 @@ public class Base64 {
      * @param context the context to be used
      */
     protected byte[] ensureBufferSize(int size, Context context) {
-        if ((context.buffer == null)
-                || (context.buffer.length < context.pos + size)) {
+        if ((context.buffer == null) || (context.buffer.length < context.pos + size)) {
             return resizeBuffer(context);
         }
         return context.buffer;
@@ -567,8 +554,7 @@ public class Base64 {
      */
     public Object encode(Object obj) throws Exception {
         if (!(obj instanceof byte[])) {
-            throw new Exception(
-                    "Parameter supplied to Base-N encode is not a byte[]");
+            throw new Exception("Parameter supplied to Base-N encode is not a byte[]");
         }
         return encode((byte[]) obj);
     }
@@ -613,8 +599,7 @@ public class Base64 {
         } else if (obj instanceof String) {
             return decode((String) obj);
         } else {
-            throw new Exception(
-                    "Parameter supplied to Base-N decode is not a byte[] or a String");
+            throw new Exception("Parameter supplied to Base-N decode is not a byte[] or a String");
         }
     }
 
@@ -678,8 +663,7 @@ public class Base64 {
     public boolean isInAlphabet(byte[] arrayOctet, boolean allowWSPad) {
         for (int i = 0; i < arrayOctet.length; i++) {
             if (!isInAlphabet(arrayOctet[i])
-                    && (!allowWSPad || (arrayOctet[i] != PAD)
-                    && !isWhiteSpace(arrayOctet[i]))) {
+                && (!allowWSPad || (arrayOctet[i] != PAD) && !isWhiteSpace(arrayOctet[i]))) {
                 return false;
             }
         }
@@ -733,7 +717,7 @@ public class Base64 {
         // Calculate non-chunked size - rounded up to allow for padding
         // cast to long is needed to avoid possibility of overflow
         long len = ((pArray.length + unencodedBlockSize - 1) / unencodedBlockSize)
-                * (long) encodedBlockSize;
+                   * (long) encodedBlockSize;
         if (lineLength > 0) { // We're using chunking
             // Round up to nearest multiple
             len += ((len + lineLength - 1) / lineLength) * chunkSeparatorLength;
@@ -787,11 +771,9 @@ public class Base64 {
                     break;
                 case 1: // 8 bits = 6 + 2
                     // top 6 bits:
-                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 2)
-                            & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 2) & MASK_6BITS];
                     // remaining 2:
-                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea << 4)
-                            & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea << 4) & MASK_6BITS];
                     // URL-SAFE skips the padding to further reduce size.
                     if (encodeTable == STANDARD_ENCODE_TABLE) {
                         buffer[context.pos++] = PAD;
@@ -800,20 +782,16 @@ public class Base64 {
                     break;
 
                 case 2: // 16 bits = 6 + 6 + 4
-                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 10)
-                            & MASK_6BITS];
-                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 4)
-                            & MASK_6BITS];
-                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea << 2)
-                            & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 10) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 4) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea << 2) & MASK_6BITS];
                     // URL-SAFE skips the padding to further reduce size.
                     if (encodeTable == STANDARD_ENCODE_TABLE) {
                         buffer[context.pos++] = PAD;
                     }
                     break;
                 default:
-                    throw new IllegalStateException("Impossible modulus "
-                            + context.modulus);
+                    throw new IllegalStateException("Impossible modulus " + context.modulus);
             }
             context.currentLinePos += context.pos - savedPos; // keep track of
             // current line
@@ -821,15 +799,13 @@ public class Base64 {
             // if currentPos == 0 we are at the start of a line, so don't add
             // CRLF
             if (lineLength > 0 && context.currentLinePos > 0) {
-                System.arraycopy(lineSeparator, 0, buffer, context.pos,
-                        lineSeparator.length);
+                System.arraycopy(lineSeparator, 0, buffer, context.pos, lineSeparator.length);
                 context.pos += lineSeparator.length;
             }
         } else {
             for (int i = 0; i < inAvail; i++) {
                 final byte[] buffer = ensureBufferSize(encodeSize, context);
-                context.modulus = (context.modulus + 1)
-                        % BYTES_PER_UNENCODED_BLOCK;
+                context.modulus = (context.modulus + 1) % BYTES_PER_UNENCODED_BLOCK;
                 int b = in[inPos++];
                 if (b < 0) {
                     b += 256;
@@ -837,18 +813,14 @@ public class Base64 {
                 context.ibitWorkArea = (context.ibitWorkArea << 8) + b; // BITS_PER_BYTE
                 if (0 == context.modulus) { // 3 bytes = 24 bits = 4 * 6 bits to
                     // extract
-                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 18)
-                            & MASK_6BITS];
-                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 12)
-                            & MASK_6BITS];
-                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 6)
-                            & MASK_6BITS];
-                    buffer[context.pos++] = encodeTable[context.ibitWorkArea
-                            & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 18) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 12) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 6) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[context.ibitWorkArea & MASK_6BITS];
                     context.currentLinePos += BYTES_PER_ENCODED_BLOCK;
                     if (lineLength > 0 && lineLength <= context.currentLinePos) {
                         System.arraycopy(lineSeparator, 0, buffer, context.pos,
-                                lineSeparator.length);
+                            lineSeparator.length);
                         context.pos += lineSeparator.length;
                         context.currentLinePos = 0;
                     }
@@ -900,10 +872,9 @@ public class Base64 {
                 if (b >= 0 && b < DECODE_TABLE.length) {
                     final int result = DECODE_TABLE[b];
                     if (result >= 0) {
-                        context.modulus = (context.modulus + 1)
-                                % BYTES_PER_ENCODED_BLOCK;
+                        context.modulus = (context.modulus + 1) % BYTES_PER_ENCODED_BLOCK;
                         context.ibitWorkArea = (context.ibitWorkArea << BITS_PER_ENCODED_BYTE)
-                                + result;
+                                               + result;
                         if (context.modulus == 0) {
                             buffer[context.pos++] = (byte) ((context.ibitWorkArea >> 16) & MASK_8BITS);
                             buffer[context.pos++] = (byte) ((context.ibitWorkArea >> 8) & MASK_8BITS);
@@ -923,7 +894,7 @@ public class Base64 {
             // We have some spare bits remaining
             // Output all whole multiples of 8 bits and ignore the rest
             switch (context.modulus) {
-                // case 0 : // impossible, as excluded above
+            // case 0 : // impossible, as excluded above
                 case 1: // 6 bits - ignore entirely
                     // TODO not currently tested; perhaps it is impossible?
                     break;
@@ -939,8 +910,7 @@ public class Base64 {
                     buffer[context.pos++] = (byte) ((context.ibitWorkArea) & MASK_8BITS);
                     break;
                 default:
-                    throw new IllegalStateException("Impossible modulus "
-                            + context.modulus);
+                    throw new IllegalStateException("Impossible modulus " + context.modulus);
             }
         }
     }
@@ -970,7 +940,7 @@ public class Base64 {
      */
     public static boolean isBase64(byte octet) {
         return octet == PAD_DEFAULT
-                || (octet >= 0 && octet < DECODE_TABLE.length && DECODE_TABLE[octet] != -1);
+               || (octet >= 0 && octet < DECODE_TABLE.length && DECODE_TABLE[octet] != -1);
     }
 
     /**
@@ -1116,8 +1086,7 @@ public class Base64 {
      *                                  {@link Integer#MAX_VALUE}
      * @since 1.4
      */
-    public static byte[] encodeBase64(byte[] binaryData, boolean isChunked,
-                                      boolean urlSafe) {
+    public static byte[] encodeBase64(byte[] binaryData, boolean isChunked, boolean urlSafe) {
         return encodeBase64(binaryData, isChunked, urlSafe, Integer.MAX_VALUE);
     }
 
@@ -1136,8 +1105,8 @@ public class Base64 {
      *                                  maxResultSize
      * @since 1.4
      */
-    public static byte[] encodeBase64(byte[] binaryData, boolean isChunked,
-                                      boolean urlSafe, int maxResultSize) {
+    public static byte[] encodeBase64(byte[] binaryData, boolean isChunked, boolean urlSafe,
+                                      int maxResultSize) {
         if (binaryData == null || binaryData.length == 0) {
             return binaryData;
         }
@@ -1145,14 +1114,12 @@ public class Base64 {
         // Create this so can use the super-class method
         // Also ensures that the same roundings are performed by the ctor and
         // the code
-        Base64 b64 = isChunked ? new Base64(urlSafe) : new Base64(0,
-                CHUNK_SEPARATOR, urlSafe);
+        Base64 b64 = isChunked ? new Base64(urlSafe) : new Base64(0, CHUNK_SEPARATOR, urlSafe);
         long len = b64.getEncodedLength(binaryData);
         if (len > maxResultSize) {
             throw new IllegalArgumentException(
-                    "Input array too big, the output array would be bigger ("
-                            + len + ") than the specified maximum size of "
-                            + maxResultSize);
+                "Input array too big, the output array would be bigger (" + len
+                        + ") than the specified maximum size of " + maxResultSize);
         }
 
         return b64.encode(binaryData);
@@ -1206,8 +1173,7 @@ public class Base64 {
      */
     public static byte[] encodeInteger(BigInteger bigInt) {
         if (bigInt == null) {
-            throw new NullPointerException(
-                    "encodeInteger called with null parameter");
+            throw new NullPointerException("encodeInteger called with null parameter");
         }
         return encodeBase64(toIntegerBytes(bigInt), false);
     }
@@ -1225,8 +1191,7 @@ public class Base64 {
         bitlen = ((bitlen + 7) >> 3) << 3;
         byte[] bigBytes = bigInt.toByteArray();
 
-        if (((bigInt.bitLength() % 8) != 0)
-                && (((bigInt.bitLength() / 8) + 1) == (bitlen / 8))) {
+        if (((bigInt.bitLength() % 8) != 0) && (((bigInt.bitLength() / 8) + 1) == (bitlen / 8))) {
             return bigBytes;
         }
         // set up params for copying everything but sign bit
@@ -1252,8 +1217,6 @@ public class Base64 {
      *         {@code false} otherwise.
      */
     protected boolean isInAlphabet(byte octet) {
-        return octet >= 0 && octet < decodeTable.length
-                && decodeTable[octet] != -1;
+        return octet >= 0 && octet < decodeTable.length && decodeTable[octet] != -1;
     }
 }
-

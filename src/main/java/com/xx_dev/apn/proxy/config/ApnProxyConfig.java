@@ -1,9 +1,9 @@
 package com.xx_dev.apn.proxy.config;
 
-import org.apache.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author xmx
@@ -11,35 +11,36 @@ import java.util.List;
  */
 public class ApnProxyConfig {
 
-    private static final Logger logger = Logger.getLogger(ApnProxyConfig.class);
+    @SuppressWarnings("unused")
+    private static final Logger       logger          = Logger.getLogger(ApnProxyConfig.class);
 
-    private static ApnProxyConfig config = new ApnProxyConfig();
+    private static ApnProxyConfig     config          = new ApnProxyConfig();
 
-    private ApnProxyListenType listenType;
+    private ApnProxyListenType        listenType;
 
-    private String tripleDesKey;
+    private String                    tripleDesKey;
 
-    private String keyStorePath;
+    private String                    keyStorePath;
 
-    private String keyStroePassword;
+    private String                    keyStroePassword;
 
-    private boolean useTrustStore = false;
+    private boolean                   useTrustStore   = false;
 
-    private String trustStorePath;
+    private String                    trustStorePath;
 
-    private String trustStorePassword;
+    private String                    trustStorePassword;
 
-    private int port;
+    private int                       port;
 
-    private int bossThreadCount;
+    private int                       bossThreadCount;
 
-    private int workerThreadCount;
+    private int                       workerThreadCount;
 
-    private String pacHost;
+    private String                    pacHost;
 
-    private boolean useIpV6;
+    private boolean                   useIpV6;
 
-    private List<ApnProxyRemoteRule> remoteRuleList = new ArrayList<ApnProxyRemoteRule>();
+    private List<ApnProxyRemoteRule>  remoteRuleList  = new ArrayList<ApnProxyRemoteRule>();
 
     private List<ApnProxyLocalIpRule> localIpRuleList = new ArrayList<ApnProxyLocalIpRule>();
 

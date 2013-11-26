@@ -19,7 +19,6 @@ public class ApnProxySSLContextFactory {
 
     private static final Logger logger = Logger.getLogger(ApnProxySSLContextFactory.class);
 
-
     public static SSLEngine createClientSSLEnginForRemoteAddress(String host, int port) {
         try {
             SSLContext sslcontext = SSLContext.getInstance("TLS");
@@ -27,11 +26,11 @@ public class ApnProxySSLContextFactory {
             if (ApnProxyConfig.getConfig().isUseTrustStore()) {
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 KeyStore tks = KeyStore.getInstance("JKS");
-                tks.load(new FileInputStream(ApnProxyConfig.getConfig().getTrustStorePath()), ApnProxyConfig.getConfig().getTrustStorePassword().toCharArray());
+                tks.load(new FileInputStream(ApnProxyConfig.getConfig().getTrustStorePath()),
+                    ApnProxyConfig.getConfig().getTrustStorePassword().toCharArray());
                 tmf.init(tks);
                 trustManagers = tmf.getTrustManagers();
             }
-
 
             sslcontext.init(null, trustManagers, null);
 
@@ -81,6 +80,5 @@ public class ApnProxySSLContextFactory {
         return null;
 
     }
-
 
 }
