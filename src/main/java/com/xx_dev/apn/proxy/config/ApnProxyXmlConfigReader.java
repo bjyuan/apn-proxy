@@ -60,10 +60,10 @@ public class ApnProxyXmlConfigReader {
                 ApnProxyConfig.getConfig().setKeyStorePath(keyStorePathElements.get(0).getValue());
             }
             Elements keyStorePasswordElements = keyStoreElements.get(0)
-                .getChildElements("password");
+                    .getChildElements("password");
             if (keyStorePasswordElements.size() == 1) {
                 ApnProxyConfig.getConfig().setKeyStroePassword(
-                    keyStorePasswordElements.get(0).getValue());
+                        keyStorePasswordElements.get(0).getValue());
             }
         }
 
@@ -73,13 +73,13 @@ public class ApnProxyXmlConfigReader {
             Elements trustStorePathElements = trustStoreElements.get(0).getChildElements("path");
             if (trustStorePathElements.size() == 1) {
                 ApnProxyConfig.getConfig().setTrustStorePath(
-                    trustStorePathElements.get(0).getValue());
+                        trustStorePathElements.get(0).getValue());
             }
             Elements trustStorePasswordElements = trustStoreElements.get(0).getChildElements(
-                "password");
+                    "password");
             if (trustStorePasswordElements.size() == 1) {
                 ApnProxyConfig.getConfig().setTrustStorePassword(
-                    trustStorePasswordElements.get(0).getValue());
+                        trustStorePasswordElements.get(0).getValue());
             }
         }
 
@@ -87,7 +87,7 @@ public class ApnProxyXmlConfigReader {
         if (portElements.size() == 1) {
             try {
                 ApnProxyConfig.getConfig()
-                    .setPort(Integer.parseInt(portElements.get(0).getValue()));
+                        .setPort(Integer.parseInt(portElements.get(0).getValue()));
             } catch (NumberFormatException nfe) {
                 throw new ApnProxyConfigException("Invalid format for: port", nfe);
             }
@@ -99,7 +99,7 @@ public class ApnProxyXmlConfigReader {
             if (bossElements.size() == 1) {
                 try {
                     ApnProxyConfig.getConfig().setBossThreadCount(
-                        Integer.parseInt(bossElements.get(0).getValue()));
+                            Integer.parseInt(bossElements.get(0).getValue()));
                 } catch (NumberFormatException nfe) {
                     throw new ApnProxyConfigException("Invalid format for: boss", nfe);
                 }
@@ -108,7 +108,7 @@ public class ApnProxyXmlConfigReader {
             if (workerElements.size() == 1) {
                 try {
                     ApnProxyConfig.getConfig().setWorkerThreadCount(
-                        Integer.parseInt(workerElements.get(0).getValue()));
+                            Integer.parseInt(workerElements.get(0).getValue()));
                 } catch (NumberFormatException nfe) {
                     throw new ApnProxyConfigException("Invalid format for: worker", nfe);
                 }
@@ -118,7 +118,7 @@ public class ApnProxyXmlConfigReader {
         Elements useIpv6Elements = rootElement.getChildElements("use-ipv6");
         if (useIpv6Elements.size() == 1) {
             ApnProxyConfig.getConfig().setUseIpV6(
-                Boolean.parseBoolean(useIpv6Elements.get(0).getValue()));
+                    Boolean.parseBoolean(useIpv6Elements.get(0).getValue()));
         }
 
         Elements remoteRulesElements = rootElement.getChildElements("remote-rules");
@@ -164,18 +164,18 @@ public class ApnProxyXmlConfigReader {
                 }
 
                 Elements remoteListenTypeElements = ruleElement
-                    .getChildElements("remote-listen-type");
+                        .getChildElements("remote-listen-type");
                 if (remoteListenTypeElements.size() != 1) {
                     throw new ApnProxyConfigException("Wrong config for: remote-listen-type");
                 }
                 String _remoteListenType = remoteListenTypeElements.get(0).getValue();
                 ApnProxyListenType remoteListenType = ApnProxyListenType
-                    .fromString(_remoteListenType);
+                        .fromString(_remoteListenType);
                 apnProxyRemoteRule.setRemoteListenType(remoteListenType);
 
                 if (remoteListenType == ApnProxyListenType.TRIPLE_DES) {
                     Elements remoteTripleDesKeyElements = ruleElement
-                        .getChildElements("remote-3des-key");
+                            .getChildElements("remote-3des-key");
                     if (remoteListenTypeElements.size() > 1) {
                         throw new ApnProxyConfigException("Wrong config for: remote-3des-key");
                     }
@@ -192,7 +192,7 @@ public class ApnProxyXmlConfigReader {
                 Elements applyListElements = ruleElement.getChildElements("apply-list");
                 if (applyListElements.size() == 1) {
                     Elements originalHostElements = applyListElements.get(0).getChildElements(
-                        "original-host");
+                            "original-host");
 
                     List<String> originalHostList = new ArrayList<String>();
                     for (int j = 0; j < originalHostElements.size(); j++) {
@@ -226,7 +226,7 @@ public class ApnProxyXmlConfigReader {
                 Elements applyListElements = ruleElement.getChildElements("apply-list");
                 if (applyListElements.size() == 1) {
                     Elements originalHostElements = applyListElements.get(0).getChildElements(
-                        "original-host");
+                            "original-host");
 
                     List<String> originalHostList = new ArrayList<String>();
                     for (int j = 0; j < originalHostElements.size(); j++) {

@@ -15,7 +15,7 @@ public class ApnProxyLocalAddressChooser {
         for (ApnProxyLocalIpRule localIpRule : ApnProxyConfig.getConfig().getLocalIpRuleList()) {
             for (String originalHost : localIpRule.getOriginalHostList()) {
                 if (StringUtils.equals(originalHost, hostName)
-                    || StringUtils.endsWith(hostName, "." + originalHost)) {
+                        || StringUtils.endsWith(hostName, "." + originalHost)) {
                     return localIpRule.getLocalIp();
                 }
             }

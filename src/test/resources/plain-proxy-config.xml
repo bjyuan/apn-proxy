@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <apn-proxy>
 
-	<listen-type>plain</listen-type>
+    <listen-type>plain</listen-type>
 
-	<port>8700</port>
-	<thread-count>
-		<boss>50</boss>
-		<worker>200</worker>
-	</thread-count>
+    <port>8700</port>
+    <thread-count>
+        <boss>50</boss>
+        <worker>200</worker>
+    </thread-count>
 
-	<pac-host>localhost</pac-host>
+    <pac-host>localhost</pac-host>
 
-	<use-ipv6>false</use-ipv6>
+    <use-ipv6>false</use-ipv6>
 
 </apn-proxy>

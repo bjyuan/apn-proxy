@@ -31,10 +31,10 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
 
         if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SIMPLE) {
             pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
-                new ApnProxySimpleEncryptHandler());
+                    new ApnProxySimpleEncryptHandler());
         } else if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                ApnProxyConfig.getConfig().getTripleDesKey()));
+                    ApnProxyConfig.getConfig().getTripleDesKey()));
         } else if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
             SSLEngine engine = ApnProxySSLContextFactory.createServerSSLSSLEngine();
             pipeline.addLast("apnproxy.encrypt", new SslHandler(engine));

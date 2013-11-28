@@ -16,12 +16,12 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger       = Logger.getLogger(ApnProxyRelayHandler.class);
+    private static final Logger logger = Logger.getLogger(ApnProxyRelayHandler.class);
 
-    public static final String  HANDLER_NAME = "apnproxy.relay";
+    public static final String HANDLER_NAME = "apnproxy.relay";
 
-    private final Channel       relayChannel;
-    private final String        tag;
+    private final Channel relayChannel;
+    private final String tag;
 
     public ApnProxyRelayHandler(String tag, Channel relayChannel) {
         this.tag = tag;
@@ -67,7 +67,7 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
         }
         if (relayChannel != null && relayChannel.isActive()) {
             relayChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
-                ChannelFutureListener.CLOSE);
+                    ChannelFutureListener.CLOSE);
         }
         ctx.fireChannelInactive();
     }

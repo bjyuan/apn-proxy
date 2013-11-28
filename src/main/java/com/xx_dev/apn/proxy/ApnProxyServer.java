@@ -20,8 +20,8 @@ public class ApnProxyServer {
 
     private static final Logger logger = Logger.getLogger(ApnProxyServer.class);
 
-    private EventLoopGroup      bossGroup;
-    private EventLoopGroup      workerGroup;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
 
     public void start() {
         int bossThreadCount = ApnProxyConfig.getConfig().getBossThreadCount();
@@ -40,7 +40,7 @@ public class ApnProxyServer {
 
         try {
             serverBootStrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                .localAddress(port).childHandler(new ApnProxyServerChannelInitializer());
+                    .localAddress(port).childHandler(new ApnProxyServerChannelInitializer());
             serverBootStrap.bind().sync().channel().closeFuture().sync();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

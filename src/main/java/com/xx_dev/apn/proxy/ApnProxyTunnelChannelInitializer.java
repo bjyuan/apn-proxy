@@ -18,7 +18,7 @@ import javax.net.ssl.SSLEngine;
  */
 public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final Channel        uaChannel;
+    private final Channel uaChannel;
     private final ApnProxyRemote apnProxyRemote;
 
     public ApnProxyTunnelChannelInitializer(ApnProxyRemote apnProxyRemote, Channel uaChannel) {
@@ -37,7 +37,7 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.SSL) {
             ApnProxySslRemote sslRemote = (ApnProxySslRemote) apnProxyRemote;
             SSLEngine engine = ApnProxySSLContextFactory.createClientSSLEnginForRemoteAddress(
-                sslRemote.getRemoteHost(), sslRemote.getRemotePort());
+                    sslRemote.getRemoteHost(), sslRemote.getRemotePort());
             engine.setUseClientMode(true);
 
             pipeline.addLast("ssl", new SslHandler(engine));
@@ -46,7 +46,7 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
             ApnProxyTripleDesRemote tripleDesRemote = (ApnProxyTripleDesRemote) apnProxyRemote;
             pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                tripleDesRemote.getRemoteTripleDesKey()));
+                    tripleDesRemote.getRemoteTripleDesKey()));
         }
 
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.PLAIN) {
@@ -54,7 +54,7 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
         }
 
         pipeline
-            .addLast(new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA", uaChannel));
+                .addLast(new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA", uaChannel));
 
     }
 }

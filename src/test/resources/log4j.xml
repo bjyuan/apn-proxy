@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration>
-	<appender name="CONSOLE_APPENDER" class="org.apache.log4j.ConsoleAppender">
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%p] %d %t %c - : %m%n" />
-		</layout>
-	</appender>
+    <appender name="CONSOLE_APPENDER" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p] %d %t %c - : %m%n"/>
+        </layout>
+    </appender>
 
-	<logger name="HTTP_REST_LOGGER" additivity="false">
-		<level value="info" />
-		<appender-ref ref="CONSOLE_APPENDER" />
-	</logger>
+    <logger name="HTTP_REST_LOGGER" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="CONSOLE_APPENDER"/>
+    </logger>
 
-	<logger name="REMOTE_CHOOSE_LOGGER" additivity="false">
-		<level value="info" />
-		<appender-ref ref="CONSOLE_APPENDER" />
-	</logger>
+    <logger name="REMOTE_CHOOSE_LOGGER" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="CONSOLE_APPENDER"/>
+    </logger>
 
-	<logger name="BYTE_LOGGER" additivity="false">
-		<level value="warn" />
-		<appender-ref ref="CONSOLE_APPENDER" />
-	</logger>
+    <logger name="BYTE_LOGGER" additivity="false">
+        <level value="warn"/>
+        <appender-ref ref="CONSOLE_APPENDER"/>
+    </logger>
 
-	<logger name="PRE_BYTE_LOGGER" additivity="false">
-		<level value="warn" />
-		<appender-ref ref="CONSOLE_APPENDER" />
-	</logger>
+    <logger name="PRE_BYTE_LOGGER" additivity="false">
+        <level value="warn"/>
+        <appender-ref ref="CONSOLE_APPENDER"/>
+    </logger>
 
-	<logger name="com.xx_dev.apn.proxy" additivity="false">
-		<level value="info" />
-		<appender-ref ref="CONSOLE_APPENDER" />
-	</logger>
+    <logger name="com.xx_dev.apn.proxy" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="CONSOLE_APPENDER"/>
+    </logger>
 
-	<logger name="org.apache.http.wire" additivity="false">
-		<level value="debug" />
-		<appender-ref ref="CONSOLE_APPENDER" />
-	</logger>
+    <logger name="org.apache.http.wire" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="CONSOLE_APPENDER"/>
+    </logger>
 
-	<root>
-		<level value="info" />
-		<appender-ref ref="CONSOLE_APPENDER" />
-	</root>
+    <root>
+        <level value="info"/>
+        <appender-ref ref="CONSOLE_APPENDER"/>
+    </root>
 
 </log4j:configuration>
 

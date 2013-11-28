@@ -18,7 +18,7 @@ import java.io.IOException;
  * To change this template use File | Settings | File Templates.
  */
 public class TestProxyBase {
-    private static final Logger   logger = Logger.getLogger(TestProxyWithHttpClient.class);
+    private static final Logger logger = Logger.getLogger(TestProxyWithHttpClient.class);
 
     private static ApnProxyServer server;
 
@@ -29,10 +29,10 @@ public class TestProxyBase {
             public void run() {
                 logger.info("Start apnproxy server for junit test");
                 ApnProxyXmlConfigReader.read(TestProxyBase.class
-                    .getResourceAsStream("/plain-proxy-config.xml"));
+                        .getResourceAsStream("/plain-proxy-config.xml"));
                 try {
                     ApnProxyPropertiesReader.read(TestProxyBase.class
-                        .getResourceAsStream("/config.properties"));
+                            .getResourceAsStream("/config.properties"));
                 } catch (IOException e) {
                     Assert.fail();
                 }

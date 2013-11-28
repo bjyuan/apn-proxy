@@ -27,7 +27,7 @@ public class ApnProxySSLContextFactory {
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 KeyStore tks = KeyStore.getInstance("JKS");
                 tks.load(new FileInputStream(ApnProxyConfig.getConfig().getTrustStorePath()),
-                    ApnProxyConfig.getConfig().getTrustStorePassword().toCharArray());
+                        ApnProxyConfig.getConfig().getTrustStorePassword().toCharArray());
                 tmf.init(tks);
                 trustManagers = tmf.getTrustManagers();
             }
