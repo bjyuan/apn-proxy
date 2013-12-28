@@ -237,6 +237,7 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         }
 
         _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+        // _httpRequest.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.IDENTITY);
 
         if (StringUtils.isNotBlank(apnProxyRemote.getProxyUserName()) && StringUtils.isNotBlank(apnProxyRemote.getProxyPassword())) {
             String proxyAuthorization = apnProxyRemote.getProxyUserName() + ":" + apnProxyRemote.getProxyPassword();
