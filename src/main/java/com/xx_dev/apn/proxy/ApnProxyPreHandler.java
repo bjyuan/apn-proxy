@@ -73,6 +73,8 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                         HttpResponseStatus.OK, pacResponseContent);
                 HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
                 HttpHeaders.setHeader(pacResponseMsg, "X-APN-PROXY-PAC", "OK");
+                HttpHeaders.setHeader(pacResponseMsg, "X-APN-PROXY-URL", "https://github.com/apn-proxy/apn-proxy");
+                HttpHeaders.setHeader(pacResponseMsg, "X-APN-PROXY-MSG", "We need more commiters!");
 
                 ctx.write(pacResponseMsg);
                 ctx.flush();
