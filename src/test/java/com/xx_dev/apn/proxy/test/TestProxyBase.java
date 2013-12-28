@@ -28,9 +28,11 @@ public class TestProxyBase {
             @Override
             public void run() {
                 logger.info("Start apnproxy server for junit test");
-                ApnProxyXmlConfigReader.read(TestProxyBase.class.getResourceAsStream("/plain-proxy-config.xml"));
+                ApnProxyXmlConfigReader.read(TestProxyBase.class
+                        .getResourceAsStream("/plain-proxy-config.xml"));
                 try {
-                    ApnProxyPropertiesReader.read(TestProxyBase.class.getResourceAsStream("/config.properties"));
+                    ApnProxyPropertiesReader.read(TestProxyBase.class
+                            .getResourceAsStream("/config.properties"));
                 } catch (IOException e) {
                     Assert.fail();
                 }

@@ -10,13 +10,13 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class ApnProxyRemoteRule {
-    private String remoteHost;
-    private int remotePort;
-    private String proxyUserName;
-    private String proxyPassword;
+    private String             remoteHost;
+    private int                remotePort;
+    private String             proxyUserName;
+    private String             proxyPassword;
     private ApnProxyListenType remoteListenType;
-    private String remoteTripleDesKey;
-    private List<String> originalHostList;
+    private String             remoteTripleDesKey;
+    private List<String>       originalHostList;
 
     public final String getRemoteHost() {
         return remoteHost;

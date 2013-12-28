@@ -1,6 +1,5 @@
 package com.xx_dev.apn.proxy.remotechooser;
 
-
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 
 public abstract class ApnProxyRemote {

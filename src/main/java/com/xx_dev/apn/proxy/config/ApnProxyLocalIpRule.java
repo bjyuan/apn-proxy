@@ -10,7 +10,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class ApnProxyLocalIpRule {
-    private String localIp;
+    private String       localIp;
     private List<String> originalHostList;
 
     public final String getLocalIp() {

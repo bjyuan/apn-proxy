@@ -30,5 +30,4 @@ public class ApnProxySimpleEncryptHandler extends ByteToMessageCodec<ByteBuf> {
         out.add(outBuf);
     }
 
-
 }

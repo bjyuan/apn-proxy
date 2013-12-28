@@ -62,7 +62,8 @@ public class ApnProxyXmlConfigReader {
             Elements keyStorePasswordElements = keyStoreElements.get(0)
                     .getChildElements("password");
             if (keyStorePasswordElements.size() == 1) {
-                ApnProxyConfig.getConfig().setKeyStroePassword(keyStorePasswordElements.get(0).getValue());
+                ApnProxyConfig.getConfig().setKeyStroePassword(
+                        keyStorePasswordElements.get(0).getValue());
             }
         }
 
@@ -71,19 +72,22 @@ public class ApnProxyXmlConfigReader {
             ApnProxyConfig.getConfig().setUseTrustStore(true);
             Elements trustStorePathElements = trustStoreElements.get(0).getChildElements("path");
             if (trustStorePathElements.size() == 1) {
-                ApnProxyConfig.getConfig().setTrustStorePath(trustStorePathElements.get(0).getValue());
+                ApnProxyConfig.getConfig().setTrustStorePath(
+                        trustStorePathElements.get(0).getValue());
             }
-            Elements trustStorePasswordElements = trustStoreElements.get(0)
-                    .getChildElements("password");
+            Elements trustStorePasswordElements = trustStoreElements.get(0).getChildElements(
+                    "password");
             if (trustStorePasswordElements.size() == 1) {
-                ApnProxyConfig.getConfig().setTrustStorePassword(trustStorePasswordElements.get(0).getValue());
+                ApnProxyConfig.getConfig().setTrustStorePassword(
+                        trustStorePasswordElements.get(0).getValue());
             }
         }
 
         Elements portElements = rootElement.getChildElements("port");
         if (portElements.size() == 1) {
             try {
-                ApnProxyConfig.getConfig().setPort(Integer.parseInt(portElements.get(0).getValue()));
+                ApnProxyConfig.getConfig()
+                        .setPort(Integer.parseInt(portElements.get(0).getValue()));
             } catch (NumberFormatException nfe) {
                 throw new ApnProxyConfigException("Invalid format for: port", nfe);
             }
@@ -94,7 +98,8 @@ public class ApnProxyXmlConfigReader {
             Elements bossElements = threadCountElements.get(0).getChildElements("boss");
             if (bossElements.size() == 1) {
                 try {
-                    ApnProxyConfig.getConfig().setBossThreadCount(Integer.parseInt(bossElements.get(0).getValue()));
+                    ApnProxyConfig.getConfig().setBossThreadCount(
+                            Integer.parseInt(bossElements.get(0).getValue()));
                 } catch (NumberFormatException nfe) {
                     throw new ApnProxyConfigException("Invalid format for: boss", nfe);
                 }
@@ -102,7 +107,8 @@ public class ApnProxyXmlConfigReader {
             Elements workerElements = threadCountElements.get(0).getChildElements("worker");
             if (workerElements.size() == 1) {
                 try {
-                    ApnProxyConfig.getConfig().setWorkerThreadCount(Integer.parseInt(workerElements.get(0).getValue()));
+                    ApnProxyConfig.getConfig().setWorkerThreadCount(
+                            Integer.parseInt(workerElements.get(0).getValue()));
                 } catch (NumberFormatException nfe) {
                     throw new ApnProxyConfigException("Invalid format for: worker", nfe);
                 }
@@ -111,7 +117,8 @@ public class ApnProxyXmlConfigReader {
 
         Elements useIpv6Elements = rootElement.getChildElements("use-ipv6");
         if (useIpv6Elements.size() == 1) {
-            ApnProxyConfig.getConfig().setUseIpV6(Boolean.parseBoolean(useIpv6Elements.get(0).getValue()));
+            ApnProxyConfig.getConfig().setUseIpV6(
+                    Boolean.parseBoolean(useIpv6Elements.get(0).getValue()));
         }
 
         Elements remoteRulesElements = rootElement.getChildElements("remote-rules");
@@ -149,7 +156,6 @@ public class ApnProxyXmlConfigReader {
                     String proxyUserName = proxyUserNameElements.get(0).getValue();
                     apnProxyRemoteRule.setProxyUserName(proxyUserName);
                 }
-
 
                 Elements proxyPasswordElements = ruleElement.getChildElements("proxy-password");
                 if (proxyPasswordElements.size() == 1) {

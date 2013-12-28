@@ -30,20 +30,19 @@ public class TestProxyWithNetty extends TestProxyBase {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
-            b.group(group)
-                    .channel(NioSocketChannel.class)
+            b.group(group).channel(NioSocketChannel.class)
                     .handler(new TestHttpClientChannelInitializer());
 
             // Make the connection attempt.
-            Channel ch = b.connect("127.0.0.1", ApnProxyConfig.getConfig().getPort()).sync().channel();
+            Channel ch = b.connect("127.0.0.1", ApnProxyConfig.getConfig().getPort()).sync()
+                    .channel();
 
             // Prepare the HTTP request.
-            HttpRequest request = new DefaultHttpRequest(
-                    HttpVersion.HTTP_1_1, HttpMethod.GET, "http://" + host + path);
+            HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                    "http://" + host + path);
             request.headers().set(HttpHeaders.Names.HOST, host);
             request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
             //request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
-
 
             // Send the HTTP request.
             ch.writeAndFlush(request);
@@ -82,6 +81,5 @@ public class TestProxyWithNetty extends TestProxyBase {
         test("www.github.com", "/");
         Assert.assertEquals(301, TestResultHolder.httpStatusCode());
     }
-
 
 }

@@ -39,8 +39,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         ctx.read();
     }
 
-    public void channelRead(final ChannelHandlerContext ctx, Object msg)
-            throws Exception {
+    public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 
         HttpObject ho = (HttpObject) msg;
         if (logger.isDebugEnabled()) {

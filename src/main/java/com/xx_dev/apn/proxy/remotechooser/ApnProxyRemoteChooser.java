@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
  */
 public class ApnProxyRemoteChooser {
 
+    @SuppressWarnings("unused")
     private static final Logger logger = Logger.getLogger(ApnProxyRemoteChooser.class);
 
     private static final Logger remoteChooseLogger = Logger.getLogger("REMOTE_CHOOSE_LOGGER");
@@ -59,8 +60,9 @@ public class ApnProxyRemoteChooser {
         }
 
         if (remoteChooseLogger.isInfoEnabled()) {
-            remoteChooseLogger.info("Original host: " + originalHost + ", Original port: " + originalPort + ", Remote: "
-                    + apRemote.getRemote() + ", Remote type: " + apRemote.getRemoteListenType());
+            remoteChooseLogger.info("Original host: " + originalHost + ", Original port: "
+                    + originalPort + ", Remote: " + apRemote.getRemote()
+                    + ", Remote type: " + apRemote.getRemoteListenType());
         }
 
         return apRemote;

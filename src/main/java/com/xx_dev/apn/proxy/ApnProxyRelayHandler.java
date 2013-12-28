@@ -58,7 +58,6 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
             ReferenceCountUtil.release(msg);
         }
 
-
     }
 
     @Override
@@ -67,7 +66,8 @@ public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
             logger.debug(tag + " channel inactive");
         }
         if (relayChannel != null && relayChannel.isActive()) {
-            relayChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            relayChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
+                    ChannelFutureListener.CLOSE);
         }
         ctx.fireChannelInactive();
     }

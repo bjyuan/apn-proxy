@@ -1,6 +1,5 @@
 package com.xx_dev.apn.proxy.test;
 
-
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import junit.framework.Assert;
 import org.apache.commons.lang.StringUtils;
@@ -44,16 +43,15 @@ public class TestProxyWithHttpClient extends TestProxyBase {
 
     @Test
     public void testPac() {
-        test("http://"+ApnProxyConfig.getConfig().getPacHost(), 200, "X-APN-PROXY-PAC", "OK");
+        test("http://" + ApnProxyConfig.getConfig().getPacHost(), 200, "X-APN-PROXY-PAC", "OK");
     }
 
-    private  void test(String uri, int exceptCode) {
+    private void test(String uri, int exceptCode) {
         test(uri, exceptCode, null, null);
     }
 
     private void test(String uri, int exceptCode, String exceptHeaderName, String exceptHeaderValue) {
-        ConnectionConfig connectionConfig = ConnectionConfig.custom()
-                .setCharset(Consts.UTF_8)
+        ConnectionConfig connectionConfig = ConnectionConfig.custom().setCharset(Consts.UTF_8)
                 .build();
 
         PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
@@ -62,21 +60,15 @@ public class TestProxyWithHttpClient extends TestProxyBase {
         cm.setDefaultConnectionConfig(connectionConfig);
 
         CloseableHttpClient httpClient = HttpClients.custom()
-                .setUserAgent("Mozilla/5.0 xx-dev-web-common httpclient/4.x")
-                .setConnectionManager(cm)
-                .disableContentCompression()
-                .disableCookieManagement()
-                .build();
+                .setUserAgent("Mozilla/5.0 xx-dev-web-common httpclient/4.x").setConnectionManager(cm)
+                .disableContentCompression().disableCookieManagement().build();
 
         HttpHost proxy = new HttpHost("127.0.0.1", ApnProxyConfig.getConfig().getPort());
 
         RequestConfig config = RequestConfig.custom().setProxy(proxy)
-                .setExpectContinueEnabled(true)
-                .setConnectionRequestTimeout(5000)
-                .setConnectTimeout(10000)
-                .setSocketTimeout(10000)
-                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-                .build();
+                .setExpectContinueEnabled(true).setConnectionRequestTimeout(5000)
+                .setConnectTimeout(10000).setSocketTimeout(10000)
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
         HttpGet request = new HttpGet(uri);
         request.setConfig(config);
 
@@ -84,12 +76,14 @@ public class TestProxyWithHttpClient extends TestProxyBase {
             CloseableHttpResponse httpResponse = httpClient.execute(request);
 
             Assert.assertEquals(exceptCode, httpResponse.getStatusLine().getStatusCode());
-            if(StringUtils.isNotBlank(exceptHeaderName) && StringUtils.isNotBlank(exceptHeaderValue)) {
-                Assert.assertEquals(exceptHeaderValue, httpResponse.getFirstHeader(exceptHeaderName).getValue());
+            if (StringUtils.isNotBlank(exceptHeaderName)
+                    && StringUtils.isNotBlank(exceptHeaderValue)) {
+                Assert.assertEquals(exceptHeaderValue, httpResponse
+                        .getFirstHeader(exceptHeaderName).getValue());
             }
 
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            String responseString = responseHandler.handleResponse(httpResponse);
+            responseHandler.handleResponse(httpResponse);
 
             httpResponse.close();
         } catch (IOException e) {

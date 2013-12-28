@@ -4,7 +4,6 @@ public class ApnProxyTripleDesRemote extends ApnProxyRemote {
 
     private String remoteTripleDesKey;
 
-
     public String getRemoteTripleDesKey() {
         return remoteTripleDesKey;
     }

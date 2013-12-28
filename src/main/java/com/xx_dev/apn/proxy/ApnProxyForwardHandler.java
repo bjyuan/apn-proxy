@@ -72,8 +72,8 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
             String originalHost = HostNamePortUtil.getHostName(originalHostHeader);
             int originalPort = HostNamePortUtil.getPort(originalHostHeader, 80);
 
-
-            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(originalHost, originalPort);
+            final ApnProxyRemote apnProxyRemote = ApnProxyRemoteChooser.chooseRemoteAddr(
+                    originalHost, originalPort);
             remoteAddr = apnProxyRemote.getRemote();
 
             Channel remoteChannel = remoteChannelMap.get(remoteAddr);
@@ -111,7 +111,6 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                             + originalHost + ":" + originalPort);
                 }
 
-
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap
                         .group(uaChannel.eventLoop())
@@ -137,24 +136,28 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (future.isSuccess()) {
-                            future.channel().write(constructRequestForProxy((HttpRequest) msg, apnProxyRemote));
+                            future.channel().write(
+                                    constructRequestForProxy((HttpRequest) msg, apnProxyRemote));
 
                             for (HttpContent hc : httpContentBuffer) {
                                 future.channel().writeAndFlush(hc);
                             }
                             httpContentBuffer.clear();
 
-                            future.channel().writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
-                                @Override
-                                public void operationComplete(ChannelFuture future) throws Exception {
-                                    future.channel().read();
-                                }
-                            });
+                            future.channel().writeAndFlush(Unpooled.EMPTY_BUFFER)
+                                    .addListener(new ChannelFutureListener() {
+                                        @Override
+                                        public void operationComplete(ChannelFuture future)
+                                                throws Exception {
+                                            future.channel().read();
+                                        }
+                                    });
                         } else {
                             String errorMsg = "remote connect to " + remoteAddr + " fail";
                             logger.error(errorMsg);
                             // send error response
-                            HttpMessage errorResponseMsg = HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.INTERNAL_SERVER_ERROR, errorMsg);
+                            HttpMessage errorResponseMsg = HttpErrorUtil.buildHttpErrorMessage(
+                                    HttpResponseStatus.INTERNAL_SERVER_ERROR, errorMsg);
                             uaChannel.writeAndFlush(errorResponseMsg);
                             httpContentBuffer.clear();
 
@@ -179,7 +182,8 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
                     public void operationComplete(ChannelFuture future) throws Exception {
                         future.channel().read();
                         if (logger.isDebugEnabled()) {
-                            logger.debug("Remote channel: " + remoteAddr + " read after write http content");
+                            logger.debug("Remote channel: " + remoteAddr
+                                    + " read after write http content");
                         }
                     }
                 });
@@ -197,12 +201,13 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         }
         for (Map.Entry<String, Channel> entry : remoteChannelMap.entrySet()) {
             final Channel remoteChannel = entry.getValue();
-            remoteChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    remoteChannel.close();
-                }
-            });
+            remoteChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(
+                    new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            remoteChannel.close();
+                        }
+                    });
         }
     }
 
@@ -212,7 +217,8 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 
-    private HttpRequest constructRequestForProxy(HttpRequest httpRequest, ApnProxyRemote apnProxyRemote) {
+    private HttpRequest constructRequestForProxy(HttpRequest httpRequest,
+                                                 ApnProxyRemote apnProxyRemote) {
 
         String uri = httpRequest.getUri();
 
@@ -239,10 +245,13 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         _httpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         // _httpRequest.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.IDENTITY);
 
-        if (StringUtils.isNotBlank(apnProxyRemote.getProxyUserName()) && StringUtils.isNotBlank(apnProxyRemote.getProxyPassword())) {
-            String proxyAuthorization = apnProxyRemote.getProxyUserName() + ":" + apnProxyRemote.getProxyPassword();
+        if (StringUtils.isNotBlank(apnProxyRemote.getProxyUserName())
+                && StringUtils.isNotBlank(apnProxyRemote.getProxyPassword())) {
+            String proxyAuthorization = apnProxyRemote.getProxyUserName() + ":"
+                    + apnProxyRemote.getProxyPassword();
             try {
-                _httpRequest.headers().set("Proxy-Authorization", "Basic " + Base64.encodeBase64String(proxyAuthorization.getBytes("UTF-8")));
+                _httpRequest.headers().set("Proxy-Authorization",
+                        "Basic " + Base64.encodeBase64String(proxyAuthorization.getBytes("UTF-8")));
             } catch (UnsupportedEncodingException e) {
             }
 
