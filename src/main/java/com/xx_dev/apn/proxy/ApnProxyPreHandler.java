@@ -36,6 +36,8 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
             "172.18.", "172.19.", "172.20.", "172.21.", "172.22.", "172.23.", "172.24.", "172.25.",
             "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.", "192.168."};
 
+    private static int[] forbiddenPorts = new int[]{20, 21, 22};
+
     private boolean isPacRequest = false;
 
     @Override
@@ -62,17 +64,6 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                         + httpRequest.headers().get(HttpHeaders.Names.USER_AGENT));
             }
 
-            // forbid request to proxy server internal network
-            for (String forbiddenIp : forbiddenIps) {
-                if (StringUtils.startsWith(originalHost, forbiddenIp)) {
-                    String errorMsg = "Forbidden";
-                    ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN,
-                            errorMsg));
-                    ctx.flush();
-                    return false;
-                }
-            }
-
             // pac request
             if (StringUtils.equals(originalHost, ApnProxyConfig.getConfig().getPacHost())) {
                 isPacRequest = true;
@@ -88,6 +79,17 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 return false;
             }
 
+            // forbid request to proxy server internal network
+            for (String forbiddenIp : forbiddenIps) {
+                if (StringUtils.startsWith(originalHost, forbiddenIp)) {
+                    String errorMsg = "Forbidden";
+                    ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN,
+                            errorMsg));
+                    ctx.flush();
+                    return false;
+                }
+            }
+
             // forbid request to proxy server local
             if (StringUtils.equals(originalHost, "127.0.0.1")
                     || StringUtils.equals(originalHost, "localhost")) {
@@ -98,15 +100,16 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
                 return false;
             }
 
-            // forbid reqeust to non http port
+            // forbid reqeust to some port
             int originalPort = HostNamePortUtil.getPort(hostHeader, -1);
-            if (originalPort != -1 && originalPort != 80 && originalPort != 443
-                    && originalPort != 8080 && originalPort != 8443) {
-                String errorMsg = "Forbidden";
-                ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN,
-                        errorMsg));
-                ctx.flush();
-                return false;
+            for (int fobiddenPort : forbiddenPorts) {
+                if (originalPort == fobiddenPort) {
+                    String errorMsg = "Forbidden";
+                    ctx.write(HttpErrorUtil.buildHttpErrorMessage(HttpResponseStatus.FORBIDDEN,
+                            errorMsg));
+                    ctx.flush();
+                    return false;
+                }
             }
 
         } else {
