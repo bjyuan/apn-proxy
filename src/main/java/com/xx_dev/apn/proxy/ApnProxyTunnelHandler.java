@@ -30,8 +30,9 @@ import java.net.InetSocketAddress;
 import java.util.Set;
 
 /**
- * @author mingxing.xumx
- * @version $Id: ApnProxyTunnelHandler.java, v 0.1 2013-5-15 上午11:18:36 mingxing.xumx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxyTunnelHandler extends ChannelInboundHandlerAdapter {
 

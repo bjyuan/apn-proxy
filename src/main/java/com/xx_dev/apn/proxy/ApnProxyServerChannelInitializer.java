@@ -15,8 +15,9 @@ import javax.net.ssl.SSLEngine;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author xmx
- * @version $Id: ApOutsideChannelInitializer.java,v 0.1 Feb 11, 2013 11:15:01 PM xmx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketChannel> {
 

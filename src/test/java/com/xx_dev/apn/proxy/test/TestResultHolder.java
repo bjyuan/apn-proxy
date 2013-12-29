@@ -4,11 +4,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mingxing.xumx
- * Date: 13-10-11
- * Time: 上午11:12
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class TestResultHolder {
 

@@ -5,8 +5,9 @@ import com.xx_dev.apn.proxy.config.ApnProxyLocalIpRule;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * @author mingxing.xumx
- * @version $Id: ApnProxyLocalAddressChooser.java, v 0.1 2013-5-19 下午4:08:38 mingxing.xumx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxyLocalAddressChooser {
 

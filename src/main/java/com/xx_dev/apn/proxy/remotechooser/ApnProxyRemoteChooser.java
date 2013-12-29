@@ -7,8 +7,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
- * @author xmx
- * @version $Id: ApnProxyRemoteChooser.java, v 0.1 2013-3-26 下午1:16:27 xmx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxyRemoteChooser {
 

@@ -8,11 +8,9 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Created with IntelliJ IDEA.
- * User: xjx
- * Date: 13-10-15
- * Time: 下午10:45
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:54
  */
 public class ApnProxyPropertiesReader {
 

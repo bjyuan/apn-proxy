@@ -12,6 +12,11 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
+/**
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
+ */
 public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(HttpProxyHandler.class);

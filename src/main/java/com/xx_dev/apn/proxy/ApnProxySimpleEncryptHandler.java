@@ -7,6 +7,11 @@ import io.netty.handler.codec.ByteToMessageCodec;
 
 import java.util.List;
 
+/**
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
+ */
 public class ApnProxySimpleEncryptHandler extends ByteToMessageCodec<ByteBuf> {
 
     public static final String HANDLER_NAME = "apnproxy.encrypt";

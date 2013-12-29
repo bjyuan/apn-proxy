@@ -11,11 +11,9 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mingxing.xumx
- * Date: 13-7-8
- * Time: 上午10:22
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class HttpErrorUtil {
 
@@ -23,11 +21,11 @@ public class HttpErrorUtil {
         ByteBuf errorResponseContent = Unpooled.copiedBuffer(errorMsg, CharsetUtil.UTF_8);
         // send error response
         FullHttpMessage errorResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-            status, errorResponseContent);
+                status, errorResponseContent);
         errorResponseMsg.headers()
-            .add(HttpHeaders.Names.CONTENT_ENCODING, CharsetUtil.UTF_8.name());
+                .add(HttpHeaders.Names.CONTENT_ENCODING, CharsetUtil.UTF_8.name());
         errorResponseMsg.headers().add(HttpHeaders.Names.CONTENT_LENGTH,
-            errorResponseContent.readableBytes());
+                errorResponseContent.readableBytes());
 
         return errorResponseMsg;
     }

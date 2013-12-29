@@ -14,6 +14,11 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
+/**
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
+ */
 public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private ApnProxyRemote apnProxyRemote;

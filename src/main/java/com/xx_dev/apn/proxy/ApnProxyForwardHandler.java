@@ -36,8 +36,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author xmx
- * @version $Id: ApnProxyForwardHandler.java,v 0.1 Feb 11, 2013 11:37:40 PM xmx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
 

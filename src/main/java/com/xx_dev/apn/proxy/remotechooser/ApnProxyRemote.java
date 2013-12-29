@@ -2,6 +2,11 @@ package com.xx_dev.apn.proxy.remotechooser;
 
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 
+/**
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
+ */
 public abstract class ApnProxyRemote {
     private String remoteHost;
     private int remotePort;

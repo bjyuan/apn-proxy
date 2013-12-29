@@ -12,8 +12,9 @@ import java.io.FileInputStream;
 import java.security.KeyStore;
 
 /**
- * @author xmx
- * @version $Id: ApnProxySSLContextFactory.java, v 0.1 2013-3-26 上午11:22:10 xmx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxySSLContextFactory {
 

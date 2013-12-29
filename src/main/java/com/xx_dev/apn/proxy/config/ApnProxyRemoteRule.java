@@ -3,20 +3,18 @@ package com.xx_dev.apn.proxy.config;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mingxing.xumx
- * Date: 13-10-15
- * Time: 下午8:40
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:54
  */
 public class ApnProxyRemoteRule {
-    private String             remoteHost;
-    private int                remotePort;
-    private String             proxyUserName;
-    private String             proxyPassword;
+    private String remoteHost;
+    private int remotePort;
+    private String proxyUserName;
+    private String proxyPassword;
     private ApnProxyListenType remoteListenType;
-    private String             remoteTripleDesKey;
-    private List<String>       originalHostList;
+    private String remoteTripleDesKey;
+    private List<String> originalHostList;
 
     public final String getRemoteHost() {
         return remoteHost;

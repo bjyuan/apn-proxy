@@ -21,11 +21,9 @@ import org.junit.Test;
 import java.io.IOException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mingxing.xumx
- * Date: 13-10-11
- * Time: 下午4:17
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class TestProxyWithHttpClient extends TestProxyBase {
 

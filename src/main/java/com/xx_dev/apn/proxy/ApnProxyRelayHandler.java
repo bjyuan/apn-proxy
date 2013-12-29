@@ -11,8 +11,9 @@ import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 /**
- * @author xmx
- * @version $Id: ApnProxyRelayHandler.java,v 0.1 Feb 20, 2013 9:10:39 PM xmx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxyRelayHandler extends ChannelInboundHandlerAdapter {
 

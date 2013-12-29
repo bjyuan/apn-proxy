@@ -1,21 +1,22 @@
 package com.xx_dev.apn.proxy.test;
 
 import com.xx_dev.apn.proxy.ApnProxyServer;
+import com.xx_dev.apn.proxy.config.ApnProxyConfigReader;
 import com.xx_dev.apn.proxy.config.ApnProxyPropertiesReader;
-import com.xx_dev.apn.proxy.config.ApnProxyXmlConfigReader;
+import com.xx_dev.apn.proxy.config.ApnProxyRemoteRulesConfigReader;
 import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mingxing.xumx
- * Date: 13-10-11
- * Time: 下午5:00
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class TestProxyBase {
     private static final Logger logger = Logger.getLogger(TestProxyWithHttpClient.class);
@@ -28,8 +29,15 @@ public class TestProxyBase {
             @Override
             public void run() {
                 logger.info("Start apnproxy server for junit test");
-                ApnProxyXmlConfigReader.read(TestProxyBase.class
+
+                    ApnProxyConfigReader apnProxyConfigReader = new ApnProxyConfigReader();
+                    apnProxyConfigReader.read(TestProxyBase.class
+                            .getResourceAsStream("/plain-proxy-config.xml"));
+
+                ApnProxyRemoteRulesConfigReader apnProxyRemoteRulesConfigReader = new ApnProxyRemoteRulesConfigReader();
+                apnProxyRemoteRulesConfigReader.read(TestProxyBase.class
                         .getResourceAsStream("/plain-proxy-config.xml"));
+
                 try {
                     ApnProxyPropertiesReader.read(TestProxyBase.class
                             .getResourceAsStream("/config.properties"));

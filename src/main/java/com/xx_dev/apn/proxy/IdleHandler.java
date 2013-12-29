@@ -5,6 +5,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.log4j.Logger;
 
+/**
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
+ */
 public class IdleHandler extends ChannelDuplexHandler {
 
     private static Logger logger = Logger.getLogger(IdleHandler.class);

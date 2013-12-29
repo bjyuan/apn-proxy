@@ -3,14 +3,12 @@ package com.xx_dev.apn.proxy.config;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mingxing.xumx
- * Date: 13-10-15
- * Time: 下午8:39
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:54
  */
 public class ApnProxyLocalIpRule {
-    private String       localIp;
+    private String localIp;
     private List<String> originalHostList;
 
     public final String getLocalIp() {

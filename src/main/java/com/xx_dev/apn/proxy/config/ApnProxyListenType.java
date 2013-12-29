@@ -4,11 +4,9 @@ import com.xx_dev.apn.proxy.ApnProxyConfigException;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mingxing.xumx
- * Date: 13-10-15
- * Time: 下午8:39
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:54
  */
 public enum ApnProxyListenType {
     SIMPLE, TRIPLE_DES, SSL, PLAIN;

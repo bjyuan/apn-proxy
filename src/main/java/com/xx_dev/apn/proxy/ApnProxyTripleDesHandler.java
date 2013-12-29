@@ -13,6 +13,11 @@ import java.nio.charset.Charset;
 import java.security.Key;
 import java.util.List;
 
+/**
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
+ */
 public class ApnProxyTripleDesHandler extends ByteToMessageCodec<ByteBuf> {
 
     private static final Logger logger = Logger

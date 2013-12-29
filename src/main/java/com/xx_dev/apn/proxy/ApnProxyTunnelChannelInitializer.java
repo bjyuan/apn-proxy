@@ -13,8 +13,9 @@ import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.SSLEngine;
 
 /**
- * @author xmx
- * @version $Id: ApnProxyTunnelChannelInitializer.java, v 0.1 2013-3-22 下午10:00:21 xmx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketChannel> {
 

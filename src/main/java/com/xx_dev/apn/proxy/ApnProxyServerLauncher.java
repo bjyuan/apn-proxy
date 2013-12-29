@@ -1,8 +1,9 @@
 package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyConfigReader;
 import com.xx_dev.apn.proxy.config.ApnProxyPropertiesReader;
-import com.xx_dev.apn.proxy.config.ApnProxyXmlConfigReader;
+import com.xx_dev.apn.proxy.config.ApnProxyRemoteRulesConfigReader;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -13,8 +14,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 /**
- * @author xmx
- * @version $Id: ApnProxyServerLauncher.java,v 0.1 Feb 11, 2013 11:07:34 PM xmx Exp $
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class ApnProxyServerLauncher {
 
@@ -35,9 +37,18 @@ public class ApnProxyServerLauncher {
     public static void main(String[] args) {
 
         try {
-            ApnProxyXmlConfigReader.read(new File("conf/config.xml"));
+            ApnProxyConfigReader reader = new ApnProxyConfigReader();
+            reader.read(new File("conf/config.xml"));
         } catch (FileNotFoundException e) {
             logger.error("The config file conf/config.xml not exists!");
+            System.exit(1);
+        }
+
+        try {
+            ApnProxyRemoteRulesConfigReader reader = new ApnProxyRemoteRulesConfigReader();
+            reader.read(new File("conf/remote-rules.xml"));
+        } catch (FileNotFoundException e) {
+            logger.error("The config file conf/remote-rules.xml not exists!");
             System.exit(1);
         }
 

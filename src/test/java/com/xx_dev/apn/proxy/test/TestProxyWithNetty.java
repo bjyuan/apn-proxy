@@ -16,11 +16,9 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 
 /**
- * Created with IntelliJ IDEA.
- * User: xjx
- * Date: 13-10-11
- * Time: 上午12:07
- * To change this template use File | Settings | File Templates.
+ * User: xmx
+ * Date: 13-12-29
+ * Time: PM11:57
  */
 public class TestProxyWithNetty extends TestProxyBase {
 
