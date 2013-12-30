@@ -48,8 +48,7 @@ public class ApnProxyServerLauncher {
             ApnProxyRemoteRulesConfigReader reader = new ApnProxyRemoteRulesConfigReader();
             reader.read(new File("conf/remote-rules.xml"));
         } catch (FileNotFoundException e) {
-            logger.error("The config file conf/remote-rules.xml not exists!");
-            System.exit(1);
+            logger.warn("The config file conf/remote-rules.xml not exists, no remote rules configured!");
         }
 
         try {
