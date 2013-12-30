@@ -1,6 +1,7 @@
 package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
+import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.config.ApnProxyRemoteRule;
 import com.xx_dev.apn.proxy.utils.HostNamePortUtil;
 import com.xx_dev.apn.proxy.utils.HttpErrorUtil;
@@ -69,7 +70,14 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
             if (StringUtils.equals(originalHost, ApnProxyConfig.getConfig().getPacHost())) {
                 isPacRequest = true;
 
-                ByteBuf pacResponseContent = Unpooled.copiedBuffer(buildPac(), CharsetUtil.UTF_8);
+                String pacContent = null;
+                if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
+                    pacContent = buildPacForSsl();
+                } else {
+                    pacContent = buildPacForPlain();
+                }
+
+                ByteBuf pacResponseContent = Unpooled.copiedBuffer(pacContent, CharsetUtil.UTF_8);
                 FullHttpMessage pacResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                         HttpResponseStatus.OK, pacResponseContent);
                 HttpHeaders.setContentLength(pacResponseMsg, pacResponseContent.readableBytes());
@@ -128,7 +136,7 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
         return true;
     }
 
-    private String buildPac() {
+    private String buildPacForPlain() {
 
         StringBuilder sb = new StringBuilder();
         sb.append("function FindProxyForURL(url, host){var PROXY = \"PROXY ")
@@ -146,6 +154,18 @@ public class ApnProxyPreHandler extends ChannelInboundHandlerAdapter {
         }
 
         sb.append("return DEFAULT;}");
+
+        return sb.toString();
+    }
+
+    private String buildPacForSsl() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("function FindProxyForURL(url, host){var PROXY = \"HTTPS ")
+                .append(ApnProxyConfig.getConfig().getPacHost()).append(":")
+                .append(ApnProxyConfig.getConfig().getPort()).append("\";");
+
+        sb.append("return PROXY;}");
 
         return sb.toString();
     }
