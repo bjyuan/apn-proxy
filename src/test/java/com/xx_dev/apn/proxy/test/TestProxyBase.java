@@ -2,16 +2,10 @@ package com.xx_dev.apn.proxy.test;
 
 import com.xx_dev.apn.proxy.ApnProxyServer;
 import com.xx_dev.apn.proxy.config.ApnProxyConfigReader;
-import com.xx_dev.apn.proxy.config.ApnProxyPropertiesReader;
 import com.xx_dev.apn.proxy.config.ApnProxyRemoteRulesConfigReader;
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 /**
  * User: xmx
@@ -30,20 +24,14 @@ public class TestProxyBase {
             public void run() {
                 logger.info("Start apnproxy server for junit test");
 
-                    ApnProxyConfigReader apnProxyConfigReader = new ApnProxyConfigReader();
-                    apnProxyConfigReader.read(TestProxyBase.class
-                            .getResourceAsStream("/plain-proxy-config.xml"));
+                ApnProxyConfigReader apnProxyConfigReader = new ApnProxyConfigReader();
+                apnProxyConfigReader.read(TestProxyBase.class
+                        .getResourceAsStream("/plain-proxy-config.xml"));
 
                 ApnProxyRemoteRulesConfigReader apnProxyRemoteRulesConfigReader = new ApnProxyRemoteRulesConfigReader();
                 apnProxyRemoteRulesConfigReader.read(TestProxyBase.class
                         .getResourceAsStream("/plain-proxy-config.xml"));
 
-                try {
-                    ApnProxyPropertiesReader.read(TestProxyBase.class
-                            .getResourceAsStream("/config.properties"));
-                } catch (IOException e) {
-                    Assert.fail();
-                }
                 server = new ApnProxyServer();
                 server.start();
             }

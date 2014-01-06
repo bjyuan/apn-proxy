@@ -2,7 +2,6 @@ package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.config.ApnProxyConfig;
 import com.xx_dev.apn.proxy.config.ApnProxyConfigReader;
-import com.xx_dev.apn.proxy.config.ApnProxyPropertiesReader;
 import com.xx_dev.apn.proxy.config.ApnProxyRemoteRulesConfigReader;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -10,7 +9,6 @@ import org.apache.log4j.xml.DOMConfigurator;
 import javax.xml.parsers.FactoryConfigurationError;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.MalformedURLException;
 
 /**
@@ -28,10 +26,11 @@ public class ApnProxyServerLauncher {
             try {
                 DOMConfigurator.configure(log4jConfigFile.toURI().toURL());
             } catch (MalformedURLException e) {
+                System.err.println(e);
             } catch (FactoryConfigurationError e) {
+                System.err.println(e);
             }
         }
-
     }
 
     public static void main(String[] args) {
@@ -49,13 +48,6 @@ public class ApnProxyServerLauncher {
             reader.read(new File("conf/remote-rules.xml"));
         } catch (FileNotFoundException e) {
             logger.warn("The config file conf/remote-rules.xml not exists, no remote rules configured!");
-        }
-
-        try {
-            ApnProxyPropertiesReader.read(new File("conf/config.properties"));
-        } catch (IOException e) {
-            logger.error("Something wrong when reading conf/config.properties", e);
-            System.exit(1);
         }
 
         if (ApnProxyConfig.getConfig().isUseIpV6()) {

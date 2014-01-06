@@ -103,7 +103,7 @@ public class Base64 {
      * </p>
      *
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045 section
-     *      6.8</a>
+     * 6.8</a>
      */
     public static final int MIME_CHUNK_SIZE = 76;
 
@@ -116,7 +116,7 @@ public class Base64 {
      * </p>
      *
      * @see <a href="http://tools.ietf.org/html/rfc1421">RFC 1421 section
-     *      4.3.2.4</a>
+     * 4.3.2.4</a>
      */
     public static final int PEM_CHUNK_SIZE = 64;
 
@@ -184,7 +184,7 @@ public class Base64 {
      * </p>
      *
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045 section
-     *      2.1</a>
+     * 2.1</a>
      */
     static final byte[] CHUNK_SEPARATOR = {'\r', '\n'};
 
@@ -408,7 +408,7 @@ public class Base64 {
         this.lineLength = useChunking ? (lineLength / encodedBlockSize) * encodedBlockSize : 0;
         this.chunkSeparatorLength = chunkSeparatorLength;
 
-        // TODO could be simplified if there is no requirement to reject invalid
+        // could be simplified if there is no requirement to reject invalid
         // line sep when length <=0
         // @see test case Base64Test.testConstructors()
         if (lineSeparator != null) {
@@ -509,7 +509,7 @@ public class Base64 {
      *                (if fewer are available).
      * @param context the context to be used
      * @return The number of bytes successfully extracted into the provided
-     *         byte[] array.
+     * byte[] array.
      */
     int readResults(byte[] b, int bPos, int bAvail, Context context) {
         if (context.buffer != null) {
@@ -551,7 +551,7 @@ public class Base64 {
      *
      * @param obj Object to encode
      * @return An object (of type byte[]) containing the Base-N encoded data
-     *         which corresponds to the byte[] supplied.
+     * which corresponds to the byte[] supplied.
      * @throws Exception if the parameter supplied is not of type byte[]
      */
     public Object encode(Object obj) throws Exception {
@@ -578,7 +578,7 @@ public class Base64 {
      *
      * @param pArray a byte array containing binary data
      * @return String containing only character data in the appropriate
-     *         alphabet.
+     * alphabet.
      */
     public String encodeAsString(byte[] pArray) {
         return newStringUtf8(encode(pArray));
@@ -592,7 +592,7 @@ public class Base64 {
      *
      * @param obj Object to decode
      * @return An object (of type byte[]) containing the binary data which
-     *         corresponds to the byte[] or String supplied.
+     * corresponds to the byte[] or String supplied.
      * @throws Exception if the parameter supplied is not of type byte[]
      */
     public Object decode(Object obj) throws Exception {
@@ -660,7 +660,7 @@ public class Base64 {
      * @param arrayOctet byte array to test
      * @param allowWSPad if {@code true}, then whitespace and PAD are also allowed
      * @return {@code true} if all bytes are valid characters in the alphabet or
-     *         if the byte array is empty; {@code false}, otherwise
+     * if the byte array is empty; {@code false}, otherwise
      */
     public boolean isInAlphabet(byte[] arrayOctet, boolean allowWSPad) {
         for (int i = 0; i < arrayOctet.length; i++) {
@@ -678,8 +678,8 @@ public class Base64 {
      *
      * @param basen String to test
      * @return {@code true} if all characters in the String are valid characters
-     *         in the alphabet or if the String is empty; {@code false},
-     *         otherwise
+     * in the alphabet or if the String is empty; {@code false},
+     * otherwise
      * @see #isInAlphabet(byte[], boolean)
      */
     public boolean isInAlphabet(String basen) {
@@ -694,7 +694,7 @@ public class Base64 {
      *
      * @param arrayOctet byte array to test
      * @return {@code true} if any byte is a valid character in the alphabet or
-     *         PAD; {@code false} otherwise
+     * PAD; {@code false} otherwise
      */
     protected boolean containsAlphabetOrPad(byte[] arrayOctet) {
         if (arrayOctet == null) {
@@ -713,7 +713,7 @@ public class Base64 {
      *
      * @param pArray byte[] array which will later be encoded
      * @return amount of space needed to encoded the supplied array. Returns a
-     *         long since a max-len array will require > Integer.MAX_VALUE
+     * long since a max-len array will require > Integer.MAX_VALUE
      */
     public long getEncodedLength(byte[] pArray) {
         // Calculate non-chunked size - rounded up to allow for padding
@@ -898,7 +898,7 @@ public class Base64 {
             switch (context.modulus) {
                 // case 0 : // impossible, as excluded above
                 case 1: // 6 bits - ignore entirely
-                    // TODO not currently tested; perhaps it is impossible?
+                    // not currently tested; perhaps it is impossible?
                     break;
                 case 2: // 12 bits = 8 + 4
                     context.ibitWorkArea = context.ibitWorkArea >> 4; // dump the
@@ -924,7 +924,7 @@ public class Base64 {
      *
      * @param arrayOctet byte array to test
      * @return {@code true} if all bytes are valid characters in the Base64
-     *         alphabet or if the byte array is empty; {@code false}, otherwise
+     * alphabet or if the byte array is empty; {@code false}, otherwise
      * @deprecated 1.5 Use {@link #isBase64(byte[])}, will be removed in 2.0.
      */
     @Deprecated
@@ -937,7 +937,7 @@ public class Base64 {
      *
      * @param octet The value to test
      * @return {@code true} if the value is defined in the the base 64 alphabet,
-     *         {@code false} otherwise.
+     * {@code false} otherwise.
      * @since 1.4
      */
     public static boolean isBase64(byte octet) {
@@ -951,8 +951,8 @@ public class Base64 {
      *
      * @param base64 String to test
      * @return {@code true} if all characters in the String are valid characters
-     *         in the Base64 alphabet or if the String is empty; {@code false},
-     *         otherwise
+     * in the Base64 alphabet or if the String is empty; {@code false},
+     * otherwise
      * @since 1.5
      */
     public static boolean isBase64(String base64) {
@@ -966,7 +966,7 @@ public class Base64 {
      *
      * @param arrayOctet byte array to test
      * @return {@code true} if all bytes are valid characters in the Base64
-     *         alphabet or if the byte array is empty; {@code false}, otherwise
+     * alphabet or if the byte array is empty; {@code false}, otherwise
      * @since 1.5
      */
     public static boolean isBase64(byte[] arrayOctet) {
@@ -984,7 +984,7 @@ public class Base64 {
      *
      * @param binaryData binary data to encode
      * @return byte[] containing Base64 characters in their UTF-8
-     *         representation.
+     * representation.
      */
     public static byte[] encodeBase64(byte[] binaryData) {
         return encodeBase64(binaryData, false);
@@ -1012,7 +1012,7 @@ public class Base64 {
      *
      * @param binaryData binary data to encode
      * @return byte[] containing Base64 characters in their UTF-8
-     *         representation.
+     * representation.
      * @since 1.4
      */
     public static byte[] encodeBase64URLSafe(byte[] binaryData) {
@@ -1216,7 +1216,7 @@ public class Base64 {
      *
      * @param octet The value to test
      * @return {@code true} if the value is defined in the the Base32 alphabet
-     *         {@code false} otherwise.
+     * {@code false} otherwise.
      */
     protected boolean isInAlphabet(byte octet) {
         return octet >= 0 && octet < decodeTable.length && decodeTable[octet] != -1;
