@@ -10,7 +10,6 @@ import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.ReferenceCountUtil;
@@ -21,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Properties;
 
@@ -106,7 +104,7 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
                 byte[] buf = new byte[1024];
                 try {
                     int count = -1;
-                    while((count = in.read(buf, 0, 1024)) != -1) {
+                    while ((count = in.read(buf, 0, 1024)) != -1) {
                         cacheResponseContent.writeBytes(buf, 0, count);
                     }
                 } catch (IOException e) {

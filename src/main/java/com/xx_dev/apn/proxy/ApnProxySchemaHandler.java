@@ -1,6 +1,5 @@
 package com.xx_dev.apn.proxy;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpMethod;
