@@ -12,3 +12,4 @@ conf/
 build.sh
 .idea/
 out/
+cache/

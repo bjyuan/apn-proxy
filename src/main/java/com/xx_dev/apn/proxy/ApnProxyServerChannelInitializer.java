@@ -47,7 +47,12 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
 
         pipeline.addLast(ApnProxyPreHandler.HANDLER_NAME, new ApnProxyPreHandler());
 
+        pipeline.addLast(ApnProxySchemaHandler.HANDLER_NAME, new ApnProxySchemaHandler());
+
+        pipeline.addLast(CacheFindHandler.HANDLER_NAME, new CacheFindHandler());
+
         pipeline.addLast(ApnProxyForwardHandler.HANDLER_NAME, new ApnProxyForwardHandler());
+
         pipeline.addLast(ApnProxyTunnelHandler.HANDLER_NAME, new ApnProxyTunnelHandler());
     }
 }

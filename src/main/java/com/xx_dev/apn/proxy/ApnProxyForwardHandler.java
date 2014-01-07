@@ -63,12 +63,6 @@ public class ApnProxyForwardHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
 
-            if (httpRequest.getMethod().equals(HttpMethod.CONNECT)) {
-                ctx.pipeline().remove(ApnProxyForwardHandler.HANDLER_NAME);
-                ctx.fireChannelRead(msg);
-                return;
-            }
-
             String originalHostHeader = httpRequest.headers().get(HttpHeaders.Names.HOST);
             String originalHost = HostNamePortUtil.getHostName(originalHostHeader);
             int originalPort = HostNamePortUtil.getPort(originalHostHeader, 80);

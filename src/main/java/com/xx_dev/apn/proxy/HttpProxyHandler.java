@@ -76,8 +76,8 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-        if (logger.isInfoEnabled()) {
-            logger.info("Remote channel: " + remoteAddr + " inactive");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Remote channel: " + remoteAddr + " inactive");
         }
 
         uaChannel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(new ChannelFutureListener() {
