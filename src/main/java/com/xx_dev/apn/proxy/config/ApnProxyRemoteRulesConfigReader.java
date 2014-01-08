@@ -87,16 +87,6 @@ public class ApnProxyRemoteRulesConfigReader extends ApnProxyAbstractXmlConfigRe
                     .fromString(_remoteListenType);
             apnProxyRemoteRule.setRemoteListenType(remoteListenType);
 
-            if (remoteListenType == ApnProxyListenType.TRIPLE_DES) {
-                Elements remoteTripleDesKeyElements = ruleElement
-                        .getChildElements("remote-3des-key");
-                if (remoteListenTypeElements.size() > 1) {
-                    throw new ApnProxyConfigException("Wrong config for: remote-3des-key");
-                }
-                String remoteTripleDesKey = remoteTripleDesKeyElements.get(0).getValue();
-                apnProxyRemoteRule.setRemoteTripleDesKey(remoteTripleDesKey);
-            }
-
             if (remoteListenType == ApnProxyListenType.SSL) {
                 //ApnProxySSLContextFactory.createSSLContext(remoteHost, remotePort);
             }
