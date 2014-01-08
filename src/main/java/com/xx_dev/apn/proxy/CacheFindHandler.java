@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2014 The APN-PROXY Project
+ *
+ * The APN-PROXY Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.utils.SHA256Util;
@@ -5,11 +21,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
@@ -29,9 +43,8 @@ import java.util.Comparator;
 import java.util.Properties;
 
 /**
- * User: xmx
- * Date: 13-12-29
- * Time: PM11:57
+ * @author xmx
+ * @version $Id: com.xx_dev.apn.proxy.CacheFindHandler 14-1-8 16:13 (xmx) Exp $
  */
 public class CacheFindHandler extends ChannelInboundHandlerAdapter {
 
