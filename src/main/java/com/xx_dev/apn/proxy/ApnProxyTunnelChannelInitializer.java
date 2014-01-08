@@ -19,7 +19,6 @@ package com.xx_dev.apn.proxy;
 import com.xx_dev.apn.proxy.config.ApnProxyListenType;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxyRemote;
 import com.xx_dev.apn.proxy.remotechooser.ApnProxySslRemote;
-import com.xx_dev.apn.proxy.remotechooser.ApnProxyTripleDesRemote;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -59,18 +58,11 @@ public class ApnProxyTunnelChannelInitializer extends ChannelInitializer<SocketC
             pipeline.addLast("ssl", new SslHandler(engine));
         }
 
-        if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.TRIPLE_DES) {
-            ApnProxyTripleDesRemote tripleDesRemote = (ApnProxyTripleDesRemote) apnProxyRemote;
-            pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                    tripleDesRemote.getRemoteTripleDesKey()));
-        }
-
         if (apnProxyRemote.getRemoteListenType() == ApnProxyListenType.PLAIN) {
             // nothing to do
         }
 
-        pipeline
-                .addLast(new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA", uaChannel));
+        pipeline.addLast(new ApnProxyRelayHandler(apnProxyRemote.getRemote() + " --> UA", uaChannel));
 
     }
 }

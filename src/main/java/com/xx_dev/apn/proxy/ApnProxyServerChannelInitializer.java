@@ -45,13 +45,7 @@ public class ApnProxyServerChannelInitializer extends ChannelInitializer<SocketC
 
         pipeline.addLast("datalog", new LoggingHandler("PRE_BYTE_LOGGER", LogLevel.DEBUG));
 
-        if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SIMPLE) {
-            pipeline.addLast(ApnProxySimpleEncryptHandler.HANDLER_NAME,
-                    new ApnProxySimpleEncryptHandler());
-        } else if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.TRIPLE_DES) {
-            pipeline.addLast(ApnProxyTripleDesHandler.HANDLER_NAME, new ApnProxyTripleDesHandler(
-                    ApnProxyConfig.getConfig().getTripleDesKey()));
-        } else if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
+        if (ApnProxyConfig.getConfig().getListenType() == ApnProxyListenType.SSL) {
             SSLEngine engine = ApnProxySSLContextFactory.createServerSSLSSLEngine();
             pipeline.addLast("apnproxy.encrypt", new SslHandler(engine));
         }

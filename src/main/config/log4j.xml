@@ -68,6 +68,15 @@
         </layout>
     </appender>
 
+    <appender name="CACHE_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="log/cache.log"/>
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %5p -: %m%n"/>
+        </layout>
+    </appender>
+
     <logger name="HTTP_REST_LOGGER" additivity="false">
         <level value="info"/>
         <appender-ref ref="HTTP_REST_APPENDER"/>
@@ -86,6 +95,11 @@
     <logger name="PRE_BYTE_LOGGER" additivity="false">
         <level value="warn"/>
         <appender-ref ref="PRE_BYTE_APPENDER"/>
+    </logger>
+
+    <logger name="CACHE_LOGGER" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="CACHE_APPENDER"/>
     </logger>
 
     <logger name="com.xx_dev.apn.proxy" additivity="false">

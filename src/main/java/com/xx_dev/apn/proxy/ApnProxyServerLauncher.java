@@ -36,7 +36,7 @@ public class ApnProxyServerLauncher {
     private static final Logger logger = Logger.getLogger(ApnProxyServerLauncher.class);
 
     static {
-        File log4jConfigFile = new File("conf/log4j.xml");
+        File log4jConfigFile = new File(ApnProxyConstants.LOG4J_CONFIG_FILE);
         if (log4jConfigFile.exists()) {
             try {
                 DOMConfigurator.configure(log4jConfigFile.toURI().toURL());
@@ -52,7 +52,7 @@ public class ApnProxyServerLauncher {
 
         try {
             ApnProxyConfigReader reader = new ApnProxyConfigReader();
-            reader.read(new File("conf/config.xml"));
+            reader.read(new File(ApnProxyConstants.CONFIG_FILE));
         } catch (FileNotFoundException e) {
             logger.error("The config file conf/config.xml not exists!");
             System.exit(1);
@@ -60,7 +60,7 @@ public class ApnProxyServerLauncher {
 
         try {
             ApnProxyRemoteRulesConfigReader reader = new ApnProxyRemoteRulesConfigReader();
-            reader.read(new File("conf/remote-rules.xml"));
+            reader.read(new File(ApnProxyConstants.REMOTE_RULES_CONFIG_FILE));
         } catch (FileNotFoundException e) {
             logger.warn("The config file conf/remote-rules.xml not exists, no remote rules configured!");
         }
