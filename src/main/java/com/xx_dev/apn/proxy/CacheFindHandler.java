@@ -6,10 +6,15 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpMessage;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.ReferenceCountUtil;
@@ -82,8 +87,6 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
             logger.error(e.getMessage(), e);
         }
 
-        ByteBuf cacheResponseContent = Unpooled.buffer();
-
         File cacheDataDir = new File(cacheDir, "data");
         File[] cacheDataFiles = cacheDataDir.listFiles();
         Arrays.sort(cacheDataFiles, new Comparator<File>() {
@@ -93,6 +96,19 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
             }
         });
 
+        HttpResponse cacheResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+                HttpResponseStatus.OK);
+        HttpHeaders.setHeader(cacheResponse, "X-APN-PROXY-CACHE", cacheDir.getName());
+        if (headerProperties.containsKey(HttpHeaders.Names.CONTENT_LENGTH)) {
+            HttpHeaders.setHeader(cacheResponse, HttpHeaders.Names.CONTENT_LENGTH, headerProperties.getProperty(HttpHeaders.Names.CONTENT_LENGTH));
+        }
+        HttpHeaders.setHeader(cacheResponse, HttpHeaders.Names.CONTENT_TYPE, headerProperties.getProperty(HttpHeaders.Names.CONTENT_TYPE));
+        if (headerProperties.containsKey(HttpHeaders.Names.TRANSFER_ENCODING)) {
+            HttpHeaders.setHeader(cacheResponse, HttpHeaders.Names.TRANSFER_ENCODING, headerProperties.getProperty(HttpHeaders.Names.TRANSFER_ENCODING));
+        }
+
+        ctx.write(cacheResponse);
+
         for (File cacheDataFile : cacheDataFiles) {
             FileInputStream in = null;
             try {
@@ -101,6 +117,7 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
                 logger.error(e.getMessage(), e);
             }
             if (in != null) {
+                ByteBuf cacheResponseContent = Unpooled.buffer();
                 byte[] buf = new byte[1024];
                 try {
                     int count = -1;
@@ -110,21 +127,14 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
                 } catch (IOException e) {
                     logger.error(e.getMessage(), e);
                 }
+
+                HttpContent cacheContent = new DefaultHttpContent(cacheResponseContent);
+                ctx.write(cacheContent);
             }
         }
 
-        FullHttpMessage cacheResponseMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK, cacheResponseContent);
-        HttpHeaders.setHeader(cacheResponseMsg, "X-APN-PROXY-CACHE", cacheDir.getName());
-        if (headerProperties.containsKey(HttpHeaders.Names.CONTENT_LENGTH)) {
-            HttpHeaders.setHeader(cacheResponseMsg, HttpHeaders.Names.CONTENT_LENGTH, headerProperties.getProperty(HttpHeaders.Names.CONTENT_LENGTH));
-        }
-        HttpHeaders.setHeader(cacheResponseMsg, HttpHeaders.Names.CONTENT_TYPE, headerProperties.getProperty(HttpHeaders.Names.CONTENT_TYPE));
-        if (headerProperties.containsKey(HttpHeaders.Names.TRANSFER_ENCODING)) {
-            HttpHeaders.setHeader(cacheResponseMsg, HttpHeaders.Names.TRANSFER_ENCODING, headerProperties.getProperty(HttpHeaders.Names.TRANSFER_ENCODING));
-        }
+        ctx.write(new DefaultLastHttpContent());
 
-        ctx.write(cacheResponseMsg);
         ctx.flush();
     }
 
