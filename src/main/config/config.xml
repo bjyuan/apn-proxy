@@ -20,10 +20,6 @@
     <!-- By default, config apn-proxy listen in plain mode act as a normal http proxy server -->
     <listen-type>plain</listen-type>
 
-    <!-- Let apn-proxy listen in 3des mode -->
-    <!-- <listen-type>3des</listen-type> -->
-    <!-- <triple-des-key></triple-des-key> -->
-
     <!-- Let apn-proxy listen in ssl mode -->
     <!-- <listen-type>ssl</listen-type> -->
     <!-- ssl mode must config server key store
