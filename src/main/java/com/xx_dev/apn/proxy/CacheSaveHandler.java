@@ -18,18 +18,20 @@ package com.xx_dev.apn.proxy;
 
 import com.xx_dev.apn.proxy.utils.SHA256Util;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.Properties;
 
@@ -55,6 +57,8 @@ public class CacheSaveHandler extends ChannelInboundHandlerAdapter {
         File cacheDir = new File("cache/" + SHA256Util.hash(url));
         File cacheDataDir = new File(cacheDir, "data");
 
+        long start = System.currentTimeMillis();
+
         if (ho instanceof HttpResponse) {
             HttpResponse httpResponse = (HttpResponse) ho;
 
@@ -65,6 +69,8 @@ public class CacheSaveHandler extends ChannelInboundHandlerAdapter {
             if (isCacheAbleContent(httpResponse.headers().get(HttpHeaders.Names.CONTENT_TYPE)) && httpResponse.getStatus().code() == 200) {
 
                 if (!cacheDir.exists()) {
+
+
                     caching = true;
 
                     cacheDataDir.mkdirs();
@@ -80,28 +86,41 @@ public class CacheSaveHandler extends ChannelInboundHandlerAdapter {
                         headerProperties.put(HttpHeaders.Names.CONTENT_LENGTH, httpResponse.headers().get(HttpHeaders.Names.CONTENT_LENGTH));
                     }
 
-                    headerProperties.store(new FileOutputStream(headerInfoFile), url);
-
+                    FileOutputStream headerInfoFileOutputStream = new FileOutputStream(headerInfoFile);
+                    headerProperties.store(headerInfoFileOutputStream, url);
+                    headerInfoFileOutputStream.close();
                 }
             }
         } else {
             if (caching) {
 
-                File dataFile = new File(cacheDataDir, String.format("%05d", count++));
+                final File dataFile = new File(cacheDataDir, String.format("%05d", count++));
 
                 HttpContent hc = ((HttpContent) msg);
-                ByteBuf byteBuf = hc.content();
+                final ByteBuf byteBuf = Unpooled.copiedBuffer(hc.content().readerIndex(0));
 
-                FileOutputStream outputStream = new FileOutputStream(dataFile);
-                FileChannel localfileChannel = outputStream.getChannel();
-                ByteBuffer nioByteBuf = byteBuf.nioBuffer();
-                localfileChannel.write(nioByteBuf);
-                localfileChannel.force(false);
-                localfileChannel.close();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            FileOutputStream outputStream = new FileOutputStream(dataFile);
+                            FileChannel localfileChannel = outputStream.getChannel();
+
+                            localfileChannel.write(byteBuf.nioBuffer());
+                            localfileChannel.force(false);
+                            localfileChannel.close();
+
+                            byteBuf.release();
+                        } catch (IOException e) {
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                }).start();
+
             }
         }
 
-        ctx.fireChannelRead(msg);
+        ReferenceCountUtil.release(msg);
     }
 
     private boolean isCacheAbleContent(String contentType) {

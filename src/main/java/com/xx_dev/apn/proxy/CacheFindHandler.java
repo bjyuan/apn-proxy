@@ -120,7 +120,7 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
             HttpHeaders.setHeader(cacheResponse, HttpHeaders.Names.TRANSFER_ENCODING, headerProperties.getProperty(HttpHeaders.Names.TRANSFER_ENCODING));
         }
 
-        ctx.write(cacheResponse);
+        ctx.writeAndFlush(cacheResponse);
 
         for (File cacheDataFile : cacheDataFiles) {
             FileInputStream in = null;
@@ -142,7 +142,15 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
                 }
 
                 HttpContent cacheContent = new DefaultHttpContent(cacheResponseContent);
-                ctx.write(cacheContent);
+                ctx.writeAndFlush(cacheContent);
+            }
+
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                logger.error(e.getMessage(), e);
             }
         }
 

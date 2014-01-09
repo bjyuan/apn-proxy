@@ -22,10 +22,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 /**
@@ -72,6 +72,11 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             httpResponse.headers().set("Proxy-Connection", HttpHeaders.Values.KEEP_ALIVE);
         }
 
+        if (ho instanceof HttpContent) {
+            ((HttpContent) ho).retain();
+        }
+
+
         if (uaChannel.isActive()) {
             uaChannel.writeAndFlush(ho).addListener(new ChannelFutureListener() {
                 @Override
@@ -83,9 +88,9 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             });
-        } else {
-            ReferenceCountUtil.release(msg);
         }
+
+        ctx.fireChannelRead(msg);
 
     }
 

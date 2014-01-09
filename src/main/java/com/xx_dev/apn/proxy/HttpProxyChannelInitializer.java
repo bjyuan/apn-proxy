@@ -66,9 +66,9 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
 
         pipeline.addLast("codec", new HttpClientCodec());
 
-        pipeline.addLast(CacheSaveHandler.HANDLER_NAME, new CacheSaveHandler());
-
         pipeline.addLast(HttpProxyHandler.HANDLER_NAME, new HttpProxyHandler(uaChannel, remoteAddr,
                 remoteChannelInactiveCallback));
+
+        pipeline.addLast(CacheSaveHandler.HANDLER_NAME, new CacheSaveHandler());
     }
 }

@@ -14,25 +14,24 @@
  * under the License.
  */
 
-package com.xx_dev.apn.proxy.config;
+package com.xx_dev.apn.proxy.utils;
 
-import com.xx_dev.apn.proxy.ApnProxyConfigException;
-import org.apache.commons.lang.StringUtils;
+import io.netty.buffer.ByteBuf;
 
 /**
  * @author xmx
- * @version $Id: com.xx_dev.apn.proxy.config.ApnProxyListenType 14-1-8 16:13 (xmx) Exp $
+ * @version $Id: com.xx_dev.apn.proxy.utils.ByteBufLogUtil 14-1-9 16:10 (xmx) Exp $
  */
-public enum ApnProxyListenType {
-    SSL, PLAIN;
+public class ByteBufLogUtil {
 
-    public static ApnProxyListenType fromString(String _listenType) {
-        if (StringUtils.equals(_listenType, "ssl")) {
-            return ApnProxyListenType.SSL;
-        } else if (StringUtils.equals(_listenType, "plain")) {
-            return ApnProxyListenType.PLAIN;
-        } else {
-            throw new ApnProxyConfigException("Unknown listen type");
+    public static String toLogString(ByteBuf byteBuf) {
+        StringBuilder sb = new StringBuilder();
+        byteBuf.readerIndex(0);
+        while (byteBuf.isReadable()) {
+            sb.append(String.valueOf((int) byteBuf.readByte())).append(",");
         }
+
+        byteBuf.readerIndex(0);
+        return sb.toString();
     }
 }
