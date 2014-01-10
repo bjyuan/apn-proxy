@@ -34,8 +34,6 @@ public class ApnProxyConfig {
 
     private ApnProxyListenType listenType;
 
-    private String tripleDesKey;
-
     private String keyStorePath;
 
     private String keyStroePassword;
@@ -69,14 +67,6 @@ public class ApnProxyConfig {
 
     final void setListenType(ApnProxyListenType listenType) {
         this.listenType = listenType;
-    }
-
-    public final String getTripleDesKey() {
-        return tripleDesKey;
-    }
-
-    final void setTripleDesKey(String tripleDesKey) {
-        this.tripleDesKey = tripleDesKey;
     }
 
     public final String getKeyStorePath() {
@@ -175,7 +165,7 @@ public class ApnProxyConfig {
         this.localIpRuleList.add(localIpRule);
     }
 
-    public final static ApnProxyConfig getConfig() {
+    public static ApnProxyConfig getConfig() {
         return config;
     }
 

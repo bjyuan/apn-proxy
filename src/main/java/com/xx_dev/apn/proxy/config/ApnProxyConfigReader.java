@@ -30,6 +30,7 @@ import java.util.List;
  */
 public class ApnProxyConfigReader extends ApnProxyAbstractXmlConfigReader {
 
+    @SuppressWarnings("unused")
     private static final Logger logger = Logger.getLogger(ApnProxyConfigReader.class);
 
     @Override
@@ -38,11 +39,6 @@ public class ApnProxyConfigReader extends ApnProxyAbstractXmlConfigReader {
         if (listenTypeElements.size() == 1) {
             String _listenType = listenTypeElements.get(0).getValue();
             ApnProxyConfig.getConfig().setListenType(ApnProxyListenType.fromString(_listenType));
-        }
-
-        Elements tripleDesKeyElements = rootElement.getChildElements("triple-des-key");
-        if (tripleDesKeyElements.size() == 1) {
-            ApnProxyConfig.getConfig().setTripleDesKey(tripleDesKeyElements.get(0).getValue());
         }
 
         Elements keyStoreElements = rootElement.getChildElements("key-store");

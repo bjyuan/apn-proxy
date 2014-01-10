@@ -28,7 +28,6 @@ public class ApnProxyRemoteRule {
     private String proxyUserName;
     private String proxyPassword;
     private ApnProxyListenType remoteListenType;
-    private String remoteTripleDesKey;
     private List<String> originalHostList;
 
     public final String getRemoteHost() {
@@ -53,14 +52,6 @@ public class ApnProxyRemoteRule {
 
     final void setRemoteListenType(ApnProxyListenType remoteListenType) {
         this.remoteListenType = remoteListenType;
-    }
-
-    public final String getRemoteTripleDesKey() {
-        return remoteTripleDesKey;
-    }
-
-    final void setRemoteTripleDesKey(String remoteTripleDesKey) {
-        this.remoteTripleDesKey = remoteTripleDesKey;
     }
 
     public final List<String> getOriginalHostList() {
