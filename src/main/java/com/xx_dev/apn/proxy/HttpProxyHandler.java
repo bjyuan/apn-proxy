@@ -59,7 +59,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
         ctx.read();
     }
 
-    public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
 
         HttpObject ho = (HttpObject) msg;
         if (logger.isDebugEnabled()) {
@@ -83,6 +83,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
                         ctx.read();
+                        ctx.fireChannelRead(msg);
                     } else {
                         ctx.close();
                     }
@@ -90,7 +91,7 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
             });
         }
 
-        ctx.fireChannelRead(msg);
+
 
     }
 
