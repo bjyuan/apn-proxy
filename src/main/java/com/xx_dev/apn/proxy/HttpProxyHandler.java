@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.Logger;
 
 /**
@@ -85,14 +86,12 @@ public class HttpProxyHandler extends ChannelInboundHandlerAdapter {
                         ctx.read();
                         ctx.fireChannelRead(msg);
                     } else {
+                        ReferenceCountUtil.release(msg);
                         ctx.close();
                     }
                 }
             });
         }
-
-
-
     }
 
     @Override
