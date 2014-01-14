@@ -102,9 +102,11 @@ public class CacheSaveHandler extends ChannelInboundHandlerAdapter {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        FileChannel localfileChannel = null;
+
                         try {
                             FileOutputStream outputStream = new FileOutputStream(dataFile);
-                            FileChannel localfileChannel = outputStream.getChannel();
+                            localfileChannel = outputStream.getChannel();
 
                             localfileChannel.write(byteBuf.nioBuffer());
                             localfileChannel.force(false);
@@ -113,6 +115,14 @@ public class CacheSaveHandler extends ChannelInboundHandlerAdapter {
                             byteBuf.release();
                         } catch (IOException e) {
                             logger.error(e.getMessage(), e);
+                        } finally {
+                            if (localfileChannel != null) {
+                                try {
+                                    localfileChannel.close();
+                                } catch (IOException e) {
+                                    logger.error(e.getMessage(), e);
+                                }
+                            }
                         }
                     }
                 }).start();
