@@ -54,8 +54,8 @@ public class CacheSaveHandler extends ChannelInboundHandlerAdapter {
         HttpObject ho = (HttpObject) msg;
 
         String url = ctx.channel().attr(ApnProxyConstants.REQUST_URL_ATTRIBUTE_KEY).get();
-        File cacheDir = new File("cache/" + SHA256Util.hash(url));
-        File cacheDataDir = new File(cacheDir, "data");
+        File cacheDir = new File(ApnProxyConstants.CACHE_DIR + "/" + SHA256Util.hash(url));
+        File cacheDataDir = new File(cacheDir, ApnProxyConstants.CACHE_DATA_DIR);
 
         long start = System.currentTimeMillis();
 

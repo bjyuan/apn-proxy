@@ -65,7 +65,7 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
 
             String url = httpRequest.getUri();
 
-            File cacheDir = new File("cache/" + SHA256Util.hash(url));
+            File cacheDir = new File(ApnProxyConstants.CACHE_DIR + "/" + SHA256Util.hash(url));
 
             if (cacheDir.exists()) {
                 cacheFound = true;
@@ -100,7 +100,7 @@ public class CacheFindHandler extends ChannelInboundHandlerAdapter {
             logger.error(e.getMessage(), e);
         }
 
-        File cacheDataDir = new File(cacheDir, "data");
+        File cacheDataDir = new File(cacheDir, ApnProxyConstants.CACHE_DATA_DIR);
         File[] cacheDataFiles = cacheDataDir.listFiles();
         Arrays.sort(cacheDataFiles, new Comparator<File>() {
             @Override
